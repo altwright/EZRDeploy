@@ -1,0 +1,1078 @@
+(['C:\\Users\\Benjamin Wright\\Documents\\UWA\\project3200\\main.py'],
+ ['C:\\Users\\Benjamin Wright\\Documents\\UWA\\project3200'],
+ ['codecs'],
+ ['c:\\Users\\Benjamin '
+  'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks',
+  'c:\\Users\\Benjamin '
+  'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks\\__pycache__',
+  'c:\\Users\\Benjamin '
+  'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\rthooks',
+  'c:\\Users\\Benjamin '
+  'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\rthooks\\__pycache__',
+  'c:\\Users\\Benjamin '
+  'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks'],
+ {},
+ [],
+ [],
+ False,
+ False,
+ False,
+ {},
+ [],
+ [],
+ '3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit '
+ '(AMD64)]',
+ [('pyi_rth_inspect',
+   'C:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'C:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('main',
+   'C:\\Users\\Benjamin Wright\\Documents\\UWA\\project3200\\main.py',
+   'PYSOURCE')],
+ [('pkgutil',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\pkgutil.py',
+   'PYMODULE'),
+  ('zipimport',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\zipimport.py',
+   'PYMODULE'),
+  ('importlib.readers',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\readers.py',
+   'PYMODULE'),
+  ('importlib.resources.readers',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\readers.py',
+   'PYMODULE'),
+  ('importlib.resources._itertools',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\_itertools.py',
+   'PYMODULE'),
+  ('typing',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\typing.py',
+   'PYMODULE'),
+  ('contextlib',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\contextlib.py',
+   'PYMODULE'),
+  ('importlib.resources.abc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\abc.py',
+   'PYMODULE'),
+  ('importlib.resources',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\__init__.py',
+   'PYMODULE'),
+  ('importlib.resources._legacy',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\_legacy.py',
+   'PYMODULE'),
+  ('importlib.resources._common',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\_common.py',
+   'PYMODULE'),
+  ('importlib.resources._adapters',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\resources\\_adapters.py',
+   'PYMODULE'),
+  ('tempfile',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tempfile.py',
+   'PYMODULE'),
+  ('random',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\random.py',
+   'PYMODULE'),
+  ('statistics',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\statistics.py',
+   'PYMODULE'),
+  ('decimal',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\decimal.py',
+   'PYMODULE'),
+  ('_pydecimal',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_pydecimal.py',
+   'PYMODULE'),
+  ('contextvars',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\contextvars.py',
+   'PYMODULE'),
+  ('fractions',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\fractions.py',
+   'PYMODULE'),
+  ('numbers',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\numbers.py',
+   'PYMODULE'),
+  ('hashlib',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\hashlib.py',
+   'PYMODULE'),
+  ('logging',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\logging\\__init__.py',
+   'PYMODULE'),
+  ('pickle',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\pickle.py',
+   'PYMODULE'),
+  ('pprint',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\pprint.py',
+   'PYMODULE'),
+  ('dataclasses',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\dataclasses.py',
+   'PYMODULE'),
+  ('copy',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\copy.py',
+   'PYMODULE'),
+  ('_compat_pickle',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_compat_pickle.py',
+   'PYMODULE'),
+  ('struct',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\struct.py',
+   'PYMODULE'),
+  ('threading',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\threading.py',
+   'PYMODULE'),
+  ('_threading_local',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_threading_local.py',
+   'PYMODULE'),
+  ('string',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\string.py',
+   'PYMODULE'),
+  ('bisect',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\bisect.py',
+   'PYMODULE'),
+  ('shutil',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\shutil.py',
+   'PYMODULE'),
+  ('tarfile',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tarfile.py',
+   'PYMODULE'),
+  ('argparse',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\argparse.py',
+   'PYMODULE'),
+  ('textwrap',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\textwrap.py',
+   'PYMODULE'),
+  ('gettext',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\gettext.py',
+   'PYMODULE'),
+  ('gzip',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\gzip.py',
+   'PYMODULE'),
+  ('_compression',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_compression.py',
+   'PYMODULE'),
+  ('lzma',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\lzma.py',
+   'PYMODULE'),
+  ('bz2',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\bz2.py',
+   'PYMODULE'),
+  ('zipfile',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\zipfile.py',
+   'PYMODULE'),
+  ('py_compile',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\py_compile.py',
+   'PYMODULE'),
+  ('importlib._bootstrap_external',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE'),
+  ('importlib.metadata',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\__init__.py',
+   'PYMODULE'),
+  ('importlib.abc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\abc.py',
+   'PYMODULE'),
+  ('importlib._abc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\_abc.py',
+   'PYMODULE'),
+  ('importlib._bootstrap',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\_bootstrap.py',
+   'PYMODULE'),
+  ('importlib.metadata._itertools',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_itertools.py',
+   'PYMODULE'),
+  ('importlib.metadata._functools',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_functools.py',
+   'PYMODULE'),
+  ('importlib.metadata._collections',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_collections.py',
+   'PYMODULE'),
+  ('importlib.metadata._meta',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_meta.py',
+   'PYMODULE'),
+  ('importlib.metadata._adapters',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_adapters.py',
+   'PYMODULE'),
+  ('importlib.metadata._text',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\metadata\\_text.py',
+   'PYMODULE'),
+  ('email.message',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\message.py',
+   'PYMODULE'),
+  ('email.policy',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\policy.py',
+   'PYMODULE'),
+  ('email.contentmanager',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\contentmanager.py',
+   'PYMODULE'),
+  ('email.quoprimime',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\quoprimime.py',
+   'PYMODULE'),
+  ('email.headerregistry',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\headerregistry.py',
+   'PYMODULE'),
+  ('email._header_value_parser',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\_header_value_parser.py',
+   'PYMODULE'),
+  ('email.iterators',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\iterators.py',
+   'PYMODULE'),
+  ('email.generator',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\generator.py',
+   'PYMODULE'),
+  ('email._encoded_words',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\_encoded_words.py',
+   'PYMODULE'),
+  ('base64',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\base64.py',
+   'PYMODULE'),
+  ('getopt',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\getopt.py',
+   'PYMODULE'),
+  ('email.charset',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\charset.py',
+   'PYMODULE'),
+  ('email.encoders',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\encoders.py',
+   'PYMODULE'),
+  ('email.base64mime',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\base64mime.py',
+   'PYMODULE'),
+  ('email._policybase',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\_policybase.py',
+   'PYMODULE'),
+  ('email.header',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\header.py',
+   'PYMODULE'),
+  ('email.errors',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\errors.py',
+   'PYMODULE'),
+  ('email.utils',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\utils.py',
+   'PYMODULE'),
+  ('email._parseaddr',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\_parseaddr.py',
+   'PYMODULE'),
+  ('calendar',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\calendar.py',
+   'PYMODULE'),
+  ('datetime',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\datetime.py',
+   'PYMODULE'),
+  ('_strptime',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_strptime.py',
+   'PYMODULE'),
+  ('socket',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\socket.py',
+   'PYMODULE'),
+  ('selectors',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\selectors.py',
+   'PYMODULE'),
+  ('quopri',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\quopri.py',
+   'PYMODULE'),
+  ('email',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\__init__.py',
+   'PYMODULE'),
+  ('email.parser',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\parser.py',
+   'PYMODULE'),
+  ('email.feedparser',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\email\\feedparser.py',
+   'PYMODULE'),
+  ('csv',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\csv.py',
+   'PYMODULE'),
+  ('inspect',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\inspect.py',
+   'PYMODULE'),
+  ('dis',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\dis.py',
+   'PYMODULE'),
+  ('opcode',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\opcode.py',
+   'PYMODULE'),
+  ('ast',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\ast.py',
+   'PYMODULE'),
+  ('importlib.machinery',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\machinery.py',
+   'PYMODULE'),
+  ('importlib.util',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\util.py',
+   'PYMODULE'),
+  ('importlib',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\importlib\\__init__.py',
+   'PYMODULE'),
+  ('stringprep',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\stringprep.py',
+   'PYMODULE'),
+  ('subprocess',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\subprocess.py',
+   'PYMODULE'),
+  ('signal',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\signal.py',
+   'PYMODULE'),
+  ('_py_abc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\_py_abc.py',
+   'PYMODULE'),
+  ('getpass',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\getpass.py',
+   'PYMODULE'),
+  ('nturl2path',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\nturl2path.py',
+   'PYMODULE'),
+  ('ftplib',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\ftplib.py',
+   'PYMODULE'),
+  ('netrc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\netrc.py',
+   'PYMODULE'),
+  ('shlex',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\shlex.py',
+   'PYMODULE'),
+  ('mimetypes',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\mimetypes.py',
+   'PYMODULE'),
+  ('http.cookiejar',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\http\\cookiejar.py',
+   'PYMODULE'),
+  ('http',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\http\\__init__.py',
+   'PYMODULE'),
+  ('ssl',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\ssl.py',
+   'PYMODULE'),
+  ('http.client',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\http\\client.py',
+   'PYMODULE'),
+  ('tracemalloc',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\tracemalloc.py',
+   'PYMODULE'),
+  ('pypsexec.client',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\client.py',
+   'PYMODULE'),
+  ('pypsexec',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\__init__.py',
+   'PYMODULE'),
+  ('pypsexec.scmr',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\scmr.py',
+   'PYMODULE'),
+  ('pypsexec.rpc',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\rpc.py',
+   'PYMODULE'),
+  ('smbprotocol.structure',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\structure.py',
+   'PYMODULE'),
+  ('smbprotocol',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\__init__.py',
+   'PYMODULE'),
+  ('smbprotocol._text',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\_text.py',
+   'PYMODULE'),
+  ('smbprotocol.ioctl',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\ioctl.py',
+   'PYMODULE'),
+  ('smbprotocol.header',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\header.py',
+   'PYMODULE'),
+  ('pypsexec.pipe',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\pipe.py',
+   'PYMODULE'),
+  ('pypsexec.paexec',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\paexec.py',
+   'PYMODULE'),
+  ('pypsexec.exceptions',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\exceptions.py',
+   'PYMODULE'),
+  ('smbprotocol.tree',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\tree.py',
+   'PYMODULE'),
+  ('smbprotocol.session',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\session.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.kdf.kbkdf',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\kdf\\kbkdf.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.backend',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\backend.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.serialization.pkcs12',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\pkcs12.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives._serialization',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_serialization.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.serialization.ssh',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\ssh.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.utils',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\utils.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.ciphers.modes',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\modes.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives._cipheralgorithm',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_cipheralgorithm.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.ciphers.algorithms',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\algorithms.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.types',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\types.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.padding',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\padding.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.x25519',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x25519.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.x448',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x448.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.rsa',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\rsa.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.ed25519',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed25519.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.ed448',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed448.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.ec',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ec.py',
+   'PYMODULE'),
+  ('cryptography.hazmat._oid',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\_oid.py',
+   'PYMODULE'),
+  ('cryptography.hazmat',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.dsa',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dsa.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric.dh',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dh.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.asymmetric',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives._asymmetric',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_asymmetric.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.serialization',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.serialization.base',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\base.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.bindings.openssl.binding',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\binding.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.bindings.openssl._conditional',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\_conditional.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.bindings.openssl',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.bindings',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.rsa',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\rsa.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.utils',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\utils.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.ec',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\ec.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.cmac',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\cmac.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.ciphers',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\ciphers.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.aead',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\aead.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.ciphers.aead',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\aead.py',
+   'PYMODULE'),
+  ('cryptography.x509',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.x509.oid',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\oid.py',
+   'PYMODULE'),
+  ('cryptography.x509.name',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\name.py',
+   'PYMODULE'),
+  ('cryptography.x509.general_name',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\general_name.py',
+   'PYMODULE'),
+  ('cryptography.x509.extensions',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\extensions.py',
+   'PYMODULE'),
+  ('cryptography.x509.base',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\base.py',
+   'PYMODULE'),
+  ('cryptography.x509.certificate_transparency',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\x509\\certificate_transparency.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.kdf',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\kdf\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.hmac',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\hmac.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.constant_time',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\constant_time.py',
+   'PYMODULE'),
+  ('hmac',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\hmac.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.cmac',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\cmac.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.ciphers',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.ciphers.base',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\base.py',
+   'PYMODULE'),
+  ('cryptography.exceptions',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\exceptions.py',
+   'PYMODULE'),
+  ('cryptography.utils',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\utils.py',
+   'PYMODULE'),
+  ('cryptography',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends.openssl.decode_asn1',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\decode_asn1.py',
+   'PYMODULE'),
+  ('cryptography.__about__',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\__about__.py',
+   'PYMODULE'),
+  ('__future__',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\__future__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives.hashes',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\hashes.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.primitives',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\__init__.py',
+   'PYMODULE'),
+  ('cryptography.hazmat.backends',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\__init__.py',
+   'PYMODULE'),
+  ('spnego',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\__init__.py',
+   'PYMODULE'),
+  ('spnego.tls',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\tls.py',
+   'PYMODULE'),
+  ('platform',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\platform.py',
+   'PYMODULE'),
+  ('spnego.sspi',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\sspi.py',
+   'PYMODULE'),
+  ('spnego.ntlm',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\ntlm.py',
+   'PYMODULE'),
+  ('spnego.negotiate',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\negotiate.py',
+   'PYMODULE'),
+  ('spnego.iov',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\iov.py',
+   'PYMODULE'),
+  ('spnego.gss',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\gss.py',
+   'PYMODULE'),
+  ('spnego.channel_bindings',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\channel_bindings.py',
+   'PYMODULE'),
+  ('spnego._version',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_version.py',
+   'PYMODULE'),
+  ('spnego._tls_struct',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_tls_struct.py',
+   'PYMODULE'),
+  ('spnego._text',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_text.py',
+   'PYMODULE'),
+  ('spnego._sspi_raw',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_sspi_raw\\__init__.py',
+   'PYMODULE'),
+  ('spnego._sspi',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_sspi.py',
+   'PYMODULE'),
+  ('spnego._spnego',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_spnego.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw.security',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\security.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw.messages',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\messages.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw.md4',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\md4.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw.des',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\des.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw.crypto',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\crypto.py',
+   'PYMODULE'),
+  ('spnego._ntlm_raw',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm_raw\\__init__.py',
+   'PYMODULE'),
+  ('spnego._ntlm',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_ntlm.py',
+   'PYMODULE'),
+  ('spnego._negotiate',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_negotiate.py',
+   'PYMODULE'),
+  ('spnego._kerberos',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_kerberos.py',
+   'PYMODULE'),
+  ('spnego._gss',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_gss.py',
+   'PYMODULE'),
+  ('spnego._credssp_structures',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_credssp_structures.py',
+   'PYMODULE'),
+  ('spnego._credssp',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_credssp.py',
+   'PYMODULE'),
+  ('spnego._asn1',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_asn1.py',
+   'PYMODULE'),
+  ('spnego.__main__',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\__main__.py',
+   'PYMODULE'),
+  ('spnego.exceptions',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\exceptions.py',
+   'PYMODULE'),
+  ('spnego.auth',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\auth.py',
+   'PYMODULE'),
+  ('spnego._credential',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_credential.py',
+   'PYMODULE'),
+  ('spnego._context',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_context.py',
+   'PYMODULE'),
+  ('logging.config',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\logging\\config.py',
+   'PYMODULE'),
+  ('configparser',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\configparser.py',
+   'PYMODULE'),
+  ('socketserver',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\socketserver.py',
+   'PYMODULE'),
+  ('logging.handlers',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\logging\\handlers.py',
+   'PYMODULE'),
+  ('smtplib',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\smtplib.py',
+   'PYMODULE'),
+  ('json',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\__init__.py',
+   'PYMODULE'),
+  ('json.encoder',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\encoder.py',
+   'PYMODULE'),
+  ('json.decoder',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\decoder.py',
+   'PYMODULE'),
+  ('json.scanner',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\json\\scanner.py',
+   'PYMODULE'),
+  ('smbprotocol.open',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\open.py',
+   'PYMODULE'),
+  ('smbprotocol.file_info',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\file_info.py',
+   'PYMODULE'),
+  ('smbprotocol.reparse_point',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\reparse_point.py',
+   'PYMODULE'),
+  ('smbprotocol.create_contexts',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\create_contexts.py',
+   'PYMODULE'),
+  ('smbprotocol.exceptions',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\exceptions.py',
+   'PYMODULE'),
+  ('smbprotocol.connection',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\connection.py',
+   'PYMODULE'),
+  ('smbprotocol.transport',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\smbprotocol\\transport.py',
+   'PYMODULE'),
+  ('timeit',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\timeit.py',
+   'PYMODULE'),
+  ('queue',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\queue.py',
+   'PYMODULE'),
+  ('uuid',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\uuid.py',
+   'PYMODULE')],
+ [('VCRUNTIME140.dll',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('python311.dll',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\python311.dll',
+   'BINARY'),
+  ('_decimal.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('select.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('unicodedata.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('_ssl.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_ssl.pyd',
+   'EXTENSION'),
+  ('cryptography\\hazmat\\bindings\\_rust.pyd',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\_rust.pyd',
+   'EXTENSION'),
+  ('_cffi_backend.cp311-win_amd64.pyd',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\_cffi_backend.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('spnego\\_sspi_raw\\text.cp311-win_amd64.pyd',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_sspi_raw\\text.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('spnego\\_sspi_raw\\sspi.cp311-win_amd64.pyd',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\spnego\\_sspi_raw\\sspi.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('_uuid.pyd',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_uuid.pyd',
+   'EXTENSION'),
+  ('libcrypto-3.dll',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\libcrypto-3.dll',
+   'BINARY'),
+  ('libssl-3.dll',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\libssl-3.dll',
+   'BINARY'),
+  ('python3.dll',
+   'C:\\Users\\Benjamin '
+   'Wright\\AppData\\Local\\Programs\\Python\\Python311\\python3.dll',
+   'BINARY')],
+ [],
+ [],
+ [('base_library.zip',
+   'C:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\build\\main\\base_library.zip',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\RECORD',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('pypsexec\\paexec.exe',
+   'c:\\Users\\Benjamin '
+   'Wright\\Documents\\UWA\\project3200\\.venv\\Lib\\site-packages\\pypsexec\\paexec.exe',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\METADATA',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\top_level.txt',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\top_level.txt',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\LICENSE.BSD',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\LICENSE.BSD',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\LICENSE',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\LICENSE',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\INSTALLER',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\LICENSE.APACHE',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\LICENSE.APACHE',
+   'DATA'),
+  ('cryptography-41.0.3.dist-info\\WHEEL',
+   'c:\\users\\benjamin '
+   'wright\\documents\\uwa\\project3200\\.venv\\lib\\site-packages\\cryptography-41.0.3.dist-info\\WHEEL',
+   'DATA')],
+ [])
