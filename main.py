@@ -1,6 +1,15 @@
 from pypsexec.client import Client
+from ms_active_directory import ADDomain
 
 if __name__ == "__main__":
+    # Create a session object from the current Active Directory Domain
+    # TODO: Change to user input login details
+    domain = ADDomain(domain="domain.local")
+    session = domain.create_session_as_user(user="admin", password="password")
+    
+    # Compile list of all computers on the domain
+    computers = session.find_computers_by_attribute(attribute_name="Enabled", attribute_value="*")
+    
     c = Client("CLIENT1")
     c.connect()
     try:
