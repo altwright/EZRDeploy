@@ -45,7 +45,7 @@ class TabManager:
     def new_tab(self):
         new_frame = tk.Frame(self.tabFrame, bg="blue")
         new_frame.grid(row=len(self.deletableTabs) + len(self.mainTabs), column=5, sticky="nsew", padx=3)
-
+###
         inner_button = ttk.Button(new_frame, text=f"Task {len(self.deletableTabs) + 1}", command=None)
 
         delete_button = ttk.Button(new_frame, text="X", width=2, command=lambda: self.delete_tab_frame(len(self.deletableTabs)))

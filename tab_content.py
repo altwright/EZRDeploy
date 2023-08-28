@@ -29,7 +29,7 @@ class ADTab(tk.Frame):
         input_window.title("Input Information")
         
         # Set the size and position of the popup window
-        input_window.geometry('400x300+{}+{}'.format(self.winfo_x() + 50, self.winfo_y() + 50))
+        input_window.geometry('500x400+{}+{}'.format(self.winfo_x() + 50, self.winfo_y() + 50))
         
         pc_label = tk.Label(input_window, text="PC:")
         pc_label.pack()
@@ -168,8 +168,21 @@ class PJTab(tk.Frame):
         create_grid(self.frame, 12, 12)
 
     def create_page(self):
-        self.Testing = tk.Label(self.frame, text = "WORKING2!!!")
-        self.Testing.grid(row=0, column=1, rowspan=1, sticky="nsew")
+        # Left side
+        search_bar = tk.Entry(self.frame)
+        search_bar.insert(0, "Enter search")
+        search_bar.grid(row=1, column=1, columnspan=4, sticky="nsew")
+
+        frame1 = tk.Frame(self.frame, bg="blue")
+        frame1.grid(row=4, column=1, rowspan=7, columnspan=4, sticky="nsew")
+
+        # Right side
+        frame2 = tk.Frame(self.frame, bg="green")
+        frame2.grid(row=1, column=7, rowspan=2, columnspan=4, sticky="nsew")
+
+        frame3 = tk.Frame(self.frame, bg="red")
+        frame3.grid(row=4, column=7, rowspan=7, columnspan=4, sticky="nsew")
+
             
     def remove_page(self):
         for widget in self.frame.winfo_children():
@@ -183,8 +196,43 @@ class JCTab(tk.Frame):
         create_grid(self.frame, 12, 12)
 
     def create_page(self):
-        self.Testing = tk.Label(self.frame, text = "WORKING3!!!")
-        self.Testing.grid(row=0, column=2, rowspan=1, sticky="nsew")
+        # Left side
+        search_bar = tk.Entry(self.frame)
+        search_bar.insert(0, "Enter search")
+        search_bar.grid(row=1, column=1, columnspan=4, sticky="nsew")
+
+        frame1 = tk.Frame(self.frame, bg="blue")
+        frame1.grid(row=4, column=1, rowspan=7, columnspan=4, sticky="nsew")
+
+        # Right side
+        frame2 = tk.Frame(self.frame, bg="green")
+        frame2.grid(row=1, column=7, rowspan=2, columnspan=4, sticky="nsew")
+
+        frame3 = tk.Frame(self.frame, bg="red")
+        frame3.grid(row=4, column=7, rowspan=7, columnspan=4, sticky="nsew")
+            
+    def remove_page(self):
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+
+
+class active_tab(tk.Frame):
+    def __init__(self, contentFrame, master=None):
+        super().__init__(master)
+        self.frame = contentFrame
+        create_grid(self.frame, 12, 12)
+
+    def create_page(self):
+
+
+        frame1 = tk.Frame(self.frame, bg="blue")
+        frame1.grid(row=2, column=2, rowspan=6, columnspan=8, sticky="nsew")
+
+       
+        frame2 = tk.Frame(self.frame, bg="green")
+        frame2.grid(row=9, column=2, rowspan=2, columnspan=8, sticky="nsew")
+
+
             
     def remove_page(self):
         for widget in self.frame.winfo_children():
