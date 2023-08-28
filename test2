@@ -1,0 +1,33 @@
+def main():
+    root = tk.Tk()
+    root.minsize(600, 400)
+    root.title("Digital Forensics tool")
+
+    left_frame = tk.Frame(root)
+    left_frame.grid(column=0, row=0, padx=10, pady=10)
+    separator = ttk.Separator(root, orient="vertical")
+    separator.grid(column=1, row=0, rowspan=3, sticky='nsew', padx=10)
+
+    # Create a Frame for right content
+    right_frame = tk.Frame(root)
+    right_frame.grid(column=2, row=0, sticky="nsew")  # Use the sticky parameter to make the right Frame fill the entire column 2 and beyond
+    # Use columnconfigure to set the weight of column 2 and beyond to ensure right_frame fills the entire column
+    root.grid_columnconfigure(0, weight=1) # Set the weight of the left Frame column to 1
+    root.grid_rowconfigure(0, weight=1)  # Set the weight of line 0 to 1 to ensure that the content on the left and right sides occupies the entire height of the window
+    root.grid_columnconfigure(2, weight=18)
+
+    contentFrame = tk.Frame(right_frame, bg="lightblue")
+
+
+    tab_data = starting_tab_data(contentFrame)
+    contentFrame.grid(row=2, column=3, columnspan=20, rowspan=18, sticky="nsew")
+    tabFrame = tk.Frame(left_frame, bg="lightgray")
+    tabFrame.grid(row=0, column=0, columnspan=20, sticky="nsew")
+    tab_manager = TabManager(tabFrame, tab_data)
+    testing = ttk.Button(left_frame, text="Test", command=tab_manager.new_tab)
+
+
+    testing.grid(row=1, column=0, sticky="ew", columnspan=2)
+    
+    root.mainloop()
+
