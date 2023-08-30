@@ -2,21 +2,27 @@ from pypsexec.client import Client
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain
+from smbprotocol.connection import Connection
 
+class AppState:
+    computers = [] 
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
     print("DOMAIN: " + domainName)
 
-    computerName = GetComputerName()
-    print("COMPUTER: " + computerName)
+    hostComputer = GetComputerName()
+    print("HOST COMPUTER: " + hostComputer)
 
     domain = ADDomain(domainName)
-    session = domain.create_session_as_computer(computerName)
-    computers = session.find_computers_by_common_name("*")
+    session = domain.create_session_as_computer(hostComputer)
+    computers = session.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion'])
+
     print("DOMAIN-JOINED COMPUTERS: ")
     for computer in computers:
-        print(computer.common_name)
+        if computer.name != hostComputer:
+            print(computer.name)
+            AppState.computers.append(computer)
 
     c = Client("CLIENT1")
     c.connect()
