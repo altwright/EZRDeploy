@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, PJTab, JCTab, create_grid, resize_image
+from tab_content import ADTab, THTab, JCTab, create_grid, resize_image
 
 class TabManager:
     def __init__(self, tabFrame, tabData):
@@ -69,7 +69,7 @@ def starting_tab_data(contentFrame):
     #basic data of the main tabs
     tabData = [
         {"Name": "Active Directory", "content" : ADTab(contentFrame)},
-        {"Name": "Past Jobs", "content" : PJTab(contentFrame)},
+        {"Name": "Past Jobs", "content" : THTab(contentFrame)},
         {"Name": "Job Creation", "content" : JCTab(contentFrame)},
     ]
     return tabData

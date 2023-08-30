@@ -17,73 +17,62 @@ class ADTab(tk.Frame):
         super().__init__(master)
         self.frame = contentFrame
         create_grid(self.frame, 12, 12)
+        self.pc_buttons = []
+        self.chosen_pc = []
     
-    def print_selection(self):
+    def gather_machines(self):
+        #THIS FUNCTION GRABS DATA ABOUT THE MACHINE'S FROM THE ACTIVE DIRECTORY AND RETURNS IT AS AN ARRAY
+        DATA = []
+        for i in range(24):
+            testData = {"NAME": f"PC{i+1}", "IP": f"10.0.2.{i}"}
+            DATA.append(testData)
+        return DATA
+
+    #Function called when Select all machines checkbox is called
+    def select_all_machines(self):
         if self.AllMachines.get():
-            print("User is choosing all the machines")
+            #add all pc to list
+            for i in range(len(self.machine_list)):
+                self.add_pc_to_list(i, False)
+
         else:
+            
+            #remove all pc from list
+            for i in range(len(self.machine_list)):
+                self.add_pc_to_list(i, False)
             print("User is not choosing all the machines")
-
-    def open_input_window(self):
-        input_window = tk.Toplevel(self)
-        input_window.title("Input Information")
-        
-        # Set the size and position of the popup window
-        input_window.geometry('500x400+{}+{}'.format(self.winfo_x() + 50, self.winfo_y() + 50))
-        
-        pc_label = tk.Label(input_window, text="PC:")
-        pc_label.pack()
-        pc_entry = tk.Entry(input_window)
-        pc_entry.pack()
-
-        avg_label = tk.Label(input_window, text="AVG:")
-        avg_label.pack()
-        avg_entry = tk.Entry(input_window)
-        avg_entry.pack()
-
-        name_label = tk.Label(input_window, text="Name:")
-        name_label.pack()
-        name_entry = tk.Entry(input_window)
-        name_entry.pack()
-
-        description_label = tk.Label(input_window, text="Description:")
-        description_label.pack()
-        description_entry = tk.Entry(input_window)
-        description_entry.pack()
-
-        on_machine_label = tk.Label(input_window, text="On Machine:")
-        on_machine_label.pack()
-        on_machine_entry = tk.Entry(input_window)
-        on_machine_entry.pack()
-
-        filename_label = tk.Label(input_window, text="Filename:")
-        filename_label.pack()
-        filename_entry = tk.Entry(input_window)
-        filename_entry.pack()
-
-        def save_info():
-            pc_info = pc_entry.get()
-            avg_info = avg_entry.get()
-            name_info = name_entry.get()
-            description_info = description_entry.get()
-            on_machine_info = on_machine_entry.get()
-            filename_info = filename_entry.get()
-
-            # Save the information entered by the user or perform other operations
-            print("PC:", pc_info)
-            print("AVG:", avg_info)
-            print("Name:", name_info)
-            print("Description:", description_info)
-            print("On Machine:", on_machine_info)
-            print("Filename:", filename_info)
-
-            # Close the input window after saving
-            input_window.destroy()
-
-        save_button = tk.Button(input_window, text="Save", command=save_info)
-        save_button.pack()
     
+    #function is used to add or remove a PC for the chosen pc list depending on if it has been pressed or is user checked the select all machines button
+    #takes in the index of a button in the pc_button list, and a boolean (true if just one button, false if called by select_all_machines)
+    def add_pc_to_list(self, button_index, individual):
+        button = self.pc_buttons[button_index]
+        button_text = button.cget("text")
+        current_relief = button.cget("relief")  # Get current relief style
+        if current_relief == "raised" and individual:
+            new_relief = "sunken"
+            self.chosen_pc.append(button_text)
+        elif current_relief == "sunken" and individual:
+            new_relief = "raised"
+            if button_text in self.chosen_pc:
+                self.chosen_pc.remove(button_text)
+                self.AllMachines.set("False")
+        elif  self.AllMachines.get() == True and not individual:
+            new_relief = "sunken"
+            if button_text not in self.chosen_pc:
+                self.chosen_pc.append(button_text)
+        elif  self.AllMachines.get() == False and not individual:
+            new_relief = "raised"
+            if button_text in self.chosen_pc:
+                self.chosen_pc.remove(button_text)
 
+        self.show_button()
+        button.config(relief=new_relief)
+
+    def show_button(self):
+        if len(self.chosen_pc) > 0:
+            self.create_job.config(state=tk.NORMAL)
+        else:
+            self.create_job.config(state=tk.DISABLED)
 
     def create_page(self):
         title = tk.Label(self.frame, text = "Active Directory", bg="lightblue")
@@ -91,46 +80,48 @@ class ADTab(tk.Frame):
 
         #checkbox button for selecting all machines listed
         self.AllMachines = tk.BooleanVar()
-        select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", variable=self.AllMachines, onvalue=True, offvalue=False, command=self.print_selection)
+        select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
         select_all_button.grid(row=1, column=7)
 
-        create_job = ttk.Button(self.frame, text="Create New Job")
-        create_job.grid(row=1, column=9, columnspan=1)
+        self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED)
+        self.create_job.grid(row=1, column=9, columnspan=1)
         
         # Create a Canvas widget for scrollable content
         canvas = tk.Canvas(self.frame)
         canvas.grid(row=2, column=2, rowspan=8, columnspan=8, sticky="nsew")
 
+        #collect machine list from active directory
+        self.machine_list = self.gather_machines()
+        num_rows = (len(self.machine_list)//5 + 1)
+
         # Create a Frame to contain the actual content
         content_frame = tk.Frame(canvas)
-        canvas.create_window((0, 0), window=content_frame, anchor="nw")
+        create_grid(content_frame, num_rows, 5)
+        canvas.create_window((0, 0), window=content_frame)
 
- 
-         
         pc_image1 = Image.open("desktop-outline.png")
-        pc_image2 = Image.open("add.png")
 
         pc_img1 = ImageTk.PhotoImage(resize_image(pc_image1, 100, 100))
-        pc_img2 = ImageTk.PhotoImage(resize_image(pc_image2, 30, 30))
+
         # Define constants for layout
         num_per_row = 5
         spacing = 25  # Adjust as needed
 
-        for i in range(30):
-            pc_btn = tk.Button(content_frame, image=pc_img1, width=100, height=100)
+        for i, data in enumerate(self.machine_list):
             
             # Calculate row and column based on index
             row = (i // num_per_row)*2
             col = i % num_per_row
-            
 
-            
-            pc_btn.grid(row=row, column=col, padx=spacing, pady=spacing)
-            label = tk.Label(content_frame, text=f"PC {i+1}")
-            label.grid(row=row+1, column=col, padx=spacing, pady=spacing)
+            sub_frame = tk.Frame(content_frame)  # Create a sub-frame for each button-label pair
+            sub_frame.grid(row=row, column=col, padx=spacing, pady=spacing)
 
-        
-        
+            pc_btn = tk.Button(sub_frame, text=data["NAME"], command=lambda i=i: self.add_pc_to_list(i, True))
+            pc_btn.grid(row=0, column=0)
+            self.pc_buttons.append(pc_btn)
+
+            label = tk.Label(sub_frame, text="IP: "+ data["IP"])
+            label.grid(row=1, column=0)
 
 
         # Add scrollbars
@@ -138,30 +129,29 @@ class ADTab(tk.Frame):
         y_scrollbar.grid(row=2, column=10, rowspan=8, sticky="ns")
         canvas.configure(yscrollcommand=y_scrollbar.set)
 
-
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
+        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        canvas.configure(xscrollcommand=x_scrollbar.set)
 
         # Configure mouse wheel scrolling
         def on_mousewheel(event):
-            canvas.yview_scroll(-1 * (event.delta // 120), "units")
-        canvas.bind_all("<MouseWheel>", on_mousewheel)
+            if event.delta > 0:
+                canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            else:
+                canvas.yview_scroll(1 * (abs(event.delta) // 120), "units")
+            canvas.xview_scroll(-1 * (event.delta // 120), "units")
+        canvas.bind_all("<MouseWheel>", on_mousewheel)  
 
         # Update scrollable region
         content_frame.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox("all"))    
-     
-        # Create a button and set the scaled image as the button's image
-        btn_right = tk.Button(self.frame, image=pc_img2, width=30, height=30, command=self.open_input_window)
-         # Use absolute position to display the button to the right
-        btn_right.grid(row=1, column=11)
-        
-        save_button.pack()
+        canvas.config(scrollregion=canvas.bbox("all")) 
 
-                
+
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
 
-class PJTab(tk.Frame):
+class THTab(tk.Frame):
     def __init__(self, contentFrame, master=None):
         super().__init__(master)
         self.frame = contentFrame
@@ -237,11 +227,3 @@ class active_tab(tk.Frame):
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
-
-
-
-        
-
-
-
-        
