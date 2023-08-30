@@ -1,6 +1,23 @@
 from pypsexec.client import Client
+from win32api import GetComputerNameEx, GetComputerName
+from win32con import ComputerNameDnsDomain
+from ms_active_directory import ADDomain
+
 
 if __name__ == "__main__":
+    domainName = GetComputerNameEx(ComputerNameDnsDomain)
+    print("DOMAIN: " + domainName)
+
+    computerName = GetComputerName()
+    print("COMPUTER: " + computerName)
+
+    domain = ADDomain(domainName)
+    session = domain.create_session_as_computer(computerName)
+    computers = session.find_computers_by_common_name("*")
+    print("DOMAIN-JOINED COMPUTERS: ")
+    for computer in computers:
+        print(computer.common_name)
+
     c = Client("CLIENT1")
     c.connect()
     try:
