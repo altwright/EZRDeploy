@@ -1,6 +1,8 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
     for i in range(rows):
@@ -13,12 +15,17 @@ def resize_image(image, width, height):
 
 
 class ADTab(tk.Frame):
-    def __init__(self, contentFrame, master=None):
+    def __init__(self, contentFrame, create_job_callback, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.create_job_callback = create_job_callback
         create_grid(self.frame, 12, 12)
         self.pc_buttons = []
         self.chosen_pc = []
+
+    #call back function used to send data back to tab_manager
+    def call_create_job_callback(self):
+        self.create_job_callback(self.chosen_pc)
     
     def gather_machines(self):
         #THIS FUNCTION GRABS DATA ABOUT THE MACHINE'S FROM THE ACTIVE DIRECTORY AND RETURNS IT AS AN ARRAY
@@ -35,12 +42,10 @@ class ADTab(tk.Frame):
             for i in range(len(self.machine_list)):
                 self.add_pc_to_list(i, False)
 
-        else:
-            
+        else:          
             #remove all pc from list
             for i in range(len(self.machine_list)):
                 self.add_pc_to_list(i, False)
-            print("User is not choosing all the machines")
     
     #function is used to add or remove a PC for the chosen pc list depending on if it has been pressed or is user checked the select all machines button
     #takes in the index of a button in the pc_button list, and a boolean (true if just one button, false if called by select_all_machines)
@@ -75,15 +80,15 @@ class ADTab(tk.Frame):
             self.create_job.config(state=tk.DISABLED)
 
     def create_page(self):
-        title = tk.Label(self.frame, text = "Active Directory", bg="lightblue")
-        title.grid(row=0, column=5, columnspan=3)
+        title = ttk.Label(self.frame, text = "Active Directory")
+        title.grid(row=0, column=2, columnspan=2, sticky="w")
 
         #checkbox button for selecting all machines listed
         self.AllMachines = tk.BooleanVar()
         select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
         select_all_button.grid(row=1, column=7)
 
-        self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED)
+        self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
         self.create_job.grid(row=1, column=9, columnspan=1)
         
         # Create a Canvas widget for scrollable content
@@ -152,28 +157,102 @@ class ADTab(tk.Frame):
             widget.destroy()
 
 class THTab(tk.Frame):
-    def __init__(self, contentFrame, master=None):
+    def __init__(self, contentFrame, create_job_callback, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.create_job_callback = create_job_callback
         create_grid(self.frame, 12, 12)
 
+    #creats a call back function to pass data back to tab_manager
+    def call_create_job_callback(self, job_path):
+        self.create_job_callback(job_path)
+    
+    #shows whats in the search bar
+    def display_search(self):
+        search_text = self.search_bar.get()
+        print(search_text)
+
     def create_page(self):
+        title = ttk.Label(self.frame, text = "Task History")
+        title.grid(row=0, column=2, columnspan=2, sticky="w")
+
         # Left side
-        search_bar = tk.Entry(self.frame)
-        search_bar.insert(0, "Enter search")
-        search_bar.grid(row=1, column=1, columnspan=4, sticky="nsew")
+        self.search_bar = tk.Entry(self.frame)
+        self.search_bar.insert(0, "Enter search")
+        self.search_bar.grid(row=1, column=2, columnspan=4, sticky="ew")
 
-        frame1 = tk.Frame(self.frame, bg="blue")
-        frame1.grid(row=4, column=1, rowspan=7, columnspan=4, sticky="nsew")
+        search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
+        search_bar_btn.grid(row=1, column=7, columnspan=2, sticky="ew")
 
-        # Right side
-        frame2 = tk.Frame(self.frame, bg="green")
-        frame2.grid(row=1, column=7, rowspan=2, columnspan=4, sticky="nsew")
+        canvas = tk.Canvas(self.frame)
+        canvas.grid(row=2, column=2, rowspan=8, columnspan=8, sticky="nsew")
 
-        frame3 = tk.Frame(self.frame, bg="red")
-        frame3.grid(row=4, column=7, rowspan=7, columnspan=4, sticky="nsew")
+        self.search_directory()
 
+        content_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=content_frame)
+
+        self.populate_scrollwindow(content_frame)
+
+        #for scroll bars
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
+        y_scrollbar.grid(row=2, column=10, rowspan=8, sticky="ns")
+        canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
+        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        canvas.configure(xscrollcommand=x_scrollbar.set)
+
+        content_frame.update_idletasks()
+        canvas.config(scrollregion=canvas.bbox("all")) 
+
+    #searches the task_history_file folder (assuming that were all the taks will be stored)
+    def search_directory(self):
+        self.past_jobs = []
+        for filename in os.listdir("./task_history_files/"):
+            if filename.endswith(".txt"):
+                file_path = os.path.join("./task_history_files/", filename)
+                self.process_text_file(file_path)
+
+    #collects data from the files (assuming first 3 lines hold all neccessary info)
+    def process_text_file(self, file_path):
+        with open(file_path, 'r') as file:
+            data = file.read().splitlines()
+            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": data[2], "PATH": file_path}
+            self.past_jobs.append(job)
+
+    #fill in the scroll window with all the info from the task stored in the task_history_file folder
+    def populate_scrollwindow(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+        #this is used to allow the frame to spread out horizontally more
+        data_label = tk.Label(data_frame, text=str("-"*150), bg="lightblue")
+        data_label.grid(row=0, column=0, sticky="nsew")
+      
+        for i, data in enumerate(self.past_jobs):
+            concatenated_data = f"{data['NAME']}, Number of Machines: {data['NUM_COMP']}, Program: {data['PROGRAM']}"
+
+            data_frame = tk.Frame(frame)
+            data_frame.grid(row=i+1, column=0, sticky="nsew")
+
+            data_label = tk.Label(data_frame, text=data['NAME'], bg="lightblue")
+            data_label.grid(row=i+1, column=0, sticky="w")
+
+            data_labe2 = tk.Label(data_frame, text=f"Number of Machines: {data['NUM_COMP']}", bg="lightblue")
+            data_labe2.grid(row=i+1, column=1, sticky="w")
+
+            data_labe3 = tk.Label(data_frame, text=f"Program: {data['PROGRAM']}", bg="lightblue")
+            data_labe3.grid(row=i+1, column=2, sticky="w")
             
+
+            button = tk.Button(data_frame, text=f"Inpect {data['NAME']}", command= lambda path=data["PATH"]: self.call_create_job_callback(path))
+            button.grid(row=i+1, column=3, sticky="e")
+
+            data_frame.grid_columnconfigure(0, weight=1)
+            data_frame.grid_columnconfigure(1, weight=1)
+    
+    
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
