@@ -1,11 +1,17 @@
-from pypsexec.client import Client
+from pypsexec.client import Client 
+from pypsexec.pipe import OutputPipeBytes
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain
-from smbprotocol.connection import Connection
+from collections.abc import Generator
+import sys
 
 class AppState:
     computers = [] 
+
+def handleInput():
+    for line in sys.stdin:
+        yield bytes(line, 'utf-8')
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -21,21 +27,20 @@ if __name__ == "__main__":
     print("DOMAIN-JOINED COMPUTERS: ")
     for computer in computers:
         if computer.name != hostComputer:
-            print(computer.name)
+            print('\t' + computer.name)
             AppState.computers.append(computer)
 
     c = Client("CLIENT1")
     c.connect()
-    try:
-        c.create_service()
+    c.create_service()
 
-        # After creating the service, you can run multiple exe's without
-        # reconnecting
+    stdoutPipe = OutputPipeBytes
+    stderrPipe = OutputPipeBytes
 
-        # run a simple cmd.exe program with arguments
-        stdout, stderr, rc = c.run_executable("cmd.exe", arguments="/c echo Hello World")
-        print("STDOUT: " + stdout.decode('utf-8'))
-        print("STDERR: " + stderr.decode('utf-8'))
-    finally:
-        c.remove_service()
-        c.disconnect()
+    stdout, stderr, rc = c.run_executable("cmd.exe", stdout=stdoutPipe, stderr=stderrPipe, stdin=handleInput, timeout_seconds=10)
+    
+    print('\nSTDOUT:')
+    print(stdout.decode('utf-8'))
+
+    c.remove_service()
+    c.disconnect()

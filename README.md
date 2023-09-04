@@ -1,5 +1,5 @@
 # project-3200
 Sysadmin software for network deployment of cyberforensics tools using Active Directory and PAExec
 
-# Flow
-- When application boots up, the active directory should be queried to retrieve a list of all computers.
+## pypsexec_mods Folder
+**Replace the files found in the imported pypsexec library with the equivalently named files in this folder.**
