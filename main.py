@@ -1,17 +1,15 @@
 from pypsexec.client import Client 
-from pypsexec.pipe import OutputPipeBytes
+from pypsexec.pipe import OutputPipe
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain
 from collections.abc import Generator
 import sys
 
+from tasks.execute import execute_job
+
 class AppState:
     computers = [] 
-
-def handleInput():
-    for line in sys.stdin:
-        yield bytes(line, 'utf-8')
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -34,10 +32,7 @@ if __name__ == "__main__":
     c.connect()
     c.create_service()
 
-    stdoutPipe = OutputPipeBytes
-    stderrPipe = OutputPipeBytes
-
-    stdout, stderr, rc = c.run_executable("cmd.exe", stdout=stdoutPipe, stderr=stderrPipe, stdin=handleInput, timeout_seconds=10)
+    stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", arguments="/c echo Hello World")
     
     print('\nSTDOUT:')
     print(stdout.decode('utf-8'))

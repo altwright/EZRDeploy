@@ -3,3 +3,4 @@
 *.exe
 dist/
 build/
+__pycache__/
