@@ -1,10 +1,9 @@
 from pypsexec.client import Client 
-from pypsexec.pipe import OutputPipe
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain
-from collections.abc import Generator
-import sys
+from smbprotocol.exceptions import SMBResponseException, NtStatus
+from queue import Queue
 
 from tasks.execute import execute_job
 
@@ -32,10 +31,15 @@ if __name__ == "__main__":
     c.connect()
     c.create_service()
 
-    stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", arguments="/c echo Hello World")
+    stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", timeout_seconds=10, stdinQ=Queue())
     
     print('\nSTDOUT:')
     print(stdout.decode('utf-8'))
 
-    c.remove_service()
+    try:
+        c.remove_service()
+    except SMBResponseException as exc:
+        if exc.status != NtStatus.STATUS_CANNOT_DELETE:
+            raise exc
+
     c.disconnect()
