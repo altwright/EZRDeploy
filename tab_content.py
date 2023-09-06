@@ -259,10 +259,12 @@ class THTab(tk.Frame):
 
 
 class JCTab(tk.Frame):
-    def __init__(self, contentFrame, master=None):
+    def __init__(self, contentFrame,create_job_callback, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.create_job_callback = create_job_callback
         create_grid(self.frame, 12, 12)
+        
 
     #creats a call back function to pass data back to tab_manager
     def call_create_job_callback(self, job_path):
@@ -296,7 +298,8 @@ class JCTab(tk.Frame):
         self.program_entry.grid(row=2, column=2, columnspan=2, sticky="ew")
 
         # Create Job button
-        create_job_btn = ttk.Button(self.frame, text="Create Job")
+        create_job_btn = ttk.Button(self.frame, text="Create Job",command=self.create_job)
+        #command= lambda path=data["PATH"]: self.call_create_job_callback(path)
         create_job_btn.grid(row=3, column=2,rowspan=2, columnspan=2, sticky="ew")
         
         # past job config
@@ -391,6 +394,10 @@ class JCTab(tk.Frame):
             elif event.widget == self.search_bar:
                 event.widget.insert(0, "Enter search")
         event.widget.configure(fg='gray')
+    def create_job(self):
+        job_title = self.job_title_entry.get()
+        if job_title:
+            self.create_job_callback(job_title)
 
     def remove_page(self):
         for widget in self.frame.winfo_children():

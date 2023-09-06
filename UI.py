@@ -12,7 +12,7 @@ class TabManager:
         self.tabData = [
             {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
             {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame )},
+            {"Name": "Job Creation", "content" : JCTab(self.contentFrame,self.handle_create_job )},
         ]
 
         #created the main tabs and loads the data
@@ -33,7 +33,9 @@ class TabManager:
             name = data[0]
             self.new_tab(name)
 
-
+    # Create a new tab with the job title
+    def handle_create_job(self, job_title):
+        self.new_tab(job_title)  # Create a new tab with the job title
     
     #used to change tabs
     def show_content(self, content_frame):
@@ -44,8 +46,9 @@ class TabManager:
         elif (content_frame == 'Task History'):
             current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Job Creation"):
-            current_tab = JCTab(self.contentFrame)
+            current_tab = JCTab(self.contentFrame, self.handle_create_job)
         current_tab.create_page()
+
 
     #removes a tab and its frame
     def delete_tab_frame(self, name):
