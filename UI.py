@@ -12,7 +12,7 @@ class TabManager:
         self.tabData = [
             {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
             {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame)},
+            {"Name": "Job Creation", "content" : JCTab(self.contentFrame )},
         ]
 
         #created the main tabs and loads the data
@@ -32,6 +32,8 @@ class TabManager:
             data = file.read().splitlines()
             name = data[0]
             self.new_tab(name)
+
+
     
     #used to change tabs
     def show_content(self, content_frame):

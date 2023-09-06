@@ -264,22 +264,134 @@ class JCTab(tk.Frame):
         self.frame = contentFrame
         create_grid(self.frame, 12, 12)
 
+    #creats a call back function to pass data back to tab_manager
+    def call_create_job_callback(self, job_path):
+        self.create_job_callback(job_path)
+    
+    #shows whats in the search bar
+    def display_search(self):
+        search_text = self.search_bar.get()
+        print(search_text)
+
     def create_page(self):
-        # Left side
-        search_bar = tk.Entry(self.frame)
-        search_bar.insert(0, "Enter search")
-        search_bar.grid(row=1, column=1, columnspan=4, sticky="nsew")
+        title = ttk.Label(self.frame, text = "Job Created")
+        title.grid(row=0, column=2, columnspan=2, sticky="w")
+        # Job input
+        Job_tittle = ttk.Label(self.frame, text = "Job")
+        Job_tittle .grid(row=1, column=0, columnspan=1, sticky="w")
+        self.job_entry = tk.Entry(self.frame)
+        self.job_entry.insert(0, "Enter Job")
+        self.job_entry.bind("<FocusIn>", self.on_entry_focus_in)
+        self.job_entry.bind("<FocusOut>", self.on_entry_focus_out)
+        self.job_entry.grid(row=1, column=2, columnspan=2, sticky="ew")
 
-        frame1 = tk.Frame(self.frame, bg="blue")
-        frame1.grid(row=4, column=1, rowspan=7, columnspan=4, sticky="nsew")
+        # Program input
+        Program_tittle = ttk.Label(self.frame, text = "Program")
+        Program_tittle .grid(row=2, column=0, columnspan=1, sticky="w")
 
-        # Right side
-        frame2 = tk.Frame(self.frame, bg="green")
-        frame2.grid(row=1, column=7, rowspan=2, columnspan=4, sticky="nsew")
+        self.program_entry = tk.Entry(self.frame)
+        self.program_entry.insert(0, "Enter Program")
+        self.program_entry.bind("<FocusIn>", self.on_entry_focus_in)
+        self.program_entry.bind("<FocusOut>", self.on_entry_focus_out)
+        self.program_entry.grid(row=2, column=2, columnspan=2, sticky="ew")
 
-        frame3 = tk.Frame(self.frame, bg="red")
-        frame3.grid(row=4, column=7, rowspan=7, columnspan=4, sticky="nsew")
-            
+        # Create Job button
+        create_job_btn = ttk.Button(self.frame, text="Create Job")
+        create_job_btn.grid(row=3, column=2,rowspan=2, columnspan=2, sticky="ew")
+        
+        # past job config
+        past_job_config = ttk.Label(self.frame, text = "Past Job Config")
+        past_job_config .grid(row=0, column=9, columnspan=1, sticky="w")
+        self.search_bar = tk.Entry(self.frame)
+        self.search_bar.insert(0, "Enter search")
+        self.search_bar.bind("<FocusIn>", self.on_entry_focus_in)
+        self.search_bar.bind("<FocusOut>", self.on_entry_focus_out)
+        self.search_bar.grid(row=1, column=9, columnspan=2, sticky="ew")
+
+        search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
+        search_bar_btn.grid(row=2, column=9, columnspan=2, sticky="ew")
+        
+        #output
+        canvas = tk.Canvas(self.frame)
+        canvas.grid(row=3, column=9, rowspan=8, columnspan=2, sticky="nsew")
+
+        self.search_directory()
+
+        content_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=content_frame)
+
+        self.populate_scrollwindow(content_frame)
+
+        #for scroll bars
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
+        y_scrollbar.grid(row=3, column=11, rowspan=8, sticky="ns")
+        canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
+        x_scrollbar.grid(row=11, column=9, columnspan=2, sticky="ew")
+        canvas.configure(xscrollcommand=x_scrollbar.set)
+
+        content_frame.update_idletasks()
+        canvas.config(scrollregion=canvas.bbox("all")) 
+
+  
+
+    #searches the task_history_file folder (assuming that were all the taks will be stored)
+    def search_directory(self):
+        self.past_jobs = []
+        for filename in os.listdir("./task_history_files/"):
+            if filename.endswith(".txt"):
+                file_path = os.path.join("./task_history_files/", filename)
+                self.process_text_file(file_path)
+
+    #collects data from the files (assuming first 3 lines hold all neccessary info)
+    def process_text_file(self, file_path):
+        with open(file_path, 'r') as file:
+            data = file.read().splitlines()
+            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": data[2], "PATH": file_path}
+            self.past_jobs.append(job)
+
+    #fill in the scroll window with all the info from the task stored in the task_history_file folder
+    def populate_scrollwindow(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+
+        frame.grid_columnconfigure(0, weight=1)
+
+        for i, data in enumerate(self.past_jobs):
+            data_frame = tk.Frame(frame)
+            data_frame.grid(row=i+1, column=0, sticky="nsew")
+
+            data_label = tk.Label(data_frame, text=data['NAME'], bg="lightblue")
+            data_label.grid(row=i+1, column=0, sticky="w")
+
+
+            data_labe3 = tk.Label(data_frame, text=f"Program: {data['PROGRAM']}", bg="lightblue")
+            data_labe3.grid(row=i+1, column=2, sticky="w")
+
+            button = tk.Button(data_frame, text=f"Inpect {data['NAME']}", command=lambda path=data["PATH"]: self.call_create_job_callback(path))
+            button.grid(row=i+1, column=3, sticky="e")
+
+
+            data_frame.grid_columnconfigure(0, weight=1)
+            data_frame.grid_columnconfigure(1, weight=1)
+            data_frame.grid_columnconfigure(2, weight=1)
+
+    def on_entry_focus_in(self, event):
+        if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Program" or event.widget.get() == "Enter search":
+            event.widget.delete(0, "end")
+
+    def on_entry_focus_out(self, event):
+        if event.widget.get() == "":
+            if event.widget == self.job_entry:
+                event.widget.insert(0, "Enter Job Title")
+            elif event.widget == self.program_entry:
+                event.widget.insert(0, "Enter Program")
+            elif event.widget == self.search_bar:
+                event.widget.insert(0, "Enter search")
+        event.widget.configure(fg='gray')
+
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
