@@ -4,6 +4,8 @@ from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain
 from smbprotocol.exceptions import SMBResponseException, NtStatus
 from queue import Queue
+import threading
+import sys
 
 from tasks.execute import execute_job
 
@@ -31,10 +33,26 @@ if __name__ == "__main__":
     c.connect()
     c.create_service()
 
-    stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", timeout_seconds=10, stdinQ=Queue())
+    stdoutQ = Queue()
+    stderrQ = Queue()
+    stdinQ = Queue()
+    outFileQ = Queue()
+    #stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", timeout_seconds=5, stdoutQ=stdoutQ, stderrQ=stderrQ, stdinQ=stdinQ, outFileQ=outFileQ)
     
+    job_thread = threading.Thread(target=execute_job, kwargs={"client":c, "executable":"cmd.exe", "timeout_seconds":10, "stdoutQ":stdoutQ, "stderrQ":stderrQ, "stdinQ":stdinQ, "outFileQ":outFileQ})
+    job_thread.start()
+
+    for line in sys.stdin:
+        if job_thread.is_alive():
+            stdinQ.put(line)
+        else:
+            break
+
+    job_thread.join()
+
     print('\nSTDOUT:')
-    print(stdout.decode('utf-8'))
+    while not stdoutQ.empty():
+        print(stdoutQ.get().decode('utf-8'), end="")
 
     try:
         c.remove_service()

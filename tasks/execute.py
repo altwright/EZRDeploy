@@ -38,7 +38,7 @@ from pypsexec.paexec import (
 )
 
 from pypsexec.pipe import (
-    OutputPipeBytes,
+    OutputPipe,
     open_pipe,
 )
 
@@ -46,7 +46,7 @@ from queue import Queue
 
 class StdinPipe(threading.Thread):
 
-    def __init__(self, tree, name, inputQueue: Queue, finished: threading.Event):
+    def __init__(self, tree, name, inputQueue: Queue, outFileQ: Queue, finished: threading.Event):
         """
         Any data sent to write is written to the Named Pipe.
 
@@ -68,14 +68,17 @@ class StdinPipe(threading.Thread):
                               FilePipePrinterAccessMask.READ_CONTROL |
                               FilePipePrinterAccessMask.SYNCHRONIZE,
                               fsctl_wait=True)
-        self.inputQueue = inputQueue
+        self.inpQueue = inputQueue
+        self.outFileQ = outFileQ
         self.finished = finished
 
     def run(self):
         try:
             while not self.finished.is_set():
-                if not self.inputQueue.empty():
-                    self.write(bytes(self.inputQueue.get(), 'utf-8'))
+                if not self.inpQueue.empty():
+                    input = self.inpQueue.get()
+                    self.outFileQ.put((1, input))
+                    self.write(bytes(input, 'utf-8'))
         except SMBResponseException as exc:
             # if the error was the pipe was broken exit the loop
             # otherwise the error is serious so throw it
@@ -101,6 +104,26 @@ class StdinPipe(threading.Thread):
             warnings.warn("Timeout while waiting for pipe thread to close: %s"
                           % self.name, TheadCloseTimeoutWarning)
 
+class StdoutPipe(OutputPipe):
+
+    def __init__(self, tree, name, outConsoleQ: Queue, outFileQ: Queue, isStderr: bool = False):
+        super(StdoutPipe, self).__init__(tree, name)
+        self.pipe_buffer = b""
+        self.outConsoleQ = outConsoleQ
+        self.outFileQ = outFileQ
+        self.isStderr = isStderr
+
+    def handle_output(self, output):
+        self.pipe_buffer += output
+        self.outConsoleQ.put(output)
+        if not self.isStderr:
+            self.outFileQ.put((0, output))
+        else:
+            self.outFileQ.put((2, output))
+
+    def get_output(self):
+        return self.pipe_buffer
+
 def execute_job(client: Client, executable, arguments=None, 
                     processors=None,
                     use_system_account=False,
@@ -108,8 +131,9 @@ def execute_job(client: Client, executable, arguments=None,
                     priority=ProcessPriority.NORMAL_PRIORITY_CLASS,
                     remote_log_path=None, timeout_seconds=0,
                     wow64=False, 
-                    stdout=OutputPipeBytes, stderr=OutputPipeBytes, stdinQ: Queue = Queue()):
-        
+                    stdoutQ: Queue = Queue(), stderrQ: Queue = Queue(), stdinQ: Queue = Queue(),
+                    outFileQ: Queue = Queue()):
+
         client._service.start()
 
         smb_tree = TreeConnect(client.session,
@@ -182,12 +206,12 @@ def execute_job(client: Client, executable, arguments=None,
 
         # create a pipe for stdout, stderr, and stdin and run in a separate
         # thread
-        stdout_pipe = stdout(smb_tree, client._stdout_pipe_name)
+        stdout_pipe = StdoutPipe(smb_tree, client._stdout_pipe_name, stdoutQ, outFileQ, False)
         stdout_pipe.start()
-        stderr_pipe = stderr(smb_tree, client._stderr_pipe_name)
+        stderr_pipe = StdoutPipe(smb_tree, client._stderr_pipe_name, stderrQ, outFileQ, True)
         stderr_pipe.start()
-        finished = threading.Event()
-        stdin_pipe = StdinPipe(smb_tree, client._stdin_pipe_name, stdinQ, finished)
+        input_finished = threading.Event()
+        stdin_pipe = StdinPipe(smb_tree, client._stdin_pipe_name, stdinQ, outFileQ, input_finished)
         stdin_pipe.start()
 
         # wait until the stdout and stderr pipes have sent their first
@@ -199,7 +223,7 @@ def execute_job(client: Client, executable, arguments=None,
 
         # read the final response from the process
         exe_result_raw = main_pipe.read(0, 1024)
-        finished.set()
+        input_finished.set()
 
         stdout_pipe.close()
         stderr_pipe.close()
