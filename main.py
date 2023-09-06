@@ -7,10 +7,19 @@ from queue import Queue
 import threading
 import sys
 
-from tasks.execute import execute_job
+from tasks.execution import JobThread
 
 class AppState:
     computers = [] 
+
+def print_stdout(stdoutQ: Queue):
+    while True:
+        if not stdoutQ.empty():
+            print(stdoutQ.get(), end="")
+
+def get_stdin(stdinQ: Queue):
+    for line in sys.stdin:
+        stdinQ.put(line)
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -29,30 +38,25 @@ if __name__ == "__main__":
             print('\t' + computer.name)
             AppState.computers.append(computer)
 
-    c = Client("CLIENT1")
+    c = Client("CLIENT2")
     c.connect()
     c.create_service()
 
     stdoutQ = Queue()
     stderrQ = Queue()
     stdinQ = Queue()
-    outFileQ = Queue()
-    #stdout, stderr, rc = execute_job(client=c, executable="cmd.exe", timeout_seconds=5, stdoutQ=stdoutQ, stderrQ=stderrQ, stdinQ=stdinQ, outFileQ=outFileQ)
+    input_finished = threading.Event()
     
-    job_thread = threading.Thread(target=execute_job, kwargs={"client":c, "executable":"cmd.exe", "timeout_seconds":10, "stdoutQ":stdoutQ, "stderrQ":stderrQ, "stdinQ":stdinQ, "outFileQ":outFileQ})
+    job_thread = JobThread(c, "whoami.exe", None, stdoutQ, stderrQ, stdinQ, timeout_seconds=0, input_finished_event=input_finished)
     job_thread.start()
 
-    for line in sys.stdin:
-        if job_thread.is_alive():
-            stdinQ.put(line)
-        else:
-            break
+    print('\nSTDOUT:')
+    stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
+    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ,), daemon=True)
+    stdout_thread.start()
+    stdin_thread.start()
 
     job_thread.join()
-
-    print('\nSTDOUT:')
-    while not stdoutQ.empty():
-        print(stdoutQ.get().decode('utf-8'), end="")
 
     try:
         c.remove_service()
