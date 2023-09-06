@@ -339,21 +339,25 @@ class JCTab(tk.Frame):
 
   
 
-    #searches the task_history_file folder (assuming that were all the taks will be stored)
-    def search_directory(self):
+    def search_directory(self, keyword=None):
         self.past_jobs = []
         for filename in os.listdir("./task_history_files/"):
             if filename.endswith(".txt"):
                 file_path = os.path.join("./task_history_files/", filename)
-                self.process_text_file(file_path)
+                if keyword is None or self.file_contains_keyword(file_path, keyword):
+                    self.process_text_file(file_path)
 
-    #collects data from the files (assuming first 3 lines hold all neccessary info)
+    def file_contains_keyword(self, file_path, keyword):
+        with open(file_path, 'r') as file:
+            data = file.read()
+            return keyword in data
+
     def process_text_file(self, file_path):
         with open(file_path, 'r') as file:
             data = file.read().splitlines()
             job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": data[2], "PATH": file_path}
             self.past_jobs.append(job)
-
+            
     #fill in the scroll window with all the info from the task stored in the task_history_file folder
     def populate_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
