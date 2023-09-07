@@ -58,7 +58,9 @@ if __name__ == "__main__":
               working_dir=r'C:\Users\Administrator\Desktop',
               copy_local_files=True,
               src_files_list=[r".\dist\test.txt"],
-              overwrite_remote_files=True
+              overwrite_remote_files=True,
+              clean_copied_files_after=True,
+              clean_copied_exe_after=True
               )
     job.start()
 

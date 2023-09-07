@@ -144,6 +144,10 @@ class Job(threading.Thread):
         if self.copy_local_exe and self.clean_copied_exe_after:
             smbclient.remove(self.remote_exe_path)
 
+        if self.copy_local_files and self.clean_copied_files_after:
+            for src_file in self.src_files_list:
+                smbclient.remove(os.path.join(self.remote_file_dst_dir, os.path.basename(src_file)))
+
     def run(self):
         self._copy_local_files()
 
