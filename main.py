@@ -7,7 +7,7 @@ from queue import Queue
 import threading
 import sys
 
-from tasks.execution import JobThread
+from tasks.execution import Job
 
 class AppState:
     computers = [] 
@@ -17,9 +17,12 @@ def print_stdout(stdoutQ: Queue):
         if not stdoutQ.empty():
             print(stdoutQ.get(), end="")
 
-def get_stdin(stdinQ: Queue):
+def get_stdin(stdinQ: Queue, cancel_event: threading.Event):
     for line in sys.stdin:
-        stdinQ.put(line)
+        if line.find("\CANCEL"):
+            stdinQ.put(line)
+        else:
+            cancel_event.set()
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -38,30 +41,40 @@ if __name__ == "__main__":
             print('\t' + computer.name)
             AppState.computers.append(computer)
 
-    c = Client("CLIENT2")
+    c = Client("CLIENT1")
     c.connect()
     c.create_service()
 
     stdoutQ = Queue()
     stderrQ = Queue()
     stdinQ = Queue()
-    input_finished = threading.Event()
+    cancel_event = threading.Event()
     
-    job_thread = JobThread(c, "whoami.exe", None, stdoutQ, stderrQ, stdinQ, timeout_seconds=0, input_finished_event=input_finished)
-    job_thread.start()
+    job = Job(c, "test.exe", None, stdoutQ, stderrQ, stdinQ, 
+              timeout_seconds=10, 
+              copy_local_exe=True, 
+              local_exe_src_dir=".\\dist", 
+              overwrite_remote_exe=True
+              )
+    job.start()
 
     print('\nSTDOUT:')
     stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
-    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ,), daemon=True)
+    stderr_thread = threading.Thread(target=print_stdout, args=(stderrQ,), daemon=True)
+    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, cancel_event), daemon=True)
     stdout_thread.start()
+    stderr_thread.start()
     stdin_thread.start()
 
-    job_thread.join()
+    job.join()
 
+    print('\nRETURN CODE: ' + str(job.rc))
     try:
-        c.remove_service()
+        c.cleanup()
     except SMBResponseException as exc:
         if exc.status != NtStatus.STATUS_CANNOT_DELETE:
             raise exc
+        else:
+            print("Failed to delete service!")
 
     c.disconnect()

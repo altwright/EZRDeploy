@@ -1,8 +1,6 @@
 import warnings
 from pypsexec.client import Client
-from pypsexec.pipe import TheadCloseTimeoutWarning
 import threading
-import sys
 
 import time
 
@@ -15,8 +13,15 @@ from smbprotocol.exceptions import (
 )
 
 from smbprotocol.open import (
+    CreateDisposition,
+    CreateOptions,
+    DirectoryAccessMask,
+    FileAttributes,
+    FileInformationClass,
     FilePipePrinterAccessMask,
-    Open
+    ImpersonationLevel,
+    Open,
+    ShareAccess,
 )
 
 from smbprotocol.tree import (
@@ -25,6 +30,7 @@ from smbprotocol.tree import (
 
 from pypsexec.exceptions import (
     PypsexecException,
+    PAExecException
 )
 
 from pypsexec.paexec import (
@@ -40,11 +46,21 @@ from pypsexec.paexec import (
 from pypsexec.pipe import (
     OutputPipe,
     open_pipe,
+    TheadCloseTimeoutWarning
 )
 
 from queue import Queue
+import os.path
+import smbclient.path
 
-class JobThread(threading.Thread):
+def file_out_stream(filepath: str, buffer_size: int = 4096):
+    f = open(filepath, "rb")
+    byte_count = os.path.getsize(f.fileno())
+    for i in range(0, byte_count, buffer_size):
+        yield f.read(buffer_size), i
+    f.close()
+
+class Job(threading.Thread):
 
     def __init__(
             self,
@@ -54,7 +70,14 @@ class JobThread(threading.Thread):
             stdoutQ: Queue, 
             stderrQ: Queue,
             stdinQ: Queue,
-            input_finished_event: threading.Event = threading.Event(),
+            copy_local_exe: bool = False,
+            local_exe_src_dir: str = "",
+            clean_copied_exe_after: bool = True,
+            overwrite_remote_exe: bool = False,
+            copy_local_files: bool = False,
+            src_files_dst_dir: tuple[str, str] = None,
+            overwrite_remote_files: bool = False,
+            clean_copied_files_after: bool = True,
             processors=None,
             use_system_account=False,
             working_dir=None,
@@ -77,11 +100,36 @@ class JobThread(threading.Thread):
         self.remote_log_path = remote_log_path
         self.timeout_seconds = timeout_seconds
         self.wow64 = wow64
-        self.input_finished_event = input_finished_event
+        self.copy_local_exe = copy_local_exe
+        self.local_exe_src_dir = local_exe_src_dir
+        self.clean_copied_exe_after = clean_copied_exe_after
+        self.copy_local_files = copy_local_files
+        self.src_files_dst_dir = src_files_dst_dir
+        self.clean_copied_files_after = clean_copied_files_after
+        self.overwrite_remote_exe = overwrite_remote_exe
+        self.overwrite_remote_files = overwrite_remote_files
 
+        self.ADMIN_SHARE = r"\\%s\ADMIN$" % self.client.connection.server_name
+        self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
     
+    def _copy_local_files(self):
+        if self.copy_local_exe:
+            remote_exe_exists = smbclient.path.exists(self.remote_exe_path)
+            if not remote_exe_exists or self.overwrite_remote_exe:
+                local_exe_path = os.path.join(self.local_exe_src_dir, self.executable)
+                with smbclient.open_file(self.remote_exe_path, "wb") as remote_fd:
+                    for (data, offset) in file_out_stream(local_exe_path, self.client.connection.max_write_size):
+                        remote_fd.write(data)
+        
+        #if self.copy_local_files and (self.src_files_dst_dir is not None):
+    
+    #def _clean_remote_files(self):
+        #if self.clean_copied_exe_after:
+        #    remote
     def run(self):
+        self._copy_local_files()
+
         self.client._service.start()
 
         smb_tree = TreeConnect(self.client.session,
@@ -159,7 +207,8 @@ class JobThread(threading.Thread):
         stderr_pipe = StdoutPipe(smb_tree, self.client._stderr_pipe_name, self.stderrQ)
         stderr_pipe.start()
         
-        stdin_pipe = StdinPipe(smb_tree, self.client._stdin_pipe_name, self.stdinQ, self.input_finished_event)
+        input_finished_event = threading.Event()
+        stdin_pipe = StdinPipe(smb_tree, self.client._stdin_pipe_name, self.stdinQ, input_finished_event)
         stdin_pipe.start()
 
         # wait until the stdout and stderr pipes have sent their first
@@ -171,7 +220,7 @@ class JobThread(threading.Thread):
 
         # Block until final exit response from the process is read
         exe_result_raw = main_pipe.read(0, 1024)
-        self.input_finished_event.set()
+        input_finished_event.set()
 
         stdout_pipe.close()
         stderr_pipe.close()
@@ -182,7 +231,10 @@ class JobThread(threading.Thread):
 
         exe_result = PAExecMsg()
         exe_result.unpack(exe_result_raw)
-        exe_result.check_resp()
+        try:
+            exe_result.check_resp()
+        except PAExecException as exc:
+            self.stderrQ.put(exc.message)
         rc = PAExecReturnBuffer()
         rc.unpack(exe_result['buffer'].get_value())
 
@@ -258,121 +310,3 @@ class StdoutPipe(OutputPipe):
 
     def get_output(self):
         return self.pipe_buffer
-
-def execute_job(client: Client, executable: str, arguments: str = None, 
-                    processors=None,
-                    use_system_account=False,
-                    working_dir=None,
-                    priority=ProcessPriority.NORMAL_PRIORITY_CLASS,
-                    remote_log_path=None, timeout_seconds=0,
-                    wow64=False, 
-                    stdoutQ: Queue = Queue(), stderrQ: Queue = Queue(), stdinQ: Queue = Queue()):
-
-        client._service.start()
-
-        smb_tree = TreeConnect(client.session,
-                               r"\\%s\IPC$" % client.connection.server_name)
-        smb_tree.connect()
-
-        settings = PAExecSettingsBuffer()
-        settings['processors'] = processors if processors else []
-        settings['asynchronous'] = False
-        settings['dont_load_profile'] = False
-        settings['interactive_session'] = 0
-        settings['interactive'] = False
-        settings['run_elevated'] = False
-        settings['run_limited'] = False
-        settings['username'] = client._encode_string(None)
-        settings['password'] = client._encode_string(None)
-        settings['use_system_account'] = use_system_account
-        settings['working_dir'] = client._encode_string(working_dir)
-        settings['show_ui_on_win_logon'] = False
-        settings['priority'] = priority
-        settings['executable'] = client._encode_string(executable)
-        settings['arguments'] = client._encode_string(arguments)
-        settings['remote_log_path'] = client._encode_string(remote_log_path)
-        settings['timeout_seconds'] = timeout_seconds
-        settings['disable_file_redirection'] = not wow64
-
-        input_data = PAExecSettingsMsg()
-        input_data['unique_id'] = client._unique_id
-        input_data['buffer'] = settings
-
-        # write the settings to the main PAExec pipe
-        pipe_access_mask = FilePipePrinterAccessMask.GENERIC_READ | \
-            FilePipePrinterAccessMask.GENERIC_WRITE | \
-            FilePipePrinterAccessMask.FILE_APPEND_DATA | \
-            FilePipePrinterAccessMask.READ_CONTROL | \
-            FilePipePrinterAccessMask.SYNCHRONIZE
-        for i in range(0, 3):
-            try:
-                main_pipe = open_pipe(smb_tree, client._exe_file,
-                                      pipe_access_mask)
-            except SMBResponseException as exc:
-                if exc.status != NtStatus.STATUS_OBJECT_NAME_NOT_FOUND:
-                    raise exc
-                elif i == 2:
-                    raise PypsexecException("Failed to open main PAExec pipe "
-                                            "%s, no more attempts remaining"
-                                            % client._exe_file)
-                time.sleep(5)
-            else:
-                break
-
-        main_pipe.write(input_data.pack(), 0)
-
-        settings_resp_raw = main_pipe.read(0, 1024)
-        settings_resp = PAExecMsg()
-        settings_resp.unpack(settings_resp_raw)
-        settings_resp.check_resp()
-
-        # start the process now
-        start_msg = PAExecMsg()
-        start_msg['msg_id'] = PAExecMsgId.MSGID_START_APP
-        start_msg['unique_id'] = client._unique_id
-        start_msg['buffer'] = PAExecStartBuffer()
-        start_buffer = PAExecStartBuffer()
-        start_buffer['process_id'] = client.pid
-        start_buffer['comp_name'] = client.current_host.encode('utf-16-le')
-        start_msg['buffer'] = start_buffer
-
-        main_pipe.write(start_msg.pack(), 0)
-
-        # create a pipe for stdout, stderr, and stdin and run in a separate
-        # thread
-        stdout_pipe = StdoutPipe(smb_tree, client._stdout_pipe_name, stdoutQ)
-        stdout_pipe.start()
-        stderr_pipe = StdoutPipe(smb_tree, client._stderr_pipe_name, stderrQ)
-        stderr_pipe.start()
-        input_finished = threading.Event()
-        stdin_pipe = StdinPipe(smb_tree, client._stdin_pipe_name, stdinQ, input_finished)
-        stdin_pipe.start()
-
-        # wait until the stdout and stderr pipes have sent their first
-        # response
-        while not stdout_pipe.sent_first:
-            pass
-        while not stderr_pipe.sent_first:
-            pass
-
-        # read the final response from the process
-        exe_result_raw = main_pipe.read(0, 1024)
-        input_finished.set()
-
-        stdout_pipe.close()
-        stderr_pipe.close()
-        stdin_pipe.close()
-        stdout_out = stdout_pipe.get_output()
-        stderr_bytes = stderr_pipe.get_output()
-
-        main_pipe.close()
-        smb_tree.disconnect()
-
-        exe_result = PAExecMsg()
-        exe_result.unpack(exe_result_raw)
-        exe_result.check_resp()
-        rc = PAExecReturnBuffer()
-        rc.unpack(exe_result['buffer'].get_value())
-
-        return_code = rc['return_code'].get_value()
-        return stdout_out, stderr_bytes, return_code
