@@ -72,15 +72,15 @@ class Job(threading.Thread):
             stdinQ: Queue,
             copy_local_exe: bool = False,
             local_exe_src_dir: str = "",
-            clean_copied_exe_after: bool = True,
+            clean_copied_exe_after: bool = False,
             overwrite_remote_exe: bool = False,
             copy_local_files: bool = False,
-            src_files_dst_dir: tuple[str, str] = None,
+            src_files_list: list[str] = None,
             overwrite_remote_files: bool = False,
-            clean_copied_files_after: bool = True,
+            clean_copied_files_after: bool = False,
             processors=None,
             use_system_account=False,
-            working_dir=None,
+            working_dir: str = None,
             priority=ProcessPriority.NORMAL_PRIORITY_CLASS,
             remote_log_path=None, 
             timeout_seconds=0,
@@ -104,12 +104,20 @@ class Job(threading.Thread):
         self.local_exe_src_dir = local_exe_src_dir
         self.clean_copied_exe_after = clean_copied_exe_after
         self.copy_local_files = copy_local_files
-        self.src_files_dst_dir = src_files_dst_dir
+        self.src_files_list = src_files_list
         self.clean_copied_files_after = clean_copied_files_after
         self.overwrite_remote_exe = overwrite_remote_exe
         self.overwrite_remote_files = overwrite_remote_files
 
         self.ADMIN_SHARE = r"\\%s\ADMIN$" % self.client.connection.server_name
+        self.C_SHARE = r"\\%s\C$" % self.client.connection.server_name
+
+        if self.working_dir:
+            working_dir_tail = os.path.splitdrive(self.working_dir)[1]
+            self.remote_file_dst_dir = os.path.join(self.C_SHARE, working_dir_tail)
+        else:
+            self.remote_file_dst_dir = self.C_SHARE
+
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
     
@@ -122,11 +130,20 @@ class Job(threading.Thread):
                     for (data, offset) in file_out_stream(local_exe_path, self.client.connection.max_write_size):
                         remote_fd.write(data)
         
-        #if self.copy_local_files and (self.src_files_dst_dir is not None):
-    
-    #def _clean_remote_files(self):
-        #if self.clean_copied_exe_after:
-        #    remote
+        if self.copy_local_files and (self.src_files_list is not None):
+            if not smbclient.path.exists(self.remote_file_dst_dir):
+                smbclient.mkdir(self.remote_file_dst_dir)
+            for src_file in self.src_files_list:
+                remote_file_path = os.path.join(self.remote_file_dst_dir, os.path.basename(src_file))
+                if self.overwrite_remote_files or not smbclient.path.exists(remote_file_path):
+                    with smbclient.open_file(remote_file_path, "wb") as remote_fd:
+                        for (data, offset) in file_out_stream(src_file, self.client.connection.max_write_size):
+                            remote_fd.write(data)
+
+    def _clean_remote_files(self):
+        if self.copy_local_exe and self.clean_copied_exe_after:
+            smbclient.remove(self.remote_exe_path)
+
     def run(self):
         self._copy_local_files()
 
@@ -240,6 +257,8 @@ class Job(threading.Thread):
 
         self.rc = rc['return_code'].get_value()
 
+        self._clean_remote_files()
+
 class StdinPipe(threading.Thread):
 
     def __init__(self, tree, name, inputQueue: Queue, finished: threading.Event):
@@ -285,7 +304,10 @@ class StdinPipe(threading.Thread):
             if exc.status not in close_errors:
                 raise exc
         finally:
-            self.pipe.close(get_attributes=False)
+            try:
+                self.pipe.close(get_attributes=False)
+            except KeyError as exc:#I don't know why it happens sometimes
+                pass
 
     def write(self, data):
         self.pipe.write(data, 0)

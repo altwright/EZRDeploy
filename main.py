@@ -51,10 +51,14 @@ if __name__ == "__main__":
     cancel_event = threading.Event()
     
     job = Job(c, "test.exe", None, stdoutQ, stderrQ, stdinQ, 
-              timeout_seconds=10, 
+              timeout_seconds=60, 
               copy_local_exe=True, 
               local_exe_src_dir=".\\dist", 
-              overwrite_remote_exe=True
+              overwrite_remote_exe=True,
+              working_dir=r'C:\Users\Administrator\Desktop',
+              copy_local_files=True,
+              src_files_list=[r".\dist\test.txt"],
+              overwrite_remote_files=True
               )
     job.start()
 
