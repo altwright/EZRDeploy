@@ -227,7 +227,7 @@ class THTab(tk.Frame):
         data_frame.grid(row=0, column=0, sticky="nsew")
 
         #this is used to allow the frame to spread out horizontally more
-        data_label = tk.Label(data_frame, text=str("-"*150), bg="lightblue")
+        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
         data_label.grid(row=0, column=0, sticky="nsew")
       
         for i, data in enumerate(self.past_jobs):
@@ -246,7 +246,7 @@ class THTab(tk.Frame):
             data_labe3.grid(row=i+1, column=2, sticky="w")
             
 
-            button = tk.Button(data_frame, text=f"Inpect {data['NAME']}", command= lambda path=data["PATH"]: self.call_create_job_callback(path))
+            button = tk.Button(data_frame, text=f"Inspect {data['NAME']}", command= lambda path=data["PATH"]: self.call_create_job_callback(path))
             button.grid(row=i+1, column=3, sticky="e")
 
             data_frame.grid_columnconfigure(0, weight=1)
@@ -285,24 +285,126 @@ class JCTab(tk.Frame):
             widget.destroy()
 
 
-class active_tab(tk.Frame):
-    def __init__(self, contentFrame, master=None):
+class completedTab(tk.Frame):
+    def __init__(self, contentFrame, job_path, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.job_path = job_path
         create_grid(self.frame, 12, 12)
 
     def create_page(self):
+        self.gather_file_details()
+
+        status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12))
+        status.grid(row=0, column=2, columnspan=2, sticky="w")
+
+        name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20))
+        name.grid(row=1, column=2, columnspan=2, sticky="w")
+
+        date = tk.Label(self.frame, text = "DATE", font=("Arial Bold",12))
+        date.grid(row=2, column=2, columnspan=2, sticky="w")
+
+        btn_export = tk.Button(self.frame, text="Export task data", font=("Arial Bold", 12),command=self.exportdata_button_clicked)
+        btn_export.grid(row=1, column=10, columnspan=2, sticky='ew')
+
+        #this section is for displaying the machines in the task  
+        main_Canvas = tk.Canvas(self.frame)
+        main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=9, sticky="ew")
+
+        main_content_frame = tk.Frame(main_Canvas)
+        main_Canvas.create_window((0, 0), window=main_content_frame)
+
+        self.populate_top_scrollwindow(main_content_frame)
+
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=main_Canvas.yview)
+        y_scrollbar.grid(row=3, column=11, rowspan=1, sticky="ns")
+        main_Canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        #this next section is for the machine 'console'
+        main_content_frame.update_idletasks()
+        main_Canvas.config(scrollregion=main_Canvas.bbox("all")) 
+
+        self.machine_name = tk.Label(self.frame, text = "Machine ID", font=("Arial Bold",16))
+        self.machine_name.grid(row=8, column=2, columnspan=2, sticky="w")
+
+        machine_Canvas = tk.Canvas(self.frame)
+        machine_Canvas.grid(row=9, column=2, rowspan=1, columnspan=9, sticky="ew")
+
+        machine_content_frame = tk.Frame(machine_Canvas)
+        machine_Canvas.create_window((0, 0), window=machine_content_frame)
+
+        self.populate_bottom_scrollwindow(machine_content_frame)
+
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=machine_Canvas.yview)
+        y_scrollbar.grid(row=9, column=11, rowspan=1, sticky="ns")
+        machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=machine_Canvas.xview)
+        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
+
+        machine_content_frame.update_idletasks()
+        machine_Canvas.config(scrollregion=machine_Canvas.bbox("all")) 
+        
+
+    def gather_file_details(self):
+        self.main_details = []
+        self.machine_details = []
+        with open(self.job_path, 'r') as file:
+            name = file.readline()[:-1]
+            num_computers = file.readline()[:-1]
+            program = file.readline()[:-1]
+            status = file.readline()[:-1]
+            self.main_details.append(name)
+            self.main_details.append(num_computers)
+            self.main_details.append(program)
+            self.main_details.append(status)
+
+            for f in file:
+                split = f[:-1].split('|')
+                machine = {"NAME": split[0], "IP": split[1], "CONTENTS": split[2]}
+                self.machine_details.append(machine)
+
+    def populate_top_scrollwindow(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
+        data_label.grid(row=0, column=0, sticky="nsew")
+
+        for i, data in enumerate(self.machine_details):
+
+            data_frame = tk.Frame(frame)
+            data_frame.grid(row=i+1, column=0, sticky="nsew")
+
+            data_label = tk.Label(data_frame, text=f"Machine: {data['NAME']}", font=("Arial Bold",16))
+            data_label.grid(row=i+1, column=0, sticky="w")
+
+            data_labe2 = tk.Label(data_frame, text=f"IP: {data['IP']}", font=("Arial Bold",16))
+            data_labe2.grid(row=i+1, column=1, sticky="w")
+
+            inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name=data['NAME'], contents= data['CONTENTS']: self.inspect_button_clicked(name,contents))
+            inspect_button.grid(row=i+1, column=2, sticky="e")
+
+    def populate_bottom_scrollwindow(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
+        data_label.grid(row=0, column=0, sticky="nsew")
+        
+        self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold",12))
+        self.machine_text.grid(row=1, column=0, sticky="w")
+
+    def inspect_button_clicked(self, name, contents):
+
+        self.machine_text["text"] = contents
+        self.machine_name["text"] = f"Machine: {name}"
 
 
-        frame1 = tk.Frame(self.frame, bg="blue")
-        frame1.grid(row=2, column=2, rowspan=6, columnspan=8, sticky="nsew")
-
-       
-        frame2 = tk.Frame(self.frame, bg="green")
-        frame2.grid(row=9, column=2, rowspan=2, columnspan=8, sticky="nsew")
-
-
-            
+    def exportdata_button_clicked(self):
+        print(f"Export data")
+    
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
