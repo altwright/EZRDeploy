@@ -12,7 +12,7 @@ class TabManager:
         self.tabData = [
             {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
             {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame)},
+            {"Name": "Job Creation", "content" : JCTab(self.contentFrame, self.handle_JCTab)},
         ]
 
         #created the main tabs and loads the data
@@ -25,6 +25,11 @@ class TabManager:
     #handles the data that the AD tab passes on
     def handle_ADTab(self, chosen_pc):
         print(chosen_pc)
+    
+    def handle_JCTab(self, data):
+        print("creating a job called" , data[1])
+        print("with a program located at", data[0])
+        print()
     
     #handles the data that the TH tab passes on 
     def handle_THTab(self, job_path):
@@ -43,7 +48,7 @@ class TabManager:
         elif (content_frame == 'Task History'):
             current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Job Creation"):
-            current_tab = JCTab(self.contentFrame)
+            current_tab = JCTab(self.contentFrame, self.handle_JCTab)
         else:
             current_tab = completedTab(self.contentFrame, data_list)
         current_tab.create_page()
