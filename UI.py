@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, THTab, JCTab, create_grid, resize_image
+from tab_content import ADTab, THTab, JCTab, create_grid, resize_image, completedTab
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -12,12 +12,12 @@ class TabManager:
         self.tabData = [
             {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
             {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame,self.handle_create_job )},
+            {"Name": "Job Creation", "content" : JCTab(self.contentFrame, self.handle_JCTab )},
         ]
 
         #created the main tabs and loads the data
         for i, info in enumerate(self.tabData):
-            button = ttk.Button(self.tabFrame, text=info["Name"], command=lambda c=info["Name"]: self.show_content(c))
+            button = ttk.Button(self.tabFrame, text=info["Name"], command=lambda c=info["Name"]: self.show_content(c, None))
             self.mainTabs.append(button)
             button.grid(row=i, column=0, sticky="ew")
             self.tabFrame.grid_columnconfigure(i, weight=1)
@@ -31,14 +31,15 @@ class TabManager:
         with open(job_path, 'r') as file:
             data = file.read().splitlines()
             name = data[0]
-            self.new_tab(name)
+            self.new_tab(name, job_path)
 
-    # Create a new tab with the job title
-    def handle_create_job(self, job_title):
-        self.new_tab(job_title)  # Create a new tab with the job title
+    def handle_JCTab(self, data):
+        print("creating a job called" , data[1])
+        print("with a program located at", data[0])
+        print()
     
     #used to change tabs
-    def show_content(self, content_frame):
+    def show_content(self, content_frame, data_list):
         for info in self.tabData:
             info["content"].remove_page()
         if (content_frame == 'Active Directory'):
@@ -46,7 +47,9 @@ class TabManager:
         elif (content_frame == 'Task History'):
             current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Job Creation"):
-            current_tab = JCTab(self.contentFrame, self.handle_create_job)
+            current_tab = JCTab(self.contentFrame, self.handle_JCTab)
+        else:
+            current_tab = completedTab(self.contentFrame, data_list)
         current_tab.create_page()
 
 
@@ -66,7 +69,7 @@ class TabManager:
             data["FRAME"].grid(row=len(self.mainTabs) + i, column=0, sticky="nsew", padx=3)
 
     #add new tab based on name (assuming name is the unique identifier)
-    def new_tab(self, name):
+    def new_tab(self, name, job_path):
         valid = True
         for data in self.deletableTabs:
             if name == data["NAME"]:
@@ -76,7 +79,7 @@ class TabManager:
             new_frame = tk.Frame(self.tabFrame, bg="blue")
             new_frame.grid(row=len(self.deletableTabs) + len(self.mainTabs), column=5, sticky="nsew", padx=3)
 
-            inner_button = ttk.Button(new_frame, text=f"{name}", command=None)
+            inner_button = ttk.Button(new_frame, text=f"{name}", command=lambda path=job_path, name=name: self.show_content(name, path))
 
             delete_button = ttk.Button(new_frame, text="X", width=2, command=lambda i=name: self.delete_tab_frame(i))
             delete_button.pack(side=tk.RIGHT)

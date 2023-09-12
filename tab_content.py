@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import Image, ImageTk
 
 #used to create grid used in the frames
@@ -133,6 +134,7 @@ class ADTab(tk.Frame):
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
         x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
         canvas.configure(xscrollcommand=x_scrollbar.set) 
+
         # Update scrollable region
         content_frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all")) 
@@ -162,7 +164,6 @@ class THTab(tk.Frame):
         title = ttk.Label(self.frame, text = "Task History")
         title.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        # Left side
         self.search_bar = tk.Entry(self.frame)
         self.search_bar.insert(0, "Enter search")
         self.search_bar.grid(row=1, column=2, columnspan=4, sticky="ew")
@@ -204,6 +205,7 @@ class THTab(tk.Frame):
     def process_text_file(self, file_path):
         with open(file_path, 'r') as file:
             data = file.read().splitlines()
+
             #this removes all the absoulte path address from the program (just for displaying)
             #this if statement takes into account path names used either / or \
             index = data[2].rfind("\\")
@@ -223,10 +225,11 @@ class THTab(tk.Frame):
         data_label.grid(row=0, column=0, sticky="nsew")
       
         for i, data in enumerate(self.past_jobs):
-            
+
             data_frame = tk.Frame(frame)
             data_frame.grid(row=i+1, column=0, sticky="nsew")
             concatenated_data = f"{data['NAME']}....Number of Machines: {data['NUM_COMP']}...Date Started: {data['DATE']}...Program: {data['PROGRAM']}"
+
             info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
             info.grid(row=i+1, column=0, sticky="w", pady=10)
 
@@ -243,150 +246,196 @@ class THTab(tk.Frame):
 
 
 class JCTab(tk.Frame):
-    def __init__(self, contentFrame,create_job_callback, master=None):
+    def __init__(self, contentFrame, create_job_callback, master=None):
         super().__init__(master)
         self.frame = contentFrame
         self.create_job_callback = create_job_callback
+        self.validPath = False
+        self.validName = False
         create_grid(self.frame, 12, 12)
-        
-
-    #creats a call back function to pass data back to tab_manager
-    def call_create_job_callback(self, job_path):
-        self.create_job_callback(job_path)
-    
-    #shows whats in the search bar
-    def display_search(self):
-        search_text = self.search_bar.get()
-        print(search_text)
 
     def create_page(self):
-        title = ttk.Label(self.frame, text = "Job Created")
-        title.grid(row=0, column=2, columnspan=2, sticky="w")
-        # Job input
-        Job_tittle = ttk.Label(self.frame, text = "Job")
-        Job_tittle .grid(row=1, column=0, columnspan=1, sticky="w")
-        self.job_entry = tk.Entry(self.frame)
-        self.job_entry.insert(0, "Enter Job")
-        self.job_entry.bind("<FocusIn>", self.on_entry_focus_in)
-        self.job_entry.bind("<FocusOut>", self.on_entry_focus_out)
-        self.job_entry.grid(row=1, column=2, columnspan=2, sticky="ew")
+        main_title = tk.Label(self.frame, text = "Job Configuration", font=("Arial Bold",20), bg="lightblue")
+        main_title.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        # Program input
-        Program_tittle = ttk.Label(self.frame, text = "Program")
-        Program_tittle .grid(row=2, column=0, columnspan=1, sticky="w")
+        name_title = tk.Label(self.frame, text="Task Name:", font=("Arial Bold",12), bg="lightblue")
+        name_title.grid(row=1, column=2, columnspan=2)
 
-        self.program_entry = tk.Entry(self.frame)
-        self.program_entry.insert(0, "Enter Program")
-        self.program_entry.bind("<FocusIn>", self.on_entry_focus_in)
-        self.program_entry.bind("<FocusOut>", self.on_entry_focus_out)
-        self.program_entry.grid(row=2, column=2, columnspan=2, sticky="ew")
+        #this section is for the name input and calls functions to make sure its valid
+        self.name_input = tk.Entry(self.frame)
+        self.name_input.insert(0, "Enter Job Title")
+        self.name_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.name_input.bind("<FocusOut>", self.on_entry_focus_out)
+        self.name_input.grid(row=2, column=2, columnspan=2, sticky="ew")
+        reg1 = self.name_input.register(self.validate_name)
+        self.name_input.config(validate ="key", validatecommand =(reg1, '%P'))
 
-        # Create Job button
-        create_job_btn = ttk.Button(self.frame, text="Create Job",command=self.create_job)
-        #command= lambda path=data["PATH"]: self.call_create_job_callback(path)
-        create_job_btn.grid(row=3, column=2,rowspan=2, columnspan=2, sticky="ew")
-        
-        # past job config
-        past_job_config = ttk.Label(self.frame, text = "Past Job Config")
-        past_job_config .grid(row=0, column=9, columnspan=1, sticky="w")
+        self.valid_name = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
+        self.valid_name.grid(row=3, column=2, columnspan=2)
+
+        #program absoulute path title
+        program_title = tk.Label(self.frame, text="Program's Abosulte Path:", font=("Arial Bold",12), bg="lightblue")
+        program_title.grid(row=4, column=2, columnspan=2)
+
+        #this section is for the program path input and calls functions to make sure its valid
+        self.program_input = tk.Entry(self.frame)
+        self.program_input.insert(0, "Enter Program")
+        self.program_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.program_input.bind("<FocusOut>", self.on_entry_focus_out)
+        self.program_input.grid(row=5, column=2, columnspan=2, sticky="ew")
+        reg2 = self.frame.register(self.validate_path)
+        self.program_input.config(validate ="key", validatecommand =(reg2, '%P'))
+
+        #button used to open a file explorer
+        button_explore = ttk.Button(self.frame, text = "Browse Files On This Computer", command=self.file_explorer)
+        button_explore.grid(row=6, column=2, columnspan=2)
+
+  
+        self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
+        self.valid_path.grid(row=7, column=2, columnspan=2)
+
+        #create job button
+        self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
+        self.create_job.grid(row=9, column=2, columnspan=2)
+
+        #past job config side of page
+        side_title = tk.Label(self.frame, text = "Past Job Configuration", font=("Arial Bold",16), bg="lightblue")
+        side_title.grid(row=0, column=8, columnspan=2, sticky="w")
+
         self.search_bar = tk.Entry(self.frame)
         self.search_bar.insert(0, "Enter search")
         self.search_bar.bind("<FocusIn>", self.on_entry_focus_in)
         self.search_bar.bind("<FocusOut>", self.on_entry_focus_out)
-        self.search_bar.grid(row=1, column=9, columnspan=2, sticky="ew")
+        self.search_bar.grid(row=1, column=8, columnspan=2, sticky="ew")
 
         search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
-        search_bar_btn.grid(row=2, column=9, columnspan=2, sticky="ew")
-        
-        #output
-        canvas = tk.Canvas(self.frame)
-        canvas.grid(row=3, column=9, rowspan=8, columnspan=2, sticky="nsew")
+        search_bar_btn.grid(row=1, column=10, columnspan=2, sticky="ew")
 
-        self.search_directory()
+        canvas = tk.Canvas(self.frame)
+        canvas.grid(row=2, column=8, rowspan=8, columnspan=3, sticky="nsew")
 
         content_frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=content_frame)
 
+        self.search_directory()
         self.populate_scrollwindow(content_frame)
 
-        #for scroll bars
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
-        y_scrollbar.grid(row=3, column=11, rowspan=8, sticky="ns")
+        y_scrollbar.grid(row=2, column=12, rowspan=8, sticky="ns")
         canvas.configure(yscrollcommand=y_scrollbar.set)
-
-        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
-        x_scrollbar.grid(row=11, column=9, columnspan=2, sticky="ew")
-        canvas.configure(xscrollcommand=x_scrollbar.set)
 
         content_frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all")) 
+    
+    #Function is just a stub that displays what was typed in the search bar
+    def display_search(self):
+        search_text = self.search_bar.get()
+        print(search_text)
 
-  
-
-    def search_directory(self, keyword=None):
+    #serach the task history directory for details on past jobs
+    def search_directory(self):
         self.past_jobs = []
         for filename in os.listdir("./task_history_files/"):
             if filename.endswith(".txt"):
                 file_path = os.path.join("./task_history_files/", filename)
-                if keyword is None or self.file_contains_keyword(file_path, keyword):
-                    self.process_text_file(file_path)
+                self.process_text_file("task_history_files/"+filename)
 
-    def file_contains_keyword(self, file_path, keyword):
-        with open(file_path, 'r') as file:
-            data = file.read()
-            return keyword in data
-
-    def process_text_file(self, file_path):
-        with open(file_path, 'r') as file:
+    #collects data from the files (assuming first 3 lines hold all neccessary info)
+    def process_text_file(self, filename):
+        absolute_path = os.path.abspath(filename)
+        with open(absolute_path, 'r') as file:
             data = file.read().splitlines()
-            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": data[2], "PATH": file_path}
+            program = data[2]
+            job = {"NAME": data[0], "DATE":data[4], "PATH": program}
             self.past_jobs.append(job)
-            
-    #fill in the scroll window with all the info from the task stored in the task_history_file folder
+
+    #function fills in the past job configuration scrollwindow with data and buttons
     def populate_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
-
-        frame.grid_columnconfigure(0, weight=1)
-
+        data_label = tk.Label(data_frame, text=str("-"*50), bg="lightblue")
+        data_label.grid(row=0, column=0, sticky="nsew")
         for i, data in enumerate(self.past_jobs):
             data_frame = tk.Frame(frame)
             data_frame.grid(row=i+1, column=0, sticky="nsew")
 
-            data_label = tk.Label(data_frame, text=data['NAME'], bg="lightblue")
-            data_label.grid(row=i+1, column=0, sticky="w")
+            concatenated_data = f"{data['NAME']}....{data['DATE']}"
+            info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
+            info.grid(row=i+1, column=0, sticky="w", pady=10)
 
+            button = tk.Button(data_frame, text=f"Load Configuration", command= lambda path= data['PATH']: self.load_past_data(path))
+            button.grid(row=i+1, column=1, sticky="e")
+    
+    #function loads the path of a past job config into the path entry widget for the upcomming job
+    def load_past_data(self, path):
+        self.program_input.delete(0,"end")  
+        self.program_input.insert(0, path)
 
-            data_labe3 = tk.Label(data_frame, text=f"Program: {data['PROGRAM']}", bg="lightblue")
-            data_labe3.grid(row=i+1, column=2, sticky="w")
+    #function validates if input in path's entry widget is valid
+    def validate_path(self, input):
+        if os.path.exists(input):
+            self.valid_path['text'] = 'Valid Path'
+            self.valid_path.config(fg="green")
+            self.validPath = True
+        else:
+            self.valid_path['text'] = 'Invalid Path'
+            self.valid_path.config(fg="red")
+            self.validPath = False
+        self.show_button()
+        return True
 
-            button = tk.Button(data_frame, text=f"Inpect {data['NAME']}", command=lambda path=data["PATH"]: self.call_create_job_callback(path))
-            button.grid(row=i+1, column=3, sticky="e")
+    #function validates if input in name's entry widget is valid
+    def validate_name(self, input):
+        valid = True
+        for data in self.past_jobs:
+            if input == data["NAME"] or input == data["NAME"].replace(' ', '_') or input == '' or input == "Enter Job Title":
+                valid = False
 
+        if valid:
+            self.valid_name['text'] = 'Valid Name'
+            self.valid_name.config(fg="green")
+            self.validName = True
+        else:
+            self.valid_name['text'] = 'Invalid Name'
+            self.valid_name.config(fg="red")
+            self.validName = False
+        self.show_button()
+        return True
+    
+    #this function is used to see if the create job button can be clickable/shown to user
+    def show_button(self):
+        if self.validName and self.validPath:
+            self.create_job.config(state=tk.NORMAL)
+        else:
+            self.create_job.config(state=tk.DISABLED)
+    
+    #function used to send data back to tab_manager
+    def call_create_job_callback(self):
+        self.create_job_callback([self.program_input.get(), self.name_input.get()])
 
-            data_frame.grid_columnconfigure(0, weight=1)
-            data_frame.grid_columnconfigure(1, weight=1)
-            data_frame.grid_columnconfigure(2, weight=1)
-
+    #function used to create a file explorer    
+    def file_explorer(self):
+        filename = filedialog.askopenfilename(initialdir = "./", title = "Select a File", filetypes = (("Executable files","*.exe*"), ("all files","*.*")))
+        
+        # Change label contents
+        if filename != "":
+            self.load_past_data(filename)
+    
     def on_entry_focus_in(self, event):
         if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Program" or event.widget.get() == "Enter search":
             event.widget.delete(0, "end")
 
     def on_entry_focus_out(self, event):
         if event.widget.get() == "":
-            if event.widget == self.job_entry:
+            if event.widget == self.name_input:
                 event.widget.insert(0, "Enter Job Title")
-            elif event.widget == self.program_entry:
+            elif event.widget == self.program_input:
                 event.widget.insert(0, "Enter Program")
             elif event.widget == self.search_bar:
                 event.widget.insert(0, "Enter search")
         event.widget.configure(fg='gray')
-    def create_job(self):
-        job_title = self.job_title_entry.get()
-        if job_title:
-            self.create_job_callback(job_title)
-
+        
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
@@ -401,18 +450,19 @@ class completedTab(tk.Frame):
 
     def create_page(self):
         self.gather_file_details()
+
         status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12))
         status.grid(row=0, column=2, columnspan=2, sticky="w")
+
         name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20))
         name.grid(row=1, column=2, columnspan=2, sticky="w")
-       
+
         date = tk.Label(self.frame, text = f"{self.main_details[4]}", font=("Arial Bold",12))
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
         btn_export = tk.Button(self.frame, text="Export task data", font=("Arial Bold", 12),command=self.exportdata_button_clicked)
         btn_export.grid(row=1, column=10, columnspan=2, sticky='ew')
 
-            
         #this section is for displaying the machines in the task  
         main_Canvas = tk.Canvas(self.frame)
         main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=9, sticky="ew")
@@ -467,6 +517,7 @@ class completedTab(tk.Frame):
             self.main_details.append(program)
             self.main_details.append(status)
             self.main_details.append(date)
+
             for f in file:
                 split = f[:-1].split('|')
                 machine = {"NAME": split[0], "IP": split[1], "CONTENTS": split[2]}
