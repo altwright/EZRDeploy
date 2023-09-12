@@ -104,10 +104,6 @@ class ADTab(tk.Frame):
         create_grid(content_frame, num_rows, 5)
         canvas.create_window((0, 0), window=content_frame)
 
-        pc_image1 = Image.open("desktop-outline.png")
-
-        pc_img1 = ImageTk.PhotoImage(resize_image(pc_image1, 100, 100))
-
         # Define constants for layout
         num_per_row = 5
         spacing = 25  # Adjust as needed
@@ -136,17 +132,7 @@ class ADTab(tk.Frame):
 
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
         x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
-        canvas.configure(xscrollcommand=x_scrollbar.set)
-
-        # Configure mouse wheel scrolling
-        def on_mousewheel(event):
-            if event.delta > 0:
-                canvas.yview_scroll(-1 * (event.delta // 120), "units")
-            else:
-                canvas.yview_scroll(1 * (abs(event.delta) // 120), "units")
-            canvas.xview_scroll(-1 * (event.delta // 120), "units")
-        canvas.bind_all("<MouseWheel>", on_mousewheel)  
-
+        canvas.configure(xscrollcommand=x_scrollbar.set) 
         # Update scrollable region
         content_frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all")) 
@@ -218,7 +204,13 @@ class THTab(tk.Frame):
     def process_text_file(self, file_path):
         with open(file_path, 'r') as file:
             data = file.read().splitlines()
-            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": data[2], "PATH": file_path}
+            #this removes all the absoulte path address from the program (just for displaying)
+            #this if statement takes into account path names used either / or \
+            index = data[2].rfind("\\")
+            if index == -1:
+                index = data[2].rfind("/")
+            program = data[2][index+1:]
+            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": program, "DATE": data[4], "PATH": file_path}
             self.past_jobs.append(job)
 
     #fill in the scroll window with all the info from the task stored in the task_history_file folder
@@ -227,27 +219,19 @@ class THTab(tk.Frame):
         data_frame.grid(row=0, column=0, sticky="nsew")
 
         #this is used to allow the frame to spread out horizontally more
-        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
+        data_label = tk.Label(data_frame, text=str("-"*150), bg="lightblue")
         data_label.grid(row=0, column=0, sticky="nsew")
       
         for i, data in enumerate(self.past_jobs):
-            concatenated_data = f"{data['NAME']}, Number of Machines: {data['NUM_COMP']}, Program: {data['PROGRAM']}"
-
+            
             data_frame = tk.Frame(frame)
             data_frame.grid(row=i+1, column=0, sticky="nsew")
-
-            data_label = tk.Label(data_frame, text=data['NAME'], bg="lightblue")
-            data_label.grid(row=i+1, column=0, sticky="w")
-
-            data_labe2 = tk.Label(data_frame, text=f"Number of Machines: {data['NUM_COMP']}", bg="lightblue")
-            data_labe2.grid(row=i+1, column=1, sticky="w")
-
-            data_labe3 = tk.Label(data_frame, text=f"Program: {data['PROGRAM']}", bg="lightblue")
-            data_labe3.grid(row=i+1, column=2, sticky="w")
-            
+            concatenated_data = f"{data['NAME']}....Number of Machines: {data['NUM_COMP']}...Date Started: {data['DATE']}...Program: {data['PROGRAM']}"
+            info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
+            info.grid(row=i+1, column=0, sticky="w", pady=10)
 
             button = tk.Button(data_frame, text=f"Inspect {data['NAME']}", command= lambda path=data["PATH"]: self.call_create_job_callback(path))
-            button.grid(row=i+1, column=3, sticky="e")
+            button.grid(row=i+1, column=1, sticky="e")
 
             data_frame.grid_columnconfigure(0, weight=1)
             data_frame.grid_columnconfigure(1, weight=1)
@@ -422,7 +406,7 @@ class completedTab(tk.Frame):
         name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20))
         name.grid(row=1, column=2, columnspan=2, sticky="w")
        
-        date = tk.Label(self.frame, text = "DATE", font=("Arial Bold",12))
+        date = tk.Label(self.frame, text = f"{self.main_details[4]}", font=("Arial Bold",12))
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
         btn_export = tk.Button(self.frame, text="Export task data", font=("Arial Bold", 12),command=self.exportdata_button_clicked)
@@ -477,11 +461,12 @@ class completedTab(tk.Frame):
             num_computers = file.readline()[:-1]
             program = file.readline()[:-1]
             status = file.readline()[:-1]
+            date = file.readline()[:-1]
             self.main_details.append(name)
             self.main_details.append(num_computers)
             self.main_details.append(program)
             self.main_details.append(status)
-
+            self.main_details.append(date)
             for f in file:
                 split = f[:-1].split('|')
                 machine = {"NAME": split[0], "IP": split[1], "CONTENTS": split[2]}
