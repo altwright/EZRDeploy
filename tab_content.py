@@ -273,8 +273,8 @@ class JCTab(tk.Frame):
         self.valid_name = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
         self.valid_name.grid(row=3, column=2, columnspan=2)
 
-        #program absoulute path title
-        program_title = tk.Label(self.frame, text="Program's Abosulte Path:", font=("Arial Bold",12), bg="lightblue")
+        #program absolute path title
+        program_title = tk.Label(self.frame, text="Program's Absolute Path:", font=("Arial Bold",12), bg="lightblue")
         program_title.grid(row=4, column=2, columnspan=2)
 
         #this section is for the program path input and calls functions to make sure its valid
@@ -287,9 +287,20 @@ class JCTab(tk.Frame):
         self.program_input.config(validate ="key", validatecommand =(reg2, '%P'))
 
         #button used to open a file explorer
-        button_explore = ttk.Button(self.frame, text = "Browse Files On This Computer", command=self.file_explorer)
-        button_explore.grid(row=6, column=2, columnspan=2)
-
+        button_explore = ttk.Button(self.frame, text = "Browse...", state="disabled", command=self.file_explorer)
+        button_explore.grid(row=6, column=3)
+        
+        #checkbutton to toggle if program on machine or to be uploaded
+        def toggle_file_location():
+            if (self.program_input["state"] == "normal"):
+                self.program_input["state"] = "disabled"
+                button_explore["state"] = "normal"
+            else:
+                self.program_input["state"] = "normal"
+                button_explore["state"] = "disabled"
+        file_location = tk.Checkbutton(self.frame, text="File on Local Machine?", onvalue=1, offvalue=0, command=toggle_file_location)
+        file_location.grid(row=6, column=2, sticky="w")
+        file_location.select()
   
         self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
         self.valid_path.grid(row=7, column=2, columnspan=2)
