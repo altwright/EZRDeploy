@@ -10,8 +10,6 @@ def create_grid(frame, rows, columns):
         frame.grid_rowconfigure(i, weight=1)
         for j in range(columns):
             frame.grid_columnconfigure(j, weight=1)
-def resize_image(image, width, height):
-        return image.resize((width, height), Image.ANTIALIAS)
 
 
 
@@ -20,9 +18,9 @@ class ADTab(tk.Frame):
         super().__init__(master)
         self.frame = contentFrame
         self.create_job_callback = create_job_callback
-        create_grid(self.frame, 12, 12)
         self.pc_buttons = []
         self.chosen_pc = []
+        create_grid(self.frame, 30, 30)
 
     #call back function used to send data back to tab_manager
     def call_create_job_callback(self):
@@ -81,7 +79,7 @@ class ADTab(tk.Frame):
             self.create_job.config(state=tk.DISABLED)
 
     def create_page(self):
-        title = ttk.Label(self.frame, text = "Active Directory")
+        title = tk.Label(self.frame, text = "Active Directory", font=("Arial Bold",20), bg="lightblue")
         title.grid(row=0, column=2, columnspan=2, sticky="w")
 
         #checkbox button for selecting all machines listed
@@ -94,7 +92,7 @@ class ADTab(tk.Frame):
         
         # Create a Canvas widget for scrollable content
         canvas = tk.Canvas(self.frame)
-        canvas.grid(row=2, column=2, rowspan=8, columnspan=8, sticky="nsew")
+        canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
 
         #collect machine list from active directory
         self.machine_list = self.gather_machines()
@@ -128,11 +126,11 @@ class ADTab(tk.Frame):
 
         # Add scrollbars
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
-        y_scrollbar.grid(row=2, column=10, rowspan=8, sticky="ns")
+        y_scrollbar.grid(row=2, column=29, rowspan=27, sticky="ns")
         canvas.configure(yscrollcommand=y_scrollbar.set)
 
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
-        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        x_scrollbar.grid(row=29, column=2, columnspan=27, sticky="ew")
         canvas.configure(xscrollcommand=x_scrollbar.set) 
 
         # Update scrollable region
@@ -149,7 +147,7 @@ class THTab(tk.Frame):
         super().__init__(master)
         self.frame = contentFrame
         self.create_job_callback = create_job_callback
-        create_grid(self.frame, 12, 12)
+        create_grid(self.frame, 30, 30)
 
     #creats a call back function to pass data back to tab_manager
     def call_create_job_callback(self, job_path):
@@ -161,7 +159,7 @@ class THTab(tk.Frame):
         print(search_text)
 
     def create_page(self):
-        title = ttk.Label(self.frame, text = "Task History")
+        title = tk.Label(self.frame, text = "Task History", font=("Arial Bold",20), bg="lightblue")
         title.grid(row=0, column=2, columnspan=2, sticky="w")
 
         self.search_bar = tk.Entry(self.frame)
@@ -172,7 +170,7 @@ class THTab(tk.Frame):
         search_bar_btn.grid(row=1, column=7, columnspan=2, sticky="ew")
 
         canvas = tk.Canvas(self.frame)
-        canvas.grid(row=2, column=2, rowspan=8, columnspan=8, sticky="nsew")
+        canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
 
         self.search_directory()
 
@@ -183,11 +181,11 @@ class THTab(tk.Frame):
 
         #for scroll bars
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
-        y_scrollbar.grid(row=2, column=10, rowspan=8, sticky="ns")
+        y_scrollbar.grid(row=2, column=29, rowspan=26, sticky="ns")
         canvas.configure(yscrollcommand=y_scrollbar.set)
 
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
-        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        x_scrollbar.grid(row=29, column=2, columnspan=26, sticky="ew")
         canvas.configure(xscrollcommand=x_scrollbar.set)
 
         content_frame.update_idletasks()
@@ -252,61 +250,117 @@ class JCTab(tk.Frame):
         self.create_job_callback = create_job_callback
         self.validPath = False
         self.validName = False
-        create_grid(self.frame, 12, 12)
+        create_grid(self.frame, 30, 30)
 
     def create_page(self):
         main_title = tk.Label(self.frame, text = "Job Configuration", font=("Arial Bold",20), bg="lightblue")
         main_title.grid(row=0, column=2, columnspan=2, sticky="w")
 
         name_title = tk.Label(self.frame, text="Task Name:", font=("Arial Bold",12), bg="lightblue")
-        name_title.grid(row=1, column=2, columnspan=2)
+        name_title.grid(row=1, column=2, columnspan=19)
 
         #this section is for the name input and calls functions to make sure its valid
         self.name_input = tk.Entry(self.frame)
-        self.name_input.insert(0, "Enter Name")
-        self.name_input.grid(row=2, column=2, columnspan=2, sticky="ew")
+        self.name_input.insert(0, "Enter Job Title")
+        self.name_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.name_input.bind("<FocusOut>", self.on_entry_focus_out)
+        self.name_input.grid(row=2, column=2, columnspan=19, sticky="ew")
         reg1 = self.name_input.register(self.validate_name)
         self.name_input.config(validate ="key", validatecommand =(reg1, '%P'))
 
         self.valid_name = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
-        self.valid_name.grid(row=3, column=2, columnspan=2)
+        self.valid_name.grid(row=3, column=2, columnspan=19)
 
         #program absoulute path title
         program_title = tk.Label(self.frame, text="Program's Abosulte Path:", font=("Arial Bold",12), bg="lightblue")
-        program_title.grid(row=4, column=2, columnspan=2)
+        program_title.grid(row=4, column=2, columnspan=19)
 
         #this section is for the program path input and calls functions to make sure its valid
         self.program_input = tk.Entry(self.frame)
         self.program_input.insert(0, "Enter Program")
-        self.program_input.grid(row=5, column=2, columnspan=2, sticky="ew")
+        self.program_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.program_input.bind("<FocusOut>", self.on_entry_focus_out)
+        self.program_input.grid(row=5, column=2, columnspan=19, sticky="ew")
         reg2 = self.frame.register(self.validate_path)
         self.program_input.config(validate ="key", validatecommand =(reg2, '%P'))
 
+        self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
+        self.valid_path.grid(row=6, column=2, columnspan=19)
+
+        #check button for running program as system admin
+        self.sysAdmin = tk.BooleanVar()
+        #initially set to false
+        self.sysAdmin.set("False")
+        sysAdmin_button = ttk.Checkbutton(self.frame, text="Run Program as System Admin", variable=self.sysAdmin, onvalue=True, offvalue=False)
+        sysAdmin_button.grid(row=7, column=2, columnspan=19)
+
+        #check button for making sure if program in on local machine or remote
+        self.localMachine = tk.BooleanVar()
+        #initially set to false
+        self.localMachine.set("False")
+        localMachine_option_button = ttk.Checkbutton(self.frame, text="Select Program on Local Machine", variable=self.localMachine, onvalue=True, offvalue=False)
+        localMachine_option_button.grid(row=8, column=2, columnspan=8)
+
         #button used to open a file explorer
         button_explore = ttk.Button(self.frame, text = "Browse Files On This Computer", command=self.file_explorer)
-        button_explore.grid(row=6, column=2, columnspan=2)
+        button_explore.grid(row=8, column=10, columnspan=8)
 
-  
-        self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
-        self.valid_path.grid(row=7, column=2, columnspan=2)
+        ##
+        #adding additional files to be sent over
+        ##
+
+        #used to check if user wants to send over additional files
+        self.additionalFile = tk.BooleanVar()
+        self.additionalFile.set("False")
+        additionalFile_option_button = ttk.Checkbutton(self.frame, text="Send Additional Files", variable=self.additionalFile, onvalue=True, offvalue=False)
+        additionalFile_option_button.grid(row=9, column=2, columnspan=19)
+
+        #Used to all user to enter additional files
+        self.additionalFile_input = tk.Entry(self.frame)
+        self.additionalFile_input.insert(0, "Enter Additional File Aboslute Path")
+        self.additionalFile_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.additionalFile_input.bind("<FocusOut>", self.on_entry_focus_out)
+        self.additionalFile_input.grid(row=10, column=2, columnspan=19, sticky="ew")
+        #reg2 = self.frame.register(self.validate_path)
+        #self.additionalFile_input.config(validate ="key", validatecommand =(reg2, '%P'))
+
+        self.valid_additionalFile_path = tk.Label(self.frame, text="test", font=("Arial Bold",12), fg="green", bg='lightblue')
+        self.valid_additionalFile_path.grid(row=11, column=2, columnspan=19)
+
+        #button used to add file to list of other additional files
+        self.additionalFile_Button = ttk.Button(self.frame, text="Add File", command=None)
+        self.additionalFile_Button.grid(row=12, column=2, columnspan=19)
+
+        #button used to open a file explorer for additional files
+        additionalFiles_button_explore = ttk.Button(self.frame, text = "Browse Files", command=self.file_explorer)
+        additionalFiles_button_explore.grid(row=13, column=2, columnspan=19)
+
+        #button used to view all additional files added so far
+        self.additionalFile_Button = ttk.Button(self.frame, text="View All Additional Files Chosen", command=None)
+        self.additionalFile_Button.grid(row=14, column=2, columnspan=19)
+
+
+
 
         #create job button
         self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
-        self.create_job.grid(row=9, column=2, columnspan=2)
+        self.create_job.grid(row=29, column=2, columnspan=19)
 
         #past job config side of page
         side_title = tk.Label(self.frame, text = "Past Job Configuration", font=("Arial Bold",16), bg="lightblue")
-        side_title.grid(row=0, column=8, columnspan=2, sticky="w")
+        side_title.grid(row=0, column=23, columnspan=2, sticky="w")
 
         self.search_bar = tk.Entry(self.frame)
         self.search_bar.insert(0, "Enter search")
-        self.search_bar.grid(row=1, column=8, columnspan=2, sticky="ew")
+        self.search_bar.bind("<FocusIn>", self.on_entry_focus_in)
+        self.search_bar.bind("<FocusOut>", self.on_entry_focus_out)
+        self.search_bar.grid(row=1, column=23, columnspan=2, sticky="ew")
 
         search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
-        search_bar_btn.grid(row=1, column=10, columnspan=2, sticky="ew")
+        search_bar_btn.grid(row=1, column=27, columnspan=2, sticky="ew")
 
         canvas = tk.Canvas(self.frame)
-        canvas.grid(row=2, column=8, rowspan=8, columnspan=3, sticky="nsew")
+        canvas.grid(row=2, column=23, rowspan=28, columnspan=5, sticky="nsew")
 
         content_frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=content_frame)
@@ -315,7 +369,7 @@ class JCTab(tk.Frame):
         self.populate_scrollwindow(content_frame)
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
-        y_scrollbar.grid(row=2, column=12, rowspan=8, sticky="ns")
+        y_scrollbar.grid(row=2, column=29, rowspan=28, sticky="ns")
         canvas.configure(yscrollcommand=y_scrollbar.set)
 
         content_frame.update_idletasks()
@@ -383,7 +437,7 @@ class JCTab(tk.Frame):
     def validate_name(self, input):
         valid = True
         for data in self.past_jobs:
-            if input == data["NAME"] or input == data["NAME"].replace(' ', '_'):
+            if input == data["NAME"] or input == data["NAME"].replace(' ', '_') or input == '' or input == "Enter Job Title":
                 valid = False
 
         if valid:
@@ -415,6 +469,20 @@ class JCTab(tk.Frame):
         # Change label contents
         if filename != "":
             self.load_past_data(filename)
+    
+    def on_entry_focus_in(self, event):
+        if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Program" or event.widget.get() == "Enter search":
+            event.widget.delete(0, "end")
+
+    def on_entry_focus_out(self, event):
+        if event.widget.get() == "":
+            if event.widget == self.name_input:
+                event.widget.insert(0, "Enter Job Title")
+            elif event.widget == self.program_input:
+                event.widget.insert(0, "Enter Program")
+            elif event.widget == self.search_bar:
+                event.widget.insert(0, "Enter search")
+        event.widget.configure(fg='gray')
         
     def remove_page(self):
         for widget in self.frame.winfo_children():
@@ -426,26 +494,26 @@ class completedTab(tk.Frame):
         super().__init__(master)
         self.frame = contentFrame
         self.job_path = job_path
-        create_grid(self.frame, 12, 12)
+        create_grid(self.frame, 30, 30)
 
     def create_page(self):
         self.gather_file_details()
 
-        status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12))
+        status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12), bg="lightblue")
         status.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20))
+        name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20), bg="lightblue")
         name.grid(row=1, column=2, columnspan=2, sticky="w")
 
-        date = tk.Label(self.frame, text = f"{self.main_details[4]}", font=("Arial Bold",12))
+        date = tk.Label(self.frame, text = f"{self.main_details[4]}", font=("Arial Bold",12), bg="lightblue")
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
         btn_export = tk.Button(self.frame, text="Export task data", font=("Arial Bold", 12),command=self.exportdata_button_clicked)
-        btn_export.grid(row=1, column=10, columnspan=2, sticky='ew')
+        btn_export.grid(row=1, column=26, columnspan=3, sticky='ew')
 
         #this section is for displaying the machines in the task  
         main_Canvas = tk.Canvas(self.frame)
-        main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=9, sticky="ew")
+        main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=26, sticky="ew")
 
         main_content_frame = tk.Frame(main_Canvas)
         main_Canvas.create_window((0, 0), window=main_content_frame)
@@ -453,18 +521,18 @@ class completedTab(tk.Frame):
         self.populate_top_scrollwindow(main_content_frame)
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=main_Canvas.yview)
-        y_scrollbar.grid(row=3, column=11, rowspan=1, sticky="ns")
+        y_scrollbar.grid(row=3, column=29, rowspan=3, sticky="ns")
         main_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
         #this next section is for the machine 'console'
         main_content_frame.update_idletasks()
         main_Canvas.config(scrollregion=main_Canvas.bbox("all")) 
 
-        self.machine_name = tk.Label(self.frame, text = "Machine ID", font=("Arial Bold",16))
-        self.machine_name.grid(row=8, column=2, columnspan=2, sticky="w")
+        self.machine_name = tk.Label(self.frame, text = "Machine ID", font=("Arial Bold",16), bg="lightblue")
+        self.machine_name.grid(row=10, column=2, columnspan=2, sticky="w")
 
         machine_Canvas = tk.Canvas(self.frame)
-        machine_Canvas.grid(row=9, column=2, rowspan=1, columnspan=9, sticky="ew")
+        machine_Canvas.grid(row=11, column=2, rowspan=10, columnspan=26, sticky="ew")
 
         machine_content_frame = tk.Frame(machine_Canvas)
         machine_Canvas.create_window((0, 0), window=machine_content_frame)
@@ -472,11 +540,11 @@ class completedTab(tk.Frame):
         self.populate_bottom_scrollwindow(machine_content_frame)
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=machine_Canvas.yview)
-        y_scrollbar.grid(row=9, column=11, rowspan=1, sticky="ns")
+        y_scrollbar.grid(row=11, column=29, rowspan=10, sticky="ns")
         machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=machine_Canvas.xview)
-        x_scrollbar.grid(row=10, column=2, columnspan=8, sticky="ew")
+        x_scrollbar.grid(row=22, column=2, columnspan=26, sticky="ew")
         machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
 
         machine_content_frame.update_idletasks()

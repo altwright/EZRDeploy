@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, THTab, JCTab, create_grid, resize_image, completedTab
+from tab_content import ADTab, THTab, JCTab, create_grid, completedTab
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -12,7 +12,7 @@ class TabManager:
         self.tabData = [
             {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
             {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame, self.handle_JCTab)},
+            {"Name": "Job Creation", "content" : JCTab(self.contentFrame, self.handle_JCTab )},
         ]
 
         #created the main tabs and loads the data
@@ -26,18 +26,17 @@ class TabManager:
     def handle_ADTab(self, chosen_pc):
         print(chosen_pc)
     
-    def handle_JCTab(self, data):
-        print("creating a job called" , data[1])
-        print("with a program located at", data[0])
-        print()
-    
     #handles the data that the TH tab passes on 
     def handle_THTab(self, job_path):
         with open(job_path, 'r') as file:
             data = file.read().splitlines()
             name = data[0]
             self.new_tab(name, job_path)
-            
+
+    def handle_JCTab(self, data):
+        print("creating a job called" , data[1])
+        print("with a program located at", data[0])
+        print()
     
     #used to change tabs
     def show_content(self, content_frame, data_list):
@@ -52,6 +51,7 @@ class TabManager:
         else:
             current_tab = completedTab(self.contentFrame, data_list)
         current_tab.create_page()
+
 
     #removes a tab and its frame
     def delete_tab_frame(self, name):
