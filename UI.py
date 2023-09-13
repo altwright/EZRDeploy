@@ -34,8 +34,11 @@ class TabManager:
             self.new_tab(name, job_path)
 
     def handle_JCTab(self, data):
-        print("creating a job called" , data[1])
-        print("with a program located at", data[0])
+        print("creating a job called...." , data["NAME"])
+        print("with a program located at....", data["PROGRAM"])
+        print("On the local machien....", data["LOCALMACHINE"])
+        print("Run as system admin....", data["SYSADMIN"])
+        print("With these additional Files....", data["ADDFILES"])
         print()
     
     #used to change tabs
