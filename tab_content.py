@@ -288,23 +288,26 @@ class JCTab(tk.Frame):
         self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
         self.valid_path.grid(row=6, column=2, columnspan=19)
 
+        self.selected_path = tk.Label(self.frame, font=("Arial Bold",12), bg='lightblue')
+        self.selected_path.grid(row=7, column=2, columnspan=19)
+
         #check button for running program as system admin
         self.sysAdmin = tk.BooleanVar()
         #initially set to false
         self.sysAdmin.set("False")
         sysAdmin_button = ttk.Checkbutton(self.frame, text="Run Program as System Admin", variable=self.sysAdmin, onvalue=True, offvalue=False)
-        sysAdmin_button.grid(row=7, column=2, columnspan=19)
+        sysAdmin_button.grid(row=8, column=2, columnspan=19)
 
         #check button for making sure if program in on local machine or remote
         self.localMachine = tk.BooleanVar()
         #initially set to false
         self.localMachine.set("False")
         localMachine_option_button = ttk.Checkbutton(self.frame, text="Select Program on Local Machine", variable=self.localMachine, onvalue=True, offvalue=False, command=self.local_machine_option)
-        localMachine_option_button.grid(row=8, column=2, columnspan=8)
+        localMachine_option_button.grid(row=9, column=2, columnspan=8)
 
         #button used to open a file explorer
         self.button_explore = ttk.Button(self.frame, text = "Browse Files", state=tk.DISABLED, command=lambda i=1: self.file_explorer(i))
-        self.button_explore.grid(row=8, column=10, columnspan=8)
+        self.button_explore.grid(row=9, column=10, columnspan=8)
 
         ##
         #adding additional files to be sent over
@@ -314,38 +317,38 @@ class JCTab(tk.Frame):
         self.additionalFile = tk.BooleanVar()
         self.additionalFile.set("False")
         additionalFile_option_button = ttk.Checkbutton(self.frame, text="Send Additional Files", variable=self.additionalFile, onvalue=True, offvalue=False, command=self.additional_file_option)
-        additionalFile_option_button.grid(row=12, column=2, columnspan=19)
+        additionalFile_option_button.grid(row=13, column=2, columnspan=19)
 
         #file absoulute path title
         file_title = tk.Label(self.frame, text="Files's Absolute Path:", font=("Arial Bold",12), bg="lightblue")
-        file_title.grid(row=13, column=2, columnspan=19)
+        file_title.grid(row=14, column=2, columnspan=19)
 
         #Used to all user to enter additional files
         self.additionalFile_input = tk.Entry(self.frame)
         self.additionalFile_input.insert(0, "Enter Additional File Aboslute Path")
         self.additionalFile_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.additionalFile_input.config(state=tk.DISABLED)
-        self.additionalFile_input.grid(row=14, column=2, columnspan=19, sticky="ew")
+        self.additionalFile_input.grid(row=15, column=2, columnspan=19, sticky="ew")
         reg3 = self.frame.register(self.validate_file_path)
         self.additionalFile_input.config(validate ="key", validatecommand =(reg3, '%P'))
 
         self.valid_additionalFile_path = tk.Label(self.frame, font=("Arial Bold",12), fg="green", bg='lightblue')
-        self.valid_additionalFile_path.grid(row=15, column=2, columnspan=19)
+        self.valid_additionalFile_path.grid(row=16, column=2, columnspan=19)
 
         #button used to add file to list of other additional files
         self.additionalFile_Button = ttk.Button(self.frame, text="Add File", state=tk.DISABLED, command=self.add_additional_file)
-        self.additionalFile_Button.grid(row=16, column=2, columnspan=19)
+        self.additionalFile_Button.grid(row=17, column=2, columnspan=19)
 
         #button used to open a file explorer for additional files
         self.additionalFiles_button_explore = ttk.Button(self.frame, text = "Browse Files", state=tk.DISABLED, command=lambda i=2: self.file_explorer(i))
-        self.additionalFiles_button_explore.grid(row=17, column=2, columnspan=19)
+        self.additionalFiles_button_explore.grid(row=18, column=2, columnspan=19)
 
         #button used to view all additional files added so far
         self.additionalFile_view_Button = ttk.Button(self.frame, text="View All Additional Files Chosen", state=tk.DISABLED, command=self.create_file_window)
-        self.additionalFile_view_Button.grid(row=18, column=2, columnspan=19)
+        self.additionalFile_view_Button.grid(row=19, column=2, columnspan=19)
 
         self.valid_additionalFiles = tk.Label(self.frame, font=("Arial Bold",12), fg="green", bg='lightblue')
-        self.valid_additionalFiles.grid(row=19, column=2, columnspan=19)
+        self.valid_additionalFiles.grid(row=20, column=2, columnspan=19)
 
 
 
@@ -395,9 +398,11 @@ class JCTab(tk.Frame):
         if self.localMachine.get():
             self.button_explore.config(state=tk.NORMAL)
             self.validate_path(self.program_input.get())
+            self.display_program(self.program_input.get())
         else:
             self.button_explore.config(state=tk.DISABLED)
             self.valid_path['text'] = ''
+            self.selected_path['text'] = "" 
     
     #used to change the state of buttons and entry widget involved in sending additional files
     def additional_file_option(self):
@@ -414,8 +419,22 @@ class JCTab(tk.Frame):
             self.additionalFile_Button.config(state=tk.DISABLED)
             self.valid_additionalFile_path['text'] = ''
             self.valid_additionalFiles['text'] = ''
+            self.selected_path['text'] = ''
             self.validFiles = True
         self.show_button()
+    
+    def display_program(self, input):
+        if (self.validPath):
+            if (input.rfind("/") != -1):
+                index = input.rfind("/")
+                self.selected_path['text'] = "You are selecting the program...." + input[index+1:]
+            elif (input.rfind("\\") != -1):
+                index = input.rfind("\\")
+                self.selected_path['text'] = "You are selecting the program...." + input[index+1:]
+        else:
+            self.selected_path['text'] = ""
+            
+
     
     #Function is just a stub that displays what was typed in the search bar
     def display_search(self):
@@ -473,10 +492,12 @@ class JCTab(tk.Frame):
                 self.valid_path['text'] = 'Valid Path'
                 self.valid_path.config(fg="green")
                 self.validPath = True
+                self.display_program(input)
             else:
                 self.valid_path['text'] = 'Invalid Path'
                 self.valid_path.config(fg="red")
                 self.validPath = False
+                self.selected_path['text'] = ""
         else:
             #assuming the absolute path they entered in is correct(program is loacted on remote machine, so no way of checking until we send a message to the remote machine)
             self.validPath = True
