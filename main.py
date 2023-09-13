@@ -7,7 +7,7 @@ from queue import Queue
 import threading
 import sys
 
-from tasks.execution import Job
+from job import Job
 
 class AppState:
     computers = [] 
@@ -50,17 +50,18 @@ if __name__ == "__main__":
     stdinQ = Queue()
     cancel_event = threading.Event()
     
-    job = Job(c, "test.exe", None, stdoutQ, stderrQ, stdinQ, 
+    job = Job(c, "cmd.exe", None, stdoutQ, stderrQ, stdinQ, 
               timeout_seconds=60, 
-              copy_local_exe=True, 
+              copy_local_exe=False, 
               local_exe_src_dir=".\\dist", 
               overwrite_remote_exe=True,
               working_dir=r'C:\Users\Administrator\Desktop',
-              copy_local_files=True,
+              copy_local_files=False,
               src_files_list=[r".\dist\test.txt"],
               overwrite_remote_files=True,
               clean_copied_files_after=True,
-              clean_copied_exe_after=True
+              clean_copied_exe_after=True,
+              use_system_account=True
               )
     job.start()
 
