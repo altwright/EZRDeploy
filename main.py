@@ -9,6 +9,8 @@ import sys
 
 from job import Job
 
+import time
+
 class AppState:
     computers = [] 
 
@@ -17,12 +19,9 @@ def print_stdout(stdoutQ: Queue):
         if not stdoutQ.empty():
             print(stdoutQ.get(), end="")
 
-def get_stdin(stdinQ: Queue, cancel_event: threading.Event):
+def get_stdin(stdinQ: Queue):
     for line in sys.stdin:
-        if line.find("\CANCEL"):
-            stdinQ.put(line)
-        else:
-            cancel_event.set()
+        stdinQ.put(line)
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -48,9 +47,8 @@ if __name__ == "__main__":
     stdoutQ = Queue()
     stderrQ = Queue()
     stdinQ = Queue()
-    cancel_event = threading.Event()
     
-    job = Job(c, "cmd.exe", None, stdoutQ, stderrQ, stdinQ, 
+    job = Job(c, "cmd.exe", None, stdoutQ, stderrQ, stdinQ,
               timeout_seconds=60, 
               copy_local_exe=False, 
               local_exe_src_dir=".\\dist", 
@@ -68,7 +66,7 @@ if __name__ == "__main__":
     print('\nSTDOUT:')
     stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
     stderr_thread = threading.Thread(target=print_stdout, args=(stderrQ,), daemon=True)
-    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, cancel_event), daemon=True)
+    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ,), daemon=True)
     stdout_thread.start()
     stderr_thread.start()
     stdin_thread.start()
