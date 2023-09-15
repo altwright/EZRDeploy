@@ -36,7 +36,8 @@ class TabManager:
 
     def handle_JCTab(self, data):
         print("creating a job called...." , data["NAME"])
-        print("with a program located at....", data["PROGRAM"])
+        print("with a program called....", data["PROGRAM"])
+        print("With the arguments...", data["ARGUMENTS"])
         print("On the local machien....", data["LOCALMACHINE"])
         print("Run as system admin....", data["SYSADMIN"])
         print("With these additional Files....", data["ADDFILES"])
