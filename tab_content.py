@@ -387,11 +387,10 @@ class JCTab(tk.Frame):
         self.valid_additionalFiles.grid(row=25, column=2, columnspan=19)
 
 
-
-
         #create job button
         self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
         self.create_job.grid(row=26, column=2, columnspan=19)
+
 
         #past job config side of page
         side_title = tk.Label(self.frame, text = "Past Job Configuration", font=("Arial Bold",16), bg="lightblue")
@@ -402,22 +401,26 @@ class JCTab(tk.Frame):
         self.search_bar.bind("<FocusIn>", self.on_entry_focus_in)
         self.search_bar.grid(row=1, column=23, columnspan=2, sticky="ew")
 
-        search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
-        search_bar_btn.grid(row=1, column=27, columnspan=2, sticky="ew")
-
         self.canvas = tk.Canvas(self.frame)
         self.canvas.grid(row=2, column=23, rowspan=14, columnspan=5, sticky="nsew")
         self.set_mousewheel(self.canvas, lambda e: self.canvas.config(text=e.delta), 1)
 
-        content_frame = tk.Frame(self.canvas)
-        self.canvas.create_window((0, 0), window=content_frame)
+        self.content_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.content_frame)
 
         self.search_directory()
-        self.populate_scrollwindow(content_frame)
+        self.populate_scrollwindow(self.content_frame, '')
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
         y_scrollbar.grid(row=2, column=29, rowspan=14, sticky="ns")
         self.canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        #search button and view all buttons are made down here as self.content_frame needs to be created for the commands these buttons lead to to be able to work
+        search_bar_btn = ttk.Button(self.frame, text="Search", command=lambda: self.collect_search_data(False))
+        search_bar_btn.grid(row=1, column=25, columnspan=2, sticky="ew")
+
+        view_all_btn = ttk.Button(self.frame, text="view All", command=lambda: self.collect_search_data(True))
+        view_all_btn.grid(row=1, column=27, columnspan=2, sticky="ew")
 
 
         #displaty Chosen PC's
@@ -529,11 +532,18 @@ class JCTab(tk.Frame):
             self.validFiles = True
         self.show_button()           
 
-    
+    def collect_search_data(self, all):
+        if all:
+            self.find_search('')
+        else:
+            self.find_search(self.search_bar.get())
+        
     #Function is just a stub that displays what was typed in the search bar
-    def display_search(self):
-        search_text = self.search_bar.get()
-        print(search_text)
+    def find_search(self, search_text):
+        self.search_bar.delete(0, "end")
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        self.populate_scrollwindow(self.content_frame, search_text)
 
     #serach the task history directory for details on past jobs
     def search_directory(self):
@@ -552,23 +562,22 @@ class JCTab(tk.Frame):
             job = {"NAME": data[0], "DATE":data[4], "PATH": program}
             self.past_jobs.append(job)
 
-    #function fills in the past job configuration scrollwindow with data and buttons
-    def populate_scrollwindow(self, frame):
-        data_frame = tk.Frame(frame)
-        data_frame.grid(row=0, column=0, sticky="nsew")
-
-        data_label = tk.Label(data_frame, text=str("-"*50), bg="lightblue")
-        data_label.grid(row=0, column=0, sticky="nsew")
+    #function fills in the past job configuration scrollwindow with data and buttons. saerched is a string of what the user is searching for
+    #if searched is blank, searching for nothing
+    def populate_scrollwindow(self, frame, searched):
         for i, data in enumerate(self.past_jobs):
-            data_frame = tk.Frame(frame)
-            data_frame.grid(row=i+1, column=0, sticky="nsew")
-
             concatenated_data = f"{data['NAME']}....{data['DATE']}"
-            info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
-            info.grid(row=i+1, column=0, sticky="w", pady=10)
+            if searched == "" or (searched.lower() in concatenated_data.lower()):
+                data_frame = tk.Frame(frame)
+                data_frame.grid(row=i+1, column=0, sticky="nsew")
 
-            button = tk.Button(data_frame, text=f"Load Configuration", command= lambda path= data['PATH']: self.load_past_data(path, 1))
-            button.grid(row=i+1, column=1, sticky="e")
+                info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
+                info.grid(row=i+1, column=0, sticky="w", pady=10)
+
+                button = tk.Button(data_frame, text=f"Load Configuration", command= lambda path= data['PATH']: self.load_past_data(path, 1))
+                button.grid(row=i+1, column=1, sticky="e")
+
+
     
     def populate_chosenMachine(self, frame):
         data_frame = tk.Frame(frame)
