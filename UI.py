@@ -9,22 +9,21 @@ class TabManager:
         self.mainTabs = []
         self.deletableTabs = []
 
-        self.tabData = [
-            {"Name": "Active Directory", "content" : ADTab(self.contentFrame, self.handle_ADTab)},
-            {"Name": "Task History", "content" : THTab(self.contentFrame, self.handle_THTab)},
-            {"Name": "Job Creation", "content" : JCTab(self.contentFrame, self.handle_JCTab )},
-        ]
+        tabData = ["Active Directory","Task History"]
 
         #created the main tabs and loads the data
-        for i, info in enumerate(self.tabData):
-            button = ttk.Button(self.tabFrame, text=info["Name"], command=lambda c=info["Name"]: self.show_content(c, None))
+        for i in range(len(tabData)):
+            button = ttk.Button(tabFrame, text=tabData[i], command=lambda c=tabData[i]: self.show_content(c, None))
             self.mainTabs.append(button)
             button.grid(row=i, column=0, sticky="ew")
             self.tabFrame.grid_columnconfigure(i, weight=1)
+        self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
     
     #handles the data that the AD tab passes on
     def handle_ADTab(self, chosen_pc):
-        print(chosen_pc)
+        self.current_tab.remove_page()
+        self.current_tab = JCTab(self.contentFrame, self.handle_JCTab, chosen_pc)
+        self.current_tab.create_page()
     
     #handles the data that the TH tab passes on 
     def handle_THTab(self, job_path):
@@ -40,21 +39,20 @@ class TabManager:
         print("On the local machien....", data["LOCALMACHINE"])
         print("Run as system admin....", data["SYSADMIN"])
         print("With these additional Files....", data["ADDFILES"])
+        print("Created by..." , data["AUTHOR"])
+        print("With PCs:..." , data["PCs"])
         print()
     
     #used to change tabs
     def show_content(self, content_frame, data_list):
-        for info in self.tabData:
-            info["content"].remove_page()
+        self.current_tab.remove_page()
         if (content_frame == 'Active Directory'):
-            current_tab = ADTab(self.contentFrame, self.handle_ADTab)
+            self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
         elif (content_frame == 'Task History'):
-            current_tab = THTab(self.contentFrame, self.handle_THTab)
-        elif (content_frame == "Job Creation"):
-            current_tab = JCTab(self.contentFrame, self.handle_JCTab)
+            self.current_tab = THTab(self.contentFrame, self.handle_THTab)
         else:
-            current_tab = completedTab(self.contentFrame, data_list)
-        current_tab.create_page()
+            self.current_tab = completedTab(self.contentFrame, data_list)
+        self.current_tab.create_page()
 
 
     #removes a tab and its frame
@@ -64,6 +62,9 @@ class TabManager:
                 data["FRAME"].destroy()
                 self.deletableTabs.remove(data)
                 self.rearrange_tab_frames()
+        self.current_tab.remove_page()
+        self.current_tab = THTab(self.contentFrame, self.handle_THTab)
+        self.current_tab.create_page()
 
     #fix tab frames to remove gaps when a tab is deleted
     def rearrange_tab_frames(self):
