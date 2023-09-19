@@ -245,10 +245,11 @@ class THTab(tk.Frame):
 
 
 class JCTab(tk.Frame):
-    def __init__(self, contentFrame, create_job_callback, master=None):
+    def __init__(self, contentFrame, create_job_callback, chosen_pc, master=None):
         super().__init__(master)
         self.frame = contentFrame
         self.create_job_callback = create_job_callback
+        self.chosen_pc = chosen_pc
         self.validPath = False
         self.validName = False
         self.validFiles = True
@@ -259,29 +260,38 @@ class JCTab(tk.Frame):
         main_title = tk.Label(self.frame, text = "Job Configuration", font=("Arial Bold",20), bg="lightblue")
         main_title.grid(row=0, column=2, columnspan=2, sticky="w")
 
+        #this section is for the author's name input 
+        author_title = tk.Label(self.frame, text="Author Name:", font=("Arial Bold",12), bg="lightblue")
+        author_title.grid(row=1, column=2, columnspan=19)
+
+        self.author_input = tk.Entry(self.frame)
+        self.author_input.insert(0, "Enter Author's Name")
+        self.author_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.author_input.grid(row=2, column=2, columnspan=19, sticky="ew")
+
         name_title = tk.Label(self.frame, text="Task Name:", font=("Arial Bold",12), bg="lightblue")
-        name_title.grid(row=1, column=2, columnspan=19)
+        name_title.grid(row=3, column=2, columnspan=19)
 
         #this section is for the name input and calls functions to make sure its valid
         self.name_input = tk.Entry(self.frame)
         self.name_input.insert(0, "Enter Job Title")
         self.name_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.name_input.grid(row=2, column=2, columnspan=19, sticky="ew")
+        self.name_input.grid(row=4, column=2, columnspan=19, sticky="ew")
         reg1 = self.name_input.register(self.validate_name)
         self.name_input.config(validate ="key", validatecommand =(reg1, '%P'))
 
         self.valid_name = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
-        self.valid_name.grid(row=3, column=2, columnspan=19)
+        self.valid_name.grid(row=5, column=2, columnspan=19)
 
         #program absoulute path title
         program_title = tk.Label(self.frame, text="Executable:", font=("Arial Bold",12), bg="lightblue")
-        program_title.grid(row=4, column=2, columnspan=19)
+        program_title.grid(row=6, column=2, columnspan=19)
 
         #this section is for the program path input and calls functions to make sure its valid
         self.program_input = tk.Entry(self.frame)
         self.program_input.insert(0, "Enter Executable Program")
         self.program_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.program_input.grid(row=5, column=2, columnspan=19, sticky="ew")
+        self.program_input.grid(row=7, column=2, columnspan=19, sticky="ew")
         reg2 = self.frame.register(self.check_program)
         self.program_input.config(validate ="key", validatecommand =(reg2, '%P'))
 
@@ -290,12 +300,12 @@ class JCTab(tk.Frame):
         ##
 
         arg_title = tk.Label(self.frame, text="Arguments", font=("Arial Bold",12), bg="lightblue")
-        arg_title.grid(row=6, column=2, columnspan=19)
+        arg_title.grid(row=8, column=2, columnspan=19)
 
         self.arg_input = tk.Entry(self.frame)
         self.arg_input.insert(0, "Arguments:")
         self.arg_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.arg_input.grid(row=7, column=2, columnspan=19, sticky="ew")
+        self.arg_input.grid(row=9, column=2, columnspan=19, sticky="ew")
 
 
         #check button for making sure if program in on local machine or remote
@@ -303,37 +313,37 @@ class JCTab(tk.Frame):
         #initially set to false
         self.localMachine.set("False")
         localMachine_option_button = ttk.Checkbutton(self.frame, text="Select Program on Local Machine", variable=self.localMachine, onvalue=True, offvalue=False, command=self.local_machine_option)
-        localMachine_option_button.grid(row=9, column=2, columnspan=8)
+        localMachine_option_button.grid(row=11, column=2, columnspan=8)
 
         #button used to open a file explorer
         self.button_explore = ttk.Button(self.frame, text = "Browse Files", state=tk.DISABLED, command=lambda i=1: self.dir_file_explorer(i))
-        self.button_explore.grid(row=9, column=10, columnspan=8)
+        self.button_explore.grid(row=11, column=10, columnspan=8)
 
         ##
         #section is for local exe source directory
         ##
 
         exe_dir_title = tk.Label(self.frame, text="Local Executable Source Directory", font=("Arial Bold",12), bg="lightblue")
-        exe_dir_title.grid(row=10, column=2, columnspan=19)
+        exe_dir_title.grid(row=12, column=2, columnspan=19)
 
         self.exe_dir_input = tk.Entry(self.frame)
         self.exe_dir_input.insert(0, "Enter Directory")
         self.exe_dir_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.exe_dir_input.config(state=tk.DISABLED)
-        self.exe_dir_input.grid(row=11, column=2, columnspan=19, sticky="ew")
+        self.exe_dir_input.grid(row=13, column=2, columnspan=19, sticky="ew")
         reg4 = self.frame.register(self.check_path)
         self.exe_dir_input.config(validate ="key", validatecommand =(reg4, '%P'))
 
         #used to display to user if path for executable entered is valid
         self.valid_path = tk.Label(self.frame, font=("Arial Bold",12), fg="lightgreen", bg='lightblue')
-        self.valid_path.grid(row=12, column=2, columnspan=19)
+        self.valid_path.grid(row=14, column=2, columnspan=19)
         
         #check button for running program as system admin
         self.sysAdmin = tk.BooleanVar()
         #initially set to false
         self.sysAdmin.set("False")
         sysAdmin_button = ttk.Checkbutton(self.frame, text="Run Program as System Admin", variable=self.sysAdmin, onvalue=True, offvalue=False)
-        sysAdmin_button.grid(row=13, column=2, columnspan=19)
+        sysAdmin_button.grid(row=15, column=2, columnspan=19)
 
         ##
         #adding additional files to be sent over
@@ -343,38 +353,38 @@ class JCTab(tk.Frame):
         self.additionalFile = tk.BooleanVar()
         self.additionalFile.set("False")
         additionalFile_option_button = ttk.Checkbutton(self.frame, text="Send Additional Files", variable=self.additionalFile, onvalue=True, offvalue=False, command=self.additional_file_option)
-        additionalFile_option_button.grid(row=15, column=2, columnspan=19)
+        additionalFile_option_button.grid(row=17, column=2, columnspan=19)
 
         #file absoulute path title
         file_title = tk.Label(self.frame, text="Files's Absolute Path:", font=("Arial Bold",12), bg="lightblue")
-        file_title.grid(row=16, column=2, columnspan=19)
+        file_title.grid(row=18, column=2, columnspan=19)
 
         #Used to all user to enter additional files
         self.additionalFile_input = tk.Entry(self.frame)
         self.additionalFile_input.insert(0, "Enter Additional File Aboslute Path")
         self.additionalFile_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.additionalFile_input.config(state=tk.DISABLED)
-        self.additionalFile_input.grid(row=17, column=2, columnspan=19, sticky="ew")
+        self.additionalFile_input.grid(row=19, column=2, columnspan=19, sticky="ew")
         reg3 = self.frame.register(self.validate_file_path)
         self.additionalFile_input.config(validate ="key", validatecommand =(reg3, '%P'))
 
         self.valid_additionalFile_path = tk.Label(self.frame, font=("Arial Bold",12), fg="green", bg='lightblue')
-        self.valid_additionalFile_path.grid(row=18, column=2, columnspan=19)
+        self.valid_additionalFile_path.grid(row=20, column=2, columnspan=19)
 
         #button used to add file to list of other additional files
         self.additionalFile_Button = ttk.Button(self.frame, text="Add File", state=tk.DISABLED, command=self.add_additional_file)
-        self.additionalFile_Button.grid(row=19, column=2, columnspan=19)
+        self.additionalFile_Button.grid(row=21, column=2, columnspan=19)
 
         #button used to open a file explorer for additional files
         self.additionalFiles_button_explore = ttk.Button(self.frame, text = "Browse Files", state=tk.DISABLED, command=lambda i=2: self.file_explorer(i))
-        self.additionalFiles_button_explore.grid(row=20, column=2, columnspan=19)
+        self.additionalFiles_button_explore.grid(row=22, column=2, columnspan=19)
 
         #button used to view all additional files added so far
         self.additionalFile_view_Button = ttk.Button(self.frame, text="View All Additional Files Chosen", state=tk.DISABLED, command=self.create_file_window)
-        self.additionalFile_view_Button.grid(row=21, column=2, columnspan=19)
+        self.additionalFile_view_Button.grid(row=23, column=2, columnspan=19)
 
         self.valid_additionalFiles = tk.Label(self.frame, font=("Arial Bold",12), fg="green", bg='lightblue')
-        self.valid_additionalFiles.grid(row=22, column=2, columnspan=19)
+        self.valid_additionalFiles.grid(row=25, column=2, columnspan=19)
 
 
 
@@ -395,21 +405,69 @@ class JCTab(tk.Frame):
         search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
         search_bar_btn.grid(row=1, column=27, columnspan=2, sticky="ew")
 
-        canvas = tk.Canvas(self.frame)
-        canvas.grid(row=2, column=23, rowspan=28, columnspan=5, sticky="nsew")
+        self.canvas = tk.Canvas(self.frame)
+        self.canvas.grid(row=2, column=23, rowspan=14, columnspan=5, sticky="nsew")
+        self.set_mousewheel(self.canvas, lambda e: self.canvas.config(text=e.delta), 1)
 
-        content_frame = tk.Frame(canvas)
-        canvas.create_window((0, 0), window=content_frame)
+        content_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=content_frame)
 
         self.search_directory()
         self.populate_scrollwindow(content_frame)
 
-        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
-        y_scrollbar.grid(row=2, column=29, rowspan=28, sticky="ns")
-        canvas.configure(yscrollcommand=y_scrollbar.set)
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        y_scrollbar.grid(row=2, column=29, rowspan=14, sticky="ns")
+        self.canvas.configure(yscrollcommand=y_scrollbar.set)
 
-        content_frame.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox("all")) 
+
+        #displaty Chosen PC's
+        chosen_pc_title = tk.Label(self.frame, text = "Chosen Machines", font=("Arial Bold",16), bg="lightblue")
+        chosen_pc_title.grid(row=16, column=23, columnspan=2, sticky="w")
+
+        self.canvas2 = tk.Canvas(self.frame)
+        self.canvas2.grid(row=17, column=23, rowspan=12, columnspan=5, sticky="nsew")
+        self.set_mousewheel(self.canvas2, lambda e: self.canvas2.config(text=e.delta), 2)
+
+        content_frame2 = tk.Frame(self.canvas2)
+        self.canvas2.create_window((0, 0), window=content_frame2)
+        
+        self.populate_chosenMachine(content_frame2)
+
+        y_scrollbar2 = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas2.yview)
+        y_scrollbar2.grid(row=17, column=29, rowspan=12, sticky="ns")
+        self.canvas2.configure(yscrollcommand=y_scrollbar2.set)
+
+        content_frame2.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all")) 
+        self.canvas2.config(scrollregion=self.canvas2.bbox("all")) 
+
+    #this function is used to allow the user to hover their mouse over the canvas widget and then scroll up and down the canvas using their mouse wheel
+    def set_mousewheel(self, widget, command, canvas):
+        #Activate / deactivate mousewheel scrolling when 
+        #cursor is over / not over the widget respectively.
+        if canvas == 2:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas2))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+        elif canvas == 1:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas1))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+    
+    #the actual function used to scroll, has a bounds checks so can't scroll above content
+    def _on_mousewheel_canvas2(self, event):
+        content_height = self.canvas2.bbox("all")[3] - self.canvas2.bbox("all")[1]
+        visible_height = self.canvas2.winfo_height()
+        if content_height > visible_height:
+            self.canvas2.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.canvas2.yview_moveto(0)
+    
+    def _on_mousewheel_canvas1(self, event):
+        content_height = self.canvas.bbox("all")[3] - self.canvas.bbox("all")[1]
+        visible_height = self.canvas.winfo_height()
+        if content_height > visible_height:
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.canvas.yview_moveto(0)
 
     #used to add an additional file to a list of other additional files
     def add_additional_file(self):
@@ -450,6 +508,7 @@ class JCTab(tk.Frame):
             self.exe_dir_input.config(state=tk.DISABLED)
             self.valid_path['text'] = ''
             self.validPath = True
+            self.validate_path(self.program_input.get())
         self.show_button() 
     
     #used to change the state of buttons and entry widget involved in sending additional files
@@ -511,6 +570,20 @@ class JCTab(tk.Frame):
             button = tk.Button(data_frame, text=f"Load Configuration", command= lambda path= data['PATH']: self.load_past_data(path, 1))
             button.grid(row=i+1, column=1, sticky="e")
     
+    def populate_chosenMachine(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+        data_label = tk.Label(data_frame, text=str("-"*50), bg="lightblue")
+        data_label.grid(row=0, column=0, sticky="nsew")
+        for i in range(len(self.chosen_pc)):
+            data_frame = tk.Frame(frame)
+            data_frame.grid(row=i+1, column=0, sticky="nsew")
+
+            info = tk.Label(data_frame, text=self.chosen_pc[i], font=("Arial Bold",12))
+            info.grid(row=i+1, column=0, sticky="w", pady=10)
+
+    
     #function loads the path of a past job config into the path entry widget for the upcomming job
     def load_past_data(self, path, section):
         if section == 1:
@@ -531,10 +604,13 @@ class JCTab(tk.Frame):
                 self.valid_path['text'] = 'Invalid Path'
                 self.valid_path.config(fg="red")
                 self.validPath = False
-        else:
+        elif input != '':
             #assuming the absolute path they entered in is correct(program is loacted on remote machine, so no way of checking until we send a message to the remote machine)
             self.validPath = True
             self.valid_path['text'] = ''
+        else:
+            self.validPath = False
+        self.validate_files()
         self.show_button()
 
     #function validates if input in name's entry widget is valid
@@ -552,6 +628,7 @@ class JCTab(tk.Frame):
             self.valid_name['text'] = 'Invalid Name'
             self.valid_name.config(fg="red")
             self.validName = False
+        self.validate_files()
         self.show_button()
         return True
     
@@ -597,23 +674,30 @@ class JCTab(tk.Frame):
     
     #function used to send data back to tab_manager
     def call_create_job_callback(self):
-        arguments = self.arg_input.get()
-        if self.arg_input.get() == "Arguments:":
-            arguments = ''
-        results = {"NAME": self.name_input.get(), 
-                "PROGRAM": self.program_input.get(),
-                "ARGUMENTS": arguments,
-                "SYSADMIN": self.sysAdmin.get(), 
-                "LOCALMACHINE": self.localMachine.get(), 
-                "ADDFILES": []}
-        if self.additionalFile.get() and self.localMachine.get():
-            results["PROGRAM"] = self.exe_dir_input.get() + "/" + self.program_input.get()
-            results["ADDFILES"] = self.additionalFileList
-        elif not self.additionalFile.get() and self.localMachine.get():
-            results["PROGRAM"] = self.exe_dir_input.get() + "/" + self.program_input.get()
-        elif self.additionalFile.get() and not self.localMachine.get():
-            results["ADDFILES"] = self.additionalFileList
-        self.create_job_callback(results)
+        self.validate_files()
+        if (self.validName and self.validPath and not self.additionalFile.get()) or (self.validName and self.validPath and self.additionalFile.get() and self.validFiles):
+            arguments = self.arg_input.get()
+            author = self.author_input.get()
+            if arguments == "Arguments:":
+                arguments = ''
+            if author == 'Enter Author\'s Name':
+                author = ''
+            results = {"AUTHOR" : author,
+                    "NAME": self.name_input.get(), 
+                    "PROGRAM": self.program_input.get(),
+                    "ARGUMENTS": arguments,
+                    "SYSADMIN": self.sysAdmin.get(), 
+                    "LOCALMACHINE": self.localMachine.get(), 
+                    "ADDFILES": [],
+                    "PCs": self.chosen_pc}
+            if self.additionalFile.get() and self.localMachine.get():
+                results["PROGRAM"] = self.exe_dir_input.get() + "/" + self.program_input.get()
+                results["ADDFILES"] = self.additionalFileList
+            elif not self.additionalFile.get() and self.localMachine.get():
+                results["PROGRAM"] = self.exe_dir_input.get() + "/" + self.program_input.get()
+            elif self.additionalFile.get() and not self.localMachine.get():
+                results["ADDFILES"] = self.additionalFileList
+            self.create_job_callback(results)
 
     #function used to create a file explorer    
     def file_explorer(self, section):
@@ -663,7 +747,7 @@ class JCTab(tk.Frame):
 
     
     def on_entry_focus_in(self, event):
-        if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Executable Program" or event.widget.get() == "Enter search" or event.widget.get() == "Enter Additional File Aboslute Path" or event.widget.get() == 'Arguments:' or event.widget.get() == 'Enter Directory':
+        if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Executable Program" or event.widget.get() == "Enter search" or event.widget.get() == "Enter Additional File Aboslute Path" or event.widget.get() == 'Arguments:' or event.widget.get() == 'Enter Directory' or event.widget.get() == 'Enter Author\'s Name':
             event.widget.delete(0, "end")
         
     def remove_page(self):
