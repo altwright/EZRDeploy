@@ -19,9 +19,12 @@ def print_stdout(stdoutQ: Queue):
         if not stdoutQ.empty():
             print(stdoutQ.get(), end="")
 
-def get_stdin(stdinQ: Queue):
+def get_stdin(stdinQ: Queue, job: Job):
     for line in sys.stdin:
-        stdinQ.put(line)
+        if line.rstrip() == 'CANCEL':
+            job.cancel()
+        else:
+            stdinQ.put(line)
 
 if __name__ == "__main__":
     domainName = GetComputerNameEx(ComputerNameDnsDomain)
@@ -49,24 +52,24 @@ if __name__ == "__main__":
     stdinQ = Queue()
     
     job = Job(c, "cmd.exe", None, stdoutQ, stderrQ, stdinQ,
-              timeout_seconds=60, 
-              copy_local_exe=False, 
-              local_exe_src_dir=".\\dist", 
-              overwrite_remote_exe=True,
-              working_dir=r'C:\Users\Administrator\Desktop',
-              copy_local_files=False,
-              src_files_list=[r".\dist\test.txt"],
-              overwrite_remote_files=True,
-              clean_copied_files_after=True,
-              clean_copied_exe_after=True,
-              use_system_account=True
-              )
+            timeout_seconds=60, 
+            copy_local_exe=False, 
+            local_exe_src_dir=".\\dist", 
+            overwrite_remote_exe=True,
+            working_dir=r'C:\Users\Administrator\Desktop',
+            copy_local_files=False,
+            src_files_list=[r".\dist\test.txt"],
+            overwrite_remote_files=True,
+            clean_copied_files_after=True,
+            clean_copied_exe_after=True,
+            use_system_account=False
+            )
     job.start()
 
     print('\nSTDOUT:')
     stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
     stderr_thread = threading.Thread(target=print_stdout, args=(stderrQ,), daemon=True)
-    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ,), daemon=True)
+    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, job), daemon=True)
     stdout_thread.start()
     stderr_thread.start()
     stdin_thread.start()

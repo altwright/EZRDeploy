@@ -4,12 +4,20 @@ import threading
 
 import time
 
+from smbprotocol import Dialects
+from smbprotocol._text import to_text
+
 from smbprotocol.connection import (
     NtStatus,
+    Connection,
+    Request
 )
 
 from smbprotocol.exceptions import (
     SMBResponseException,
+    SMBException,
+    SMBUnsupportedFeature,
+    SMB2SymbolicLinkErrorResponse
 )
 
 from smbprotocol.open import (
@@ -22,6 +30,9 @@ from smbprotocol.open import (
     ImpersonationLevel,
     Open,
     ShareAccess,
+    SMB2ReadRequest,
+    ReadFlags,
+    SMB2ReadResponse
 )
 
 from smbprotocol.tree import (
@@ -52,6 +63,158 @@ from pypsexec.pipe import (
 from queue import Queue
 import os.path
 import smbclient.path
+
+def _receive(connection: Connection, request, wait=True, timeout=None, resolve_symlinks=True):
+    """
+    Polls the message buffer of the TCP connection and waits until a valid
+    message is received based on the message_id passed in.
+
+    :param request: The Request object to wait get the response for
+    :param wait: Wait for the final response in the case of a STATUS_PENDING response, the pending response is
+        returned in the case of wait=False
+    :param timeout: Set a timeout used while waiting for the final response from the server.
+    :param resolve_symlinks: Set to automatically resolve symlinks in the path when opening a file or directory.
+    :return: SMB2HeaderResponse of the received message
+    """
+    # Make sure the receiver is still active, if not this raises an exception.
+    connection._check_worker_running()
+
+    start_time = time.time()
+    while True:
+        iter_timeout = int(max(timeout - (time.time() - start_time), 1)) if timeout is not None else None
+        if not request.response_event.wait(timeout=iter_timeout):
+            raise SMBException(
+                "Connection timeout of %d seconds exceeded while waiting for a message id %s "
+                "response from the server" % (timeout, request.message["message_id"].get_value())
+            )
+
+        # Use a lock on the request so that in the case of a pending response we have exclusive lock on the event
+        # flag and can clear it without the future pending response taking it over before we first clear the flag.
+        with request.response_event_lock:
+            connection._check_worker_running()  # The worker may have failed while waiting for the response, check again
+
+            response = request.response
+            status = response["status"].get_value()
+            if status == NtStatus.STATUS_PENDING and wait:
+                # Received a pending message, clear the response_event flag and wait again.
+                request.response_event.clear()
+                continue
+            elif status == NtStatus.STATUS_STOPPED_ON_SYMLINK and resolve_symlinks:
+                # Received when we do an Open on a path that contains a symlink. Need to capture all related
+                # requests and resend the Open + others with the redirected path. First we need to resolve the
+                # symlink path. This will fail if the symlink is pointing to a location that is not in the same
+                # tree/share as the original request.
+
+                # First wait for the other remaining requests to be processed. Their status will also fail and we
+                # need to make sure we update the old request with the new one properly.
+                related_requests = [connection.outstanding_requests[i] for i in request.related_ids]
+                [r.response_event.wait() for r in related_requests]
+
+                # Now create a new request with the new path the symlink points to.
+                session = connection.session_table[request.session_id]
+                tree = session.tree_connect_table[request.message["tree_id"].get_value()]
+
+                old_create = request.get_message_data()
+                tree_share_name = tree.share_name + "\\"
+                original_path = tree_share_name + to_text(
+                    old_create["buffer_path"].get_value(), encoding="utf-16-le"
+                )
+
+                exp = SMBResponseException(response)
+                reparse_buffer = next(
+                    (e for e in exp.error_details if isinstance(e, SMB2SymbolicLinkErrorResponse))
+                )
+                new_path = reparse_buffer.resolve_path(original_path)[len(tree_share_name) :]
+
+                new_open = Open(tree, new_path)
+                create_req = new_open.create(
+                    old_create["impersonation_level"].get_value(),
+                    old_create["desired_access"].get_value(),
+                    old_create["file_attributes"].get_value(),
+                    old_create["share_access"].get_value(),
+                    old_create["create_disposition"].get_value(),
+                    old_create["create_options"].get_value(),
+                    create_contexts=old_create["buffer_contexts"].get_value(),
+                    send=False,
+                )[0]
+
+                # Now add all the related requests (if any) to send as a compound request.
+                new_msgs = [create_req] + [r.get_message_data() for r in related_requests]
+                new_requests = connection.send_compound(new_msgs, session.session_id, tree.tree_connect_id, related=True)
+
+                # Verify that the first request was successful before updating the related requests with the new
+                # info.
+                error = None
+                try:
+                    new_response = _receive(connection, new_requests[0], wait=wait, timeout=timeout, resolve_symlinks=True)
+                except SMBResponseException as exc:
+                    # We need to make sure we fix up the remaining responses before throwing this.
+                    error = exc
+                [r.response_event.wait() for r in new_requests]
+
+                # Update the old requests with the new response information
+                for i, old_request in enumerate([request] + related_requests):
+                    del connection.outstanding_requests[old_request.message["message_id"].get_value()]
+                    old_request.update_request(new_requests[i])
+
+                if error:
+                    raise error
+
+                return new_response
+            else:
+                # now we have a retrieval request for the response, we can delete
+                # the request from the outstanding requests
+                message_id = request.message["message_id"].get_value()
+                connection.outstanding_requests.pop(message_id, None)
+
+                if status == NtStatus.STATUS_CANCELLED:
+                    return None
+
+                if status not in [NtStatus.STATUS_SUCCESS, NtStatus.STATUS_PENDING, NtStatus.STATUS_CANCELLED]:
+                    raise SMBResponseException(response)
+                
+                break
+
+    return response
+
+def _get_main_pipe_request(main_pipe: Open, offset, length, min_length=0, unbuffered=False, send=True) -> Request:
+    # Start of Open.read()
+    if length > main_pipe.connection.max_read_size:
+        raise SMBException(
+            "The requested read length %d is greater than "
+            "the maximum negotiated read size %d" % (length, main_pipe.connection.max_read_size)
+        )
+
+    read = SMB2ReadRequest()
+    read["length"] = length
+    read["offset"] = offset
+    read["minimum_count"] = min_length
+    read["file_id"] = main_pipe.file_id
+    read["padding"] = b"\x50"
+
+    if unbuffered:
+        if main_pipe.connection.dialect < Dialects.SMB_3_0_2:
+            raise SMBUnsupportedFeature(
+                main_pipe.connection.dialect, Dialects.SMB_3_0_2, "SMB2_READFLAG_READ_UNBUFFERED", True
+            )
+        read["flags"].set_flag(ReadFlags.SMB2_READFLAG_READ_UNBUFFERED)
+
+    if not send:
+        return read, main_pipe._read_response
+
+    return main_pipe.connection.send(read, main_pipe.tree_connect.session.session_id, main_pipe.tree_connect.tree_connect_id)
+    # End of Open.read()
+
+def _get_main_pipe_response(request: Request, main_pipe: Open, wait = True):
+    # Start of Open._read_response()
+    response = _receive(main_pipe.connection, request, wait=wait)
+    if response is None:
+        return None
+    else:
+        read_response = SMB2ReadResponse()
+        read_response.unpack(response["data"].get_value())
+
+        return read_response["buffer"].get_value()
 
 def file_out_stream(filepath: str, buffer_size: int = 4096):
     f = open(filepath, "rb")
@@ -120,6 +283,8 @@ class Job(threading.Thread):
 
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
+
+        self.main_pipe_request: Request = None
     
     def _copy_local_files(self):
         if self.copy_local_exe:
@@ -240,7 +405,9 @@ class Job(threading.Thread):
             pass
 
         # Block until final exit response from the process is read
-        exe_result_raw = main_pipe.read(0, 1024)
+        self.main_pipe_request = _get_main_pipe_request(main_pipe, 0, 1024)
+        exe_result_raw = _get_main_pipe_response(self.main_pipe_request, main_pipe)
+
         input_finished_event.set()
 
         stdout_pipe.close()
@@ -250,18 +417,23 @@ class Job(threading.Thread):
         main_pipe.close()
         smb_tree.disconnect()
 
-        exe_result = PAExecMsg()
-        exe_result.unpack(exe_result_raw)
-        try:
-            exe_result.check_resp()
-        except PAExecException as exc:
-            self.stderrQ.put(exc.message)
-        rc = PAExecReturnBuffer()
-        rc.unpack(exe_result['buffer'].get_value())
+        if exe_result_raw is not None:
+            exe_result = PAExecMsg()
+            exe_result.unpack(exe_result_raw)
+            try:
+                exe_result.check_resp()
+            except PAExecException as exc:
+                self.stderrQ.put(exc.message)
+            rc = PAExecReturnBuffer()
+            rc.unpack(exe_result['buffer'].get_value())
 
-        self.rc = rc['return_code'].get_value()
+            self.rc = rc['return_code'].get_value()
 
         self._clean_remote_files()
+    
+    def cancel(self):
+        if self.main_pipe_request is not None:
+            self.main_pipe_request.cancel()
 
 class StdinPipe(threading.Thread):
 
