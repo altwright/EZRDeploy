@@ -22,6 +22,19 @@ class ADTab(tk.Frame):
         self.pc_buttons = []
         self.chosen_pc = []
         create_grid(self.frame, 30, 30)
+        #resize
+        self.canvas = tk.Canvas(self.frame)
+        self.canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
+        self.canvas.bind("<Configure>", self.update_padx)
+
+    def update_padx(self, event=None):
+        num_per_row = 5
+        sub_frame_width = max(sub_frame.winfo_width() for sub_frame in self.frame.winfo_children())
+        remaining_space = (self.canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
+        padx = max(0, remaining_space // 2)
+
+        for sub_frame in self.frame.winfo_children():
+            sub_frame.grid_configure(padx=padx)
 
     #call back function used to send data back to tab_manager
     def call_create_job_callback(self):
@@ -124,6 +137,18 @@ class ADTab(tk.Frame):
             label = tk.Label(sub_frame, text="IP: "+ data["IP"])
             label.grid(row=1, column=0)
 
+            # Calculate the width of sub_frame after it's been created
+            sub_frame.update_idletasks()
+            sub_frame_width = sub_frame.winfo_width()
+
+            # Set padx to be half of the remaining space to center sub_frame
+            remaining_space = (canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
+            padx = max(0, remaining_space // 2)
+
+            # Update padx for sub_frame
+            sub_frame.grid_configure(padx=padx)
+        
+
 
         # Add scrollbars
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
@@ -149,6 +174,9 @@ class THTab(tk.Frame):
         self.frame = contentFrame
         self.create_job_callback = create_job_callback
         create_grid(self.frame, 30, 30)
+
+        self.canvas = tk.Canvas(self.frame)
+        self.canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
 
     #creats a call back function to pass data back to tab_manager
     def call_create_job_callback(self, job_path):
@@ -189,6 +217,9 @@ class THTab(tk.Frame):
         x_scrollbar.grid(row=29, column=2, columnspan=26, sticky="ew")
         canvas.configure(xscrollcommand=x_scrollbar.set)
 
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+        
         content_frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all")) 
 
@@ -215,30 +246,50 @@ class THTab(tk.Frame):
             self.past_jobs.append(job)
 
     #fill in the scroll window with all the info from the task stored in the task_history_file folder
-    def populate_scrollwindow(self, frame):
-        data_frame = tk.Frame(frame)
+    def populate_scrollwindow(self, canvas):
+        data_frame = tk.Frame(canvas)
+        for i in range(5):
+            data_frame.grid_columnconfigure(i, weight=1)
         data_frame.grid(row=0, column=0, sticky="nsew")
+        
 
-        #this is used to allow the frame to spread out horizontally more
-        data_label = tk.Label(data_frame, text=str("-"*150), bg="lightblue")
-        data_label.grid(row=0, column=0, sticky="nsew")
-      
+
         for i, data in enumerate(self.past_jobs):
+            data_elements = [
+                f"Name: {data['NAME']}",
+                f"Number of Machines: {data['NUM_COMP']}",
+                f"Date Started: {data['DATE']}",
+                f"Program: {data['PROGRAM']}"
+            ]
 
-            data_frame = tk.Frame(frame)
-            data_frame.grid(row=i+1, column=0, sticky="nsew")
-            concatenated_data = f"{data['NAME']}....Number of Machines: {data['NUM_COMP']}...Date Started: {data['DATE']}...Program: {data['PROGRAM']}"
+            # create LabelFrame for job
+            job_frame = tk.LabelFrame(data_frame, text=f"Job {i + 1}", font=("Arial Bold", 12))
+            job_frame.grid(row=i+1, column=0, sticky="nsew", padx=10, pady=10)
 
-            info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
-            info.grid(row=i+1, column=0, sticky="w", pady=10)
+            for k, obj in enumerate(data_elements):
+                info = tk.Label(job_frame, text=obj, font=("Arial Bold", 12))
+                info.grid(row=0, column=k, sticky="w")
+                job_frame.grid_columnconfigure(k, weight=1)
+      
 
-            button = tk.Button(data_frame, text=f"Inspect {data['NAME']}", command= lambda path=data["PATH"]: self.call_create_job_callback(path))
-            button.grid(row=i+1, column=1, sticky="e")
+            button = tk.Button(job_frame, text=f"Inspect {data['NAME']}", command=lambda path=data["PATH"]: self.call_create_job_callback(path))
+            button.grid(row=0, column=5, sticky="e")
 
-            data_frame.grid_columnconfigure(0, weight=1)
-            data_frame.grid_columnconfigure(1, weight=1)
-    
-    
+        data_frame.grid_rowconfigure(0, weight=1)
+        data_frame.grid_columnconfigure(0, weight=1)
+
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        y_scrollbar.grid(row=2, column=29, rowspan=26, sticky="ns")
+        self.canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=self.canvas.xview)
+        x_scrollbar.grid(row=29, column=2, columnspan=26, sticky="ew")
+        self.canvas.configure(xscrollcommand=x_scrollbar.set)
+  
+        data_frame.update_idletasks()
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
+
+
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
@@ -850,8 +901,7 @@ class completedTab(tk.Frame):
         data_frame = tk.Frame(frame)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
-        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
-        data_label.grid(row=0, column=0, sticky="nsew")
+
 
         for i, data in enumerate(self.machine_details):
 
@@ -871,16 +921,19 @@ class completedTab(tk.Frame):
         data_frame = tk.Frame(frame)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
-        data_label = tk.Label(data_frame, text=str("-"*125), bg="lightblue")
-        data_label.grid(row=0, column=0, sticky="nsew")
+
         
         self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold",12))
-        self.machine_text.grid(row=1, column=0, sticky="w")
+        self.machine_text.grid(row=0, column=0, sticky="nsew")
+    
+
+        
 
     def inspect_button_clicked(self, name, contents):
-
-        self.machine_text["text"] = contents
         self.machine_name["text"] = f"Machine: {name}"
+        self.machine_text["text"] = contents
+        print(f"self.machine_text: {self.machine_text['text']}")
+        
 
 
     def exportdata_button_clicked(self):
