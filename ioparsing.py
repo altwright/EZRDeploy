@@ -1,45 +1,4 @@
 from job import Job
-
-""" class Task:
-    def __init__(self, name=None, desc=None, on_machine=False, file=None, file_name=None, args=None):
-        self.name = name
-        self.desc = desc
-        self.on_machine = on_machine
-        self.file = file
-        self.file_name = file_name
-        self.args = args
-    
-    # functions to append details to the task, maybe when wanting to edit task?
-    def add_name(self, name):
-        self.name = name
-    
-    def add_desc(self, desc):
-        self.desc = desc
-    
-    def add_on_machine(self, on_machine):
-        self.on_machine = on_machine
-        
-    def add_file(self, file): # only if on_machine is false
-        if (not self.on_machine):
-            self.file = file
-        else:
-            print("Cannot add file if on_machine is true")
-    
-    def add_file_name(self, file_name): # only if on_machine is true
-        if (self.on_machine):
-            self.file_name = file_name
-    
-    def add_args(self, args):
-        self.args = args
-    
-    def send_to_machine(self, computer, input=None):
-        # send the task to the computer
-        if (not input):
-            # call pypsexec here to send task to machine
-            pass
-        else:
-            # call pypsexec here to send whatever input to the machine
-            pass """
             
 class Task:
     def __init__(self) -> None:
@@ -47,38 +6,44 @@ class Task:
         self.computers: str = []
         self.author: str
         self.name: str
+        self.jobs: list[Job] = []
     
     def run_jobs(self):
-        # initialise array of jobs
-        jobs: Job = []
-        
         # run the jobs
         for computer in self.computers:
             # convert computer name into client object
             new_job = self.job
             new_job.client = computer # to be converted to client object
-            jobs.append(new_job)
+            self.jobs.append(new_job)
         
-        for job in jobs:
+        for job in self.jobs:
             job.run()
         
-        return jobs
+        return self.jobs
     
-    
+    def kill_jobs(self):
+        # kill the jobs
+        for job in self.jobs:
+            job.kill() # replace with actual kill function
+            # todo: check if kill successful, if yes then pop, if not error?
+        
+        self.jobs = []
+            
 
-class JobPage:
-    def __init__(self, job, computers):
-        self.job: Job = job
-        self.computers = computers
+class TaskPage:
+    def __init__(self, task):
+        self.task = task
     
     def restart(self):
-        # take the job and computers and restart the job
-        for computer in self.computers:
-            self.job.send_to_machine(computer)
-        pass
+        # kill all the jobs
+        self.task.kill_jobs()
+        
+        #re run all the jobs
+        self.task.run_jobs()
     
     def cancel(self):
         # take the job and computers and cancel the job
+        
         for computer in self.computers:
             self.job.send_to_machine(computer, "cancel job to do")
         pass
