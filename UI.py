@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tab_content import ADTab, THTab, JCTab, create_grid, completedTab
 from typing import List
+from ioparsing import Task
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -130,7 +131,7 @@ def main():
     
     # definitions for lists storing AD clients and jobs, should go here, if not move elsewhere
     AD_clients: List = [] # type for client to be declared after List
-    tasks: List = [] # type for task to be declared after List
+    tasks: List[Task] = [] # type for task to be declared after List
     # these might need to be pulled into each page depending on whether they are used by the page
     
     root.mainloop()
