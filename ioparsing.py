@@ -28,30 +28,44 @@ class Task:
             # todo: check if kill successful, if yes then pop, if not error?
         
         self.jobs = []
+    
+    def kill_specific_job(self, computer):
+        # kill a specific job, returns True if successful, False if not
+        for job in self.jobs:
+            if (job.client == computer):
+                job.kill() # replace with actual kill function
+                self.jobs.remove(job)
+                return True
+        return False
+    
+    def send_specific_input(self, computer, input):
+        # take computer and send input using pypsexec, returns True if successful, False if not
+        for job in self.jobs:
+            if (job.client == computer):
+                # send input through stdin
+                return True
+        return False
+
             
 
 class TaskPage:
     def __init__(self, task):
         self.task = task
     
-    def restart(self):
+    def restart_all(self):
         # kill all the jobs
         self.task.kill_jobs()
         
         #re run all the jobs
         self.task.run_jobs()
     
-    def cancel(self):
-        # take the job and computers and cancel the job
-        
-        for computer in self.computers:
-            self.job.send_to_machine(computer, "cancel job to do")
-        pass
+    def cancel_all(self):
+        # kill all the jobs
+        self.task.kill_jobs()
     
-    def send_input(self, computer, input):
+    def send_input_to_computer(self, computer, input):
         # take computer and send input using pypsexec
-        self.job.send_to_machine(computer, input)
-        pass
+        self.task.send_specific_input(computer, input)
 
 class JobCreationPage:
     def __init__(self):
