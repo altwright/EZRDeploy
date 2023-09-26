@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
 from PIL import Image, ImageTk
+from ioparsing import *
 
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
@@ -296,10 +297,10 @@ class THTab(tk.Frame):
 
 
 class JCTab(tk.Frame):
-    def __init__(self, contentFrame, create_job_callback, chosen_pc, master=None):
+    def __init__(self, contentFrame, job_creation_page, chosen_pc, master=None):
         super().__init__(master)
         self.frame = contentFrame
-        self.create_job_callback = create_job_callback
+        self.page: JobCreationPage = job_creation_page
         self.chosen_pc = chosen_pc
         self.validPath = False
         self.validName = False
@@ -757,7 +758,7 @@ class JCTab(tk.Frame):
                 results["PROGRAM"] = self.exe_dir_input.get() + "/" + self.program_input.get()
             elif self.additionalFile.get() and not self.localMachine.get():
                 results["ADDFILES"] = self.additionalFileList
-            self.create_job_callback(results)
+            self.page.create_job_callback(results)
 
     #function used to create a file explorer    
     def file_explorer(self, section):
