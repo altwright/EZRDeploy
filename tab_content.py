@@ -175,8 +175,19 @@ class THTab(tk.Frame):
         self.create_job_callback = create_job_callback
         create_grid(self.frame, 30, 30)
 
+
         self.canvas = tk.Canvas(self.frame)
         self.canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
+        self.canvas.bind("<Configure>", self.update_padx)
+
+    def update_padx(self, event=None):
+        num_per_row = 5
+        sub_frame_width = max(sub_frame.winfo_width() for sub_frame in self.frame.winfo_children())
+        remaining_space = (self.canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
+        padx = max(0, remaining_space // 2)
+
+        for sub_frame in self.frame.winfo_children():
+            sub_frame.grid_configure(padx=padx)
 
     #creats a call back function to pass data back to tab_manager
     def call_create_job_callback(self, job_path):
@@ -248,12 +259,11 @@ class THTab(tk.Frame):
     #fill in the scroll window with all the info from the task stored in the task_history_file folder
     def populate_scrollwindow(self, canvas):
         data_frame = tk.Frame(canvas)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+        
         for i in range(5):
             data_frame.grid_columnconfigure(i, weight=1)
         data_frame.grid(row=0, column=0, sticky="nsew")
-        
-
-
         for i, data in enumerate(self.past_jobs):
             data_elements = [
                 f"Name: {data['NAME']}",
@@ -270,13 +280,15 @@ class THTab(tk.Frame):
                 info = tk.Label(job_frame, text=obj, font=("Arial Bold", 12))
                 info.grid(row=0, column=k, sticky="w")
                 job_frame.grid_columnconfigure(k, weight=1)
-      
+            
 
             button = tk.Button(job_frame, text=f"Inspect {data['NAME']}", command=lambda path=data["PATH"]: self.call_create_job_callback(path))
             button.grid(row=0, column=5, sticky="e")
+            
 
         data_frame.grid_rowconfigure(0, weight=1)
         data_frame.grid_columnconfigure(0, weight=1)
+        
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
         y_scrollbar.grid(row=2, column=29, rowspan=26, sticky="ns")
