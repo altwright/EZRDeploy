@@ -918,21 +918,20 @@ class completedTab(tk.Frame):
             inspect_button.grid(row=i+1, column=2, sticky="e")
 
     def populate_bottom_scrollwindow(self, frame):
-        data_frame = tk.Frame(frame)
-        data_frame.grid(row=0, column=0, sticky="nsew")
+        data_frame = tk.Frame(self.frame)
+        data_frame.grid(row=7, column=2, rowspan=10, columnspan=26, sticky="ew")
+        self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold", 12))
+        self.machine_text.grid(row=0, column=0,sticky="w")
 
-
-        
-        self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold",12))
-        self.machine_text.grid(row=0, column=0, sticky="nsew")
-    
-
+   
+  
         
 
     def inspect_button_clicked(self, name, contents):
-        self.machine_name["text"] = f"Machine: {name}"
         self.machine_text["text"] = contents
-        print(f"self.machine_text: {self.machine_text['text']}")
+        self.machine_name["text"] = f"Machine: {name}"
+
+        
         
 
 
