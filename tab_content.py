@@ -465,7 +465,7 @@ class JCTab(tk.Frame):
         self.search_bar.grid(row=1, column=23, columnspan=2, sticky="ew")
 
         self.canvas = tk.Canvas(self.frame)
-        self.canvas.grid(row=2, column=23, rowspan=14, columnspan=5, sticky="nsew")
+        self.canvas.grid(row=2, column=23, rowspan=14, columnspan=6, sticky="nsew")
         self.set_mousewheel(self.canvas, lambda e: self.canvas.config(text=e.delta), 1)
 
         self.content_frame = tk.Frame(self.canvas)
@@ -491,7 +491,7 @@ class JCTab(tk.Frame):
         chosen_pc_title.grid(row=16, column=23, columnspan=2, sticky="w")
 
         self.canvas2 = tk.Canvas(self.frame)
-        self.canvas2.grid(row=17, column=23, rowspan=12, columnspan=5, sticky="nsew")
+        self.canvas2.grid(row=17, column=23, rowspan=12, columnspan=6, sticky="nsew")
         self.set_mousewheel(self.canvas2, lambda e: self.canvas2.config(text=e.delta), 2)
 
         content_frame2 = tk.Frame(self.canvas2)
