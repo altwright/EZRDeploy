@@ -5,6 +5,9 @@ from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
 from PIL import Image, ImageTk
 from ioparsing import *
+import socket
+
+from appstate import appState
 
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
@@ -43,11 +46,18 @@ class ADTab(tk.Frame):
     
     def gather_machines(self):
         #THIS FUNCTION GRABS DATA ABOUT THE MACHINE'S FROM THE ACTIVE DIRECTORY AND RETURNS IT AS AN ARRAY
-        DATA = []
-        for i in range(24):
-            testData = {"NAME": f"PC{i+1}", "IP": f"10.0.2.{i}"}
-            DATA.append(testData)
-        return DATA
+        remoteComputers = appState.aDSession.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion', 'dNSHostName'])
+        remoteComputerInfos = []
+        for computer in remoteComputers:
+            if computer.name != appState.hostComputer:
+                remoteComputerInfos.append({
+                    "NAME": computer.name, 
+                    "IP": socket.gethostbyname(computer.get('dNSHostName')), 
+                    "OS": computer.get('operatingSystem'),
+                    "OS_VERSION": computer.get('operatingSystemVersion')
+                    })
+
+        return remoteComputerInfos
 
     #Function called when Select all machines checkbox is called
     def select_all_machines(self):

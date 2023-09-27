@@ -6,84 +6,17 @@ from smbprotocol.exceptions import SMBResponseException, NtStatus
 from queue import Queue
 import threading
 import sys
-from UI import *
-
-from job import Job
-
 import socket
 
-class AppState:
-    computers = [] 
-
-def print_stdout(stdoutQ: Queue):
-    while True:
-        if not stdoutQ.empty():
-            print(stdoutQ.get(), end="")
-
-def get_stdin(stdinQ: Queue, job: Job):
-    for line in sys.stdin:
-        if line.rstrip() == 'CANCEL':
-            job.cancel()
-        else:
-            stdinQ.put(line)
+from ui import uiMain
+from job import Job
+from appstate import appState
 
 if __name__ == "__main__":
-    domainName = GetComputerNameEx(ComputerNameDnsDomain)
-    print("DOMAIN: " + domainName)
+    appState.domainName = GetComputerNameEx(ComputerNameDnsDomain)
+    appState.hostComputer = GetComputerName()
 
-    hostComputer = GetComputerName()
-    print("HOST COMPUTER: " + hostComputer)
+    aDDomain = ADDomain(appState.domainName)
+    appState.aDSession = aDDomain.create_session_as_computer(appState.hostComputer)
 
-    domain = ADDomain(domainName)
-    session = domain.create_session_as_computer(hostComputer)
-    computers = session.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion', 'dNSHostName'])
-
-    print("DOMAIN-JOINED COMPUTERS: ")
-    for computer in computers:
-        if computer.name != hostComputer:
-            print('\t' + computer.name + " " + socket.gethostbyname(computer.get('dNSHostName')))
-            AppState.computers.append(computer)
-    
-    c = Client("CLIENT1")
-    c.connect()
-    c.create_service()
-
-    stdoutQ = Queue()
-    stderrQ = Queue()
-    stdinQ = Queue()
-    
-    job = Job(c, "cmd.exe", None, stdoutQ, stderrQ, stdinQ,
-            timeout_seconds=60, 
-            copy_local_exe=False, 
-            local_exe_src_dir=".\\dist", 
-            overwrite_remote_exe=True,
-            working_dir=r'C:\Users\Administrator\Desktop',
-            copy_local_files=False,
-            src_files_list=[r".\dist\test.txt"],
-            overwrite_remote_files=True,
-            clean_copied_files_after=True,
-            clean_copied_exe_after=True,
-            use_system_account=False
-            )
-    job.start()
-
-    print('\nSTDOUT:')
-    stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
-    stderr_thread = threading.Thread(target=print_stdout, args=(stderrQ,), daemon=True)
-    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, job), daemon=True)
-    stdout_thread.start()
-    stderr_thread.start()
-    stdin_thread.start()
-
-    job.join()
-
-    print('\nRETURN CODE: ' + str(job.rc))
-    try:
-        c.cleanup()
-    except SMBResponseException as exc:
-        if exc.status != NtStatus.STATUS_CANNOT_DELETE:
-            raise exc
-        else:
-            print("Failed to delete service!")
-
-    c.disconnect()
+    uiMain()

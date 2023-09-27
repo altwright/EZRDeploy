@@ -103,10 +103,10 @@ class TabManager:
         
 
 #main function where everything is called
-def main():
+def uiMain():
     root = tk.Tk()
     root.minsize(1000, 800)
-    root.title("Digital Forensics tool")
+    root.title("PAExec CyberForensic Tool")
 
     left_frame = tk.Frame(root)
     left_frame.grid(column=0, row=0, padx=10, pady=10)
