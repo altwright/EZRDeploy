@@ -1,7 +1,7 @@
 from pypsexec.client import Client 
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
-from ms_active_directory import ADDomain
+from ms_active_directory import ADDomain, ADGroup
 from smbprotocol.exceptions import SMBResponseException, NtStatus
 from queue import Queue
 import threading
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         if computer.name != hostComputer:
             print('\t' + computer.name)
             AppState.computers.append(computer)
-
+    
     c = Client("CLIENT1")
     c.connect()
     c.create_service()
