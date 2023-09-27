@@ -21,9 +21,6 @@ class ADTab(tk.Frame):
         self.create_job_callback = create_job_callback
         self.pc_buttons = []
         self.chosen_pc = []
-        self.AllMachines = tk.BooleanVar()
-        self.SearchGroup = tk.BooleanVar()
-        self.SearchName = tk.BooleanVar()
         create_grid(self.frame, 30, 30)
         #resize
         self.canvas = tk.Canvas(self.frame)
@@ -47,12 +44,8 @@ class ADTab(tk.Frame):
         #THIS FUNCTION GRABS DATA ABOUT THE MACHINE'S FROM THE ACTIVE DIRECTORY AND RETURNS IT AS AN ARRAY
         DATA = []
         for i in range(24):
-            testData = {"NAME": f"PC{i+1}", "IP": f"10.0.2.{i}", "GROUP" : ""}
+            testData = {"NAME": f"PC{i+1}", "IP": f"10.0.2.{i}"}
             DATA.append(testData)
-        for i in range(12):
-            DATA[i]["GROUP"] = 'HR'
-        for i in range(12):
-            DATA[i+12]["GROUP"] = 'Finance'
         return DATA
 
     #Function called when Select all machines checkbox is called
@@ -98,77 +91,31 @@ class ADTab(tk.Frame):
             self.create_job.config(state=tk.NORMAL)
         else:
             self.create_job.config(state=tk.DISABLED)
-    
-    def select_group(self):
-        if (self.SearchName.get()):
-            self.SearchName.set("False")
-        elif (self.SearchGroup.get()):
-            self.search_input.config(state=tk.NORMAL)
-            self.search_button.config(state=tk.NORMAL)
-        elif (not self.SearchGroup.get()):
-            self.search_input.config(state=tk.DISABLED)
-            self.search_button.config(state=tk.DISABLED)
-    
-    def select_name(self):
-        if (self.SearchGroup.get()):
-            self.SearchGroup.set("False")
-        elif (self.SearchName.get()):
-            self.search_input.config(state=tk.NORMAL)
-            self.search_button.config(state=tk.NORMAL)
-        elif (not self.SearchName.get()):
-            self.search_input.config(state=tk.DISABLED)
-            self.search_button.config(state=tk.DISABLED)
 
     def create_page(self):
-        self.count = 0
         title = tk.Label(self.frame, text = "Active Directory", font=("Arial Bold",20), bg="lightblue")
         title.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        self.search_input = tk.Entry(self.frame, state=tk.DISABLED)
-        self.search_input.insert(0, "Enter Search")
-        self.search_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.search_input.grid(row=1, rowspan=2, column=10, columnspan=2, sticky='ew')
-
-        self.search_button = tk.Button(self.frame,text="Search", state=tk.DISABLED, command=lambda i=True: self.populate_pc_window(i))
-        self.search_button.grid(row=1, rowspan=2, column=12, columnspan=2)
-
-        self.display_all_mc = tk.Button(self.frame,text='Display all Machines', command=lambda i=False: self.populate_pc_window(i))
-        self.display_all_mc.grid(row=1, rowspan=2, column=2 ,columnspan=2)
-        
-        self.display_by_group = ttk.Checkbutton(self.frame, text="Select by Group", variable=self.SearchGroup, onvalue=True, offvalue=False, command=self.select_group)
-        self.display_by_group.grid(row=1, column=8, columnspan=1)
-        self.display_by_name = ttk.Checkbutton(self.frame, text="Select by Name", variable=self.SearchName, onvalue=True, offvalue=False, command=self.select_name)
-        self.display_by_name.grid(row=2, column=8, columnspan=1)
-
-        self.select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", state=tk.DISABLED, variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
-        self.select_all_button.grid(row=1,rowspan=2, column=22)
+        #checkbox button for selecting all machines listed
+        self.AllMachines = tk.BooleanVar()
+        select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
+        select_all_button.grid(row=1, column=7)
 
         self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
-        self.create_job.grid(row=1, rowspan=2, column=25, columnspan=1)
-    
-    def populate_pc_window(self, search):
-        if self.count == 1:
-            for widget in self.canvas.winfo_children():
-                widget.destroy()
-            self.canvas.destroy()
-        self.pc_buttons = []
-        self.count = 1
-
-        self.select_all_button.config(state=tk.NORMAL)
+        self.create_job.grid(row=1, column=9, columnspan=1)
+        
         # Create a Canvas widget for scrollable content
-        self.canvas = tk.Canvas(self.frame)
-        self.canvas.grid(row=3, column=2, rowspan=26, columnspan=26, sticky="nsew")
+        canvas = tk.Canvas(self.frame)
+        canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
 
         #collect machine list from active directory
-        if (search == False):
-            self.machine_list = self.gather_machines()
-        else:
-            self.machine_list = self.gather_machines_search()
+        self.machine_list = self.gather_machines()
         num_rows = (len(self.machine_list)//5 + 1)
 
         # Create a Frame to contain the actual content
-        content_frame = tk.Frame(self.canvas)
-        self.canvas.create_window((0, 0), window=content_frame)
+        content_frame = tk.Frame(canvas)
+        create_grid(content_frame, num_rows, 5)
+        canvas.create_window((0, 0), window=content_frame)
 
         # Define constants for layout
         num_per_row = 5
@@ -184,13 +131,10 @@ class ADTab(tk.Frame):
             sub_frame.grid(row=row, column=col, padx=spacing, pady=spacing)
 
             pc_btn = tk.Button(sub_frame, text=data["NAME"], command=lambda i=i: self.add_pc_to_list(i, True))
-            if data["NAME"] in self.chosen_pc:
-                pc_btn.config(relief="sunken")
-
             pc_btn.grid(row=0, column=0)
             self.pc_buttons.append(pc_btn)
 
-            label = tk.Label(sub_frame, text="IP: "+ data["IP"] + " | Department: " + data["GROUP"])
+            label = tk.Label(sub_frame, text="IP: "+ data["IP"])
             label.grid(row=1, column=0)
 
             # Calculate the width of sub_frame after it's been created
@@ -207,37 +151,18 @@ class ADTab(tk.Frame):
 
 
         # Add scrollbars
-        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=canvas.yview)
         y_scrollbar.grid(row=2, column=29, rowspan=27, sticky="ns")
-        self.canvas.configure(yscrollcommand=y_scrollbar.set)
+        canvas.configure(yscrollcommand=y_scrollbar.set)
 
-        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=self.canvas.xview)
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=canvas.xview)
         x_scrollbar.grid(row=29, column=2, columnspan=27, sticky="ew")
-        self.canvas.configure(xscrollcommand=x_scrollbar.set) 
+        canvas.configure(xscrollcommand=x_scrollbar.set) 
 
         # Update scrollable region
         content_frame.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all")) 
+        canvas.config(scrollregion=canvas.bbox("all")) 
 
-    def gather_machines_search(self):
-        data = self.gather_machines()
-        filtered_data = []
-        search_filter = self.search_input.get()
-
-        if self.SearchGroup.get():
-            for content in data:
-                if search_filter.lower() in content["GROUP"].lower():
-                    filtered_data.append(content)
-        
-        if self.SearchName.get():
-            for content in data:
-                if search_filter.lower() in content["NAME"].lower():
-                    filtered_data.append(content)
-        return filtered_data
-
-    def on_entry_focus_in(self, event):
-        if event.widget.get() == "Enter Search":
-            event.widget.delete(0, "end")
 
     def remove_page(self):
         for widget in self.frame.winfo_children():
