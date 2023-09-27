@@ -24,6 +24,7 @@ class ADTab(tk.Frame):
         self.AllMachines = tk.BooleanVar()
         self.SearchGroup = tk.BooleanVar()
         self.SearchName = tk.BooleanVar()
+        self.machine_list = self.gather_machines()
         create_grid(self.frame, 30, 30)
         #resize
         self.canvas = tk.Canvas(self.frame)
@@ -161,10 +162,10 @@ class ADTab(tk.Frame):
 
         #collect machine list from active directory
         if (search == False):
-            self.machine_list = self.gather_machines()
+            pc_list = self.machine_list
         else:
-            self.machine_list = self.gather_machines_search()
-        num_rows = (len(self.machine_list)//5 + 1)
+            pc_list = self.gather_machines_search()
+        num_rows = (len(pc_list)//5 + 1)
 
         # Create a Frame to contain the actual content
         content_frame = tk.Frame(self.canvas)
@@ -174,7 +175,7 @@ class ADTab(tk.Frame):
         num_per_row = 5
         spacing = 25  # Adjust as needed
 
-        for i, data in enumerate(self.machine_list):
+        for i, data in enumerate(pc_list):
             
             # Calculate row and column based on index
             row = (i // num_per_row)*2
@@ -190,7 +191,7 @@ class ADTab(tk.Frame):
             pc_btn.grid(row=0, column=0)
             self.pc_buttons.append(pc_btn)
 
-            label = tk.Label(sub_frame, text="IP: "+ data["IP"] + " | Department: " + data["GROUP"])
+            label = tk.Label(sub_frame, text="IP: "+ data["IP"] + " | Group: " + data["GROUP"])
             label.grid(row=1, column=0)
 
             # Calculate the width of sub_frame after it's been created
@@ -198,7 +199,7 @@ class ADTab(tk.Frame):
             sub_frame_width = sub_frame.winfo_width()
 
             # Set padx to be half of the remaining space to center sub_frame
-            remaining_space = (canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
+            remaining_space = (self.canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
             padx = max(0, remaining_space // 2)
 
             # Update padx for sub_frame
@@ -220,7 +221,7 @@ class ADTab(tk.Frame):
         self.canvas.config(scrollregion=self.canvas.bbox("all")) 
 
     def gather_machines_search(self):
-        data = self.gather_machines()
+        data = self.machine_list
         filtered_data = []
         search_filter = self.search_input.get()
 
