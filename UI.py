@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, THTab, JCTab, create_grid, completedTab
+from tab_content import ADTab, THTab, JCTab, create_grid, completedTab, runningTab
 from typing import List
 
 class TabManager:
@@ -10,7 +10,7 @@ class TabManager:
         self.mainTabs = []
         self.deletableTabs = []
 
-        tabData = ["Active Directory","Task History"]
+        tabData = ["Active Directory","Task History", "Running Tab Test"]
 
         #created the main tabs and loads the data
         for i in range(len(tabData)):
@@ -19,6 +19,7 @@ class TabManager:
             button.grid(row=i, column=0, sticky="ew")
             self.tabFrame.grid_columnconfigure(i, weight=1)
         self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
+        self.current_tab.create_page()
     
     #handles the data that the AD tab passes on
     def handle_ADTab(self, chosen_pc):
@@ -51,6 +52,8 @@ class TabManager:
             self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
+        elif (content_frame == "Running Tab Test"):
+            self.current_tab = runningTab(self.contentFrame, ["Test", "stdout 1", "stdout 2", "stdout 3", "stdout 4", "stdout 5"])
         else:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()

@@ -1,5 +1,7 @@
 import os
 import tkinter as tk
+import queue
+import threading
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
@@ -989,8 +991,6 @@ class completedTab(tk.Frame):
         data_frame = tk.Frame(frame)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
-
-
         for i, data in enumerate(self.machine_details):
 
             data_frame = tk.Frame(frame)
@@ -1011,21 +1011,192 @@ class completedTab(tk.Frame):
         self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold", 12))
         self.machine_text.grid(row=0, column=0,sticky="w")
 
-   
-  
-        
-
     def inspect_button_clicked(self, name, contents):
         self.machine_text["text"] = contents
         self.machine_name["text"] = f"Machine: {name}"
-
-        
-        
-
 
     def exportdata_button_clicked(self):
         print(f"Export data")
     
     def remove_page(self):
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+
+class runningTab(tk.Frame):
+    def __init__(self, contentFrame, job_details, master=None):
+        super().__init__(master)
+        self.frame = contentFrame
+
+        #JOB_DETAILS IS USED AS A PLACE HOLDER. THIS WILL BE A LINK TO THE GLOBAL VARIABLE WE WILL BE STORING DATA IN
+        #IM NOT SURE WHAT THE STRUCTURE OF THIS WILL BE SO I CAN'T REALLY IMPLEMENT THAT RN
+        self.job_details = job_details
+        self.input_queue = queue.Queue()
+        create_grid(self.frame, 30, 30)
+
+    def create_page(self):
+        status = tk.Label(self.frame, text = "*Running", fg='red', font=("Arial Bold",12), bg="lightblue")
+        status.grid(row=0, column=2, columnspan=2, sticky="w")
+
+        name = tk.Label(self.frame, text = self.job_details[0], font=("Arial Bold",20), bg="lightblue")
+        name.grid(row=1, column=2, columnspan=2, sticky="w")
+
+        date = tk.Label(self.frame, text = "17/09/2023", font=("Arial Bold",12), bg="lightblue")
+        date.grid(row=2, column=2, columnspan=2, sticky="w")
+
+        btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12),command=self.cancel_button_clicked)
+        btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
+
+        self.test_btn = tk.Button(self.frame, text="Add Data Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.add_data)
+        self.test_btn.grid(row=1, column=20, columnspan=3, sticky='ew')
+
+        self.end_test_btn = tk.Button(self.frame, text="End Data Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.end_test)
+        self.end_test_btn.grid(row=1, column=15, columnspan=3, sticky='ew')
+
+        #this section is for displaying the machines in the task  
+        self.main_Canvas = tk.Canvas(self.frame)
+        self.main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=26, sticky="ew")
+        self.set_mousewheel(self.main_Canvas, lambda e: self.main_Canvas.config(text=e.delta), 1)
+
+        main_content_frame = tk.Frame(self.main_Canvas)
+        self.main_Canvas.create_window((0, 0), window=main_content_frame)
+
+
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.main_Canvas.yview)
+        y_scrollbar.grid(row=3, column=29, rowspan=3, sticky="ns")
+        self.main_Canvas.configure(yscrollcommand=y_scrollbar.set) 
+
+        self.machine_name = tk.Label(self.frame, text = "Machine ID", font=("Arial Bold",16), bg="lightblue")
+        self.machine_name.grid(row=10, column=2, columnspan=2, sticky="w")
+
+        self.machine_Canvas = tk.Canvas(self.frame)
+        self.machine_Canvas.grid(row=11, column=2, rowspan=10, columnspan=26, sticky="ew")
+        self.set_mousewheel(self.machine_Canvas, lambda e: self.machine_Canvas.config(text=e.delta), 2)
+
+        self.machine_content_frame = tk.Frame(self.machine_Canvas)
+        self.machine_Canvas.create_window((0, 0), window=self.machine_content_frame)
+
+
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.machine_Canvas.yview)
+        y_scrollbar.grid(row=11, column=29, rowspan=10, sticky="ns")
+        self.machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
+
+        self.populate_top_scrollwindow(main_content_frame)
+
+        main_content_frame.update_idletasks()
+        self.main_Canvas.config(scrollregion=self.main_Canvas.bbox("all"))
+
+        self.machine_content_frame.update_idletasks()
+        self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all"))
+
+        self.console_input = tk.Entry(self.frame)
+        self.console_input.insert(0, "Enter Command")
+        self.console_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.console_input.grid(row=23, column=2, rowspan=2, columnspan=23, sticky="ew")
+
+        console_btn = tk.Button(self.frame, text="Send Command", font=("Arial Bold", 12),command=self.send_command)
+        console_btn.grid(row=23, column=25)
+
+        #listeners thread used to notice if anything is added to the input queue
+        self.input_listener_thread = threading.Thread(target=self.event_listener_input_queue)
+        self.input_listener_thread.start()
+    
+    ####
+    #sends the command off to the Active Directory
+    #To fill in
+    ###
+    def send_command(self):
+        command = self.console_input.get()
+
+        #for the sake of testing, will send the command to the input queue
+        self.input_queue.put(command)
+    
+    #for testing
+    def add_data(self):
+        self.input_queue.put("test")
+
+    #for testing
+    def end_test(self):
+        self.input_queue.put("END")
+    
+    def event_listener_input_queue(self):
+        while True:
+            item = self.input_queue.get()
+            if item == 'END':
+                break
+            self.event_handler_input_queue(item)
+
+    def event_handler_input_queue(self, item):
+        self.display_data.append(item)
+        self.populate_bottom_scrollwindow()
+
+    def populate_top_scrollwindow(self, frame):
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
+
+        data_label = tk.Label(data_frame, text=f"Machine: Test", font=("Arial Bold",16))
+        data_label.grid(row=1, column=0, sticky="w")
+
+        data_labe2 = tk.Label(data_frame, text=f"IP: 10.2.0.1", font=("Arial Bold",16))
+        data_labe2.grid(row=1, column=1, sticky="w")
+
+        inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name=self.job_details[0]: self.inspect_button_clicked(name))
+        inspect_button.grid(row=1, column=2, sticky="e")
+
+    def populate_bottom_scrollwindow(self):
+        for widget in self.machine_content_frame.winfo_children():
+            widget.destroy()
+        for i, content in enumerate(self.display_data):
+            data_frame = tk.Frame(self.machine_content_frame)
+            data_frame.grid(row=i, column=0, sticky="ew")
+            self.machine_text = tk.Label(data_frame, text=self.display_data[i], font=("Arial Bold", 12))
+            self.machine_text.grid(row=0, column=0,sticky="w")
+        self.machine_content_frame.update_idletasks()
+        self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all")) 
+
+    def set_mousewheel(self, widget, command, canvas):
+        if canvas == 2:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas2))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+        elif canvas == 1:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas1))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+    
+    def _on_mousewheel_canvas2(self, event):
+        content_height = self.machine_Canvas.bbox("all")[3] - self.machine_Canvas.bbox("all")[1]
+        visible_height = self.machine_Canvas.winfo_height()
+        if content_height > visible_height:
+            self.machine_Canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.machine_Canvas.yview_moveto(0)
+    
+    def _on_mousewheel_canvas1(self, event):
+        content_height = self.main_Canvas.bbox("all")[3] - self.main_Canvas.bbox("all")[1]
+        visible_height = self.main_Canvas.winfo_height()
+        if content_height > visible_height:
+            self.main_Canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.main_Canvas.yview_moveto(0)
+
+    def inspect_button_clicked(self, name):
+        self.test_btn.config(state=tk.NORMAL)
+        self.end_test_btn.config(state=tk.NORMAL)
+        self.machine_name["text"] = name
+        self.display_data = self.job_details[1:]
+        self.populate_bottom_scrollwindow()
+
+    ####
+    #CANCEL FUNCTION HERE!!!!!!!!
+    #To fill in 
+    ####
+    def cancel_button_clicked(self):
+        print(f"cancel data")
+
+    def on_entry_focus_in(self, event):
+        if event.widget.get() == "Enter Command":
+            event.widget.delete(0, "end")
+    
+    def remove_page(self):
+        self.input_queue.put("END")
+        self.input_listener_thread.join()
         for widget in self.frame.winfo_children():
             widget.destroy()
