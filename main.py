@@ -10,7 +10,7 @@ from UI import *
 
 from job import Job
 
-import time
+import socket
 
 class AppState:
     computers = [] 
@@ -36,12 +36,12 @@ if __name__ == "__main__":
 
     domain = ADDomain(domainName)
     session = domain.create_session_as_computer(hostComputer)
-    computers = session.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion'])
+    computers = session.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion', 'dNSHostName'])
 
     print("DOMAIN-JOINED COMPUTERS: ")
     for computer in computers:
         if computer.name != hostComputer:
-            print('\t' + computer.name)
+            print('\t' + computer.name + " " + socket.gethostbyname(computer.get('dNSHostName')))
             AppState.computers.append(computer)
     
     c = Client("CLIENT1")
