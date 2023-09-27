@@ -50,9 +50,14 @@ class ADTab(tk.Frame):
         remoteComputerInfos = []
         for computer in remoteComputers:
             if computer.name != appState.hostComputer:
+                groups = appState.aDSession.find_groups_for_computer(computer)
+                groupCommonNames = []
+                for group in groups:
+                    groupCommonNames.append(group.common_name)
                 remoteComputerInfos.append({
                     "NAME": computer.name, 
                     "IP": socket.gethostbyname(computer.get('dNSHostName')), 
+                    "GROUP": groupCommonNames,
                     "OS": computer.get('operatingSystem'),
                     "OS_VERSION": computer.get('operatingSystemVersion')
                     })
