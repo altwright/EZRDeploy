@@ -1,71 +1,90 @@
+from job import Job
+            
 class Task:
-    def __init__(self, name=None, desc=None, on_machine=False, file=None, file_name=None, args=None):
-        self.name = name
-        self.desc = desc
-        self.on_machine = on_machine
-        self.file = file
-        self.file_name = file_name
-        self.args = args
+    def __init__(self) -> None:
+        self.job: Job
+        self.computers: str = []
+        self.author: str
+        self.name: str
+        self.jobs: list[Job] = []
     
-    # functions to append details to the task, maybe when wanting to edit task?
-    def add_name(self, name):
-        self.name = name
-    
-    def add_desc(self, desc):
-        self.desc = desc
-    
-    def add_on_machine(self, on_machine):
-        self.on_machine = on_machine
+    def run_jobs(self):
+        # run the jobs
+        for computer in self.computers:
+            # convert computer name into client object
+            new_job = self.job
+            new_job.client = computer # to be converted to client object
+            self.jobs.append(new_job)
         
-    def add_file(self, file): # only if on_machine is false
-        if (not self.on_machine):
-            self.file = file
-        else:
-            print("Cannot add file if on_machine is true")
+        for job in self.jobs:
+            job.run()
+        
+        return self.jobs
     
-    def add_file_name(self, file_name): # only if on_machine is true
-        if (self.on_machine):
-            self.file_name = file_name
+    def kill_jobs(self):
+        # kill the jobs
+        for job in self.jobs:
+            job.kill() # replace with actual kill function
+            # todo: check if kill successful, if yes then pop, if not error?
+        
+        self.jobs = []
     
-    def add_args(self, args):
-        self.args = args
+    def kill_specific_job(self, computer):
+        # kill a specific job, returns True if successful, False if not
+        for job in self.jobs:
+            if (job.client == computer):
+                job.kill() # replace with actual kill function
+                self.jobs.remove(job)
+                return True
+        return False
     
-    def send_to_machine(self, computer, input=None):
-        # send the task to the computer
-        if (not input):
-            # call pypsexec here to send task to machine
-            pass
-        else:
-            # call pypsexec here to send whatever input to the machine
-            pass
+    def send_specific_input(self, computer, input):
+        # take computer and send input using pypsexec, returns True if successful, False if not
+        for job in self.jobs:
+            if (job.client == computer):
+                # send input through stdin
+                return True
+        return False
+
+            
 
 class TaskPage:
-    def __init__(self, task, computers):
+    def __init__(self, task):
         self.task = task
-        self.computers = computers
     
-    def restart(self):
-        # take the task and computers and restart the task
-        for computer in self.computers:
-            self.task.send_to_machine(computer)
-        pass
+    def restart_all(self):
+        # kill all the jobs
+        self.task.kill_jobs()
+        
+        #re run all the jobs
+        self.task.run_jobs()
     
-    def cancel(self):
-        # take the task and computers and cancel the task
-        for computer in self.computers:
-            self.task.send_to_machine(computer, "cancel task to do")
-        pass
+    def cancel_all(self):
+        # kill all the jobs
+        self.task.kill_jobs()
     
-    def send_input(self, computer, input):
+    def send_input_to_computer(self, computer, input):
         # take computer and send input using pypsexec
-        self.task.send_to_machine(computer, input)
-        pass
+        self.task.send_specific_input(computer, input)
 
-class TaskCreationPage:
+class JobCreationPage:
     def __init__(self):
-        self.task = Task() # details to be filled once create_task called
+        self.task = Task()
+        self.job = Job() # details to be filled once create_job called
     
-    def create_task(self):
+    def create_job_callback(self, results: dict):
         # create the task
-        self.task.add_name(name.get()) # get name from tkinter, name is placeholder
-        pass
+        self.task.author = results["AUTHOR"]
+        self.task.name = results["NAME"]
+        self.task.computers = results["PCs"]
+        
+        self.job = Job(executable=results["PROGRAM"], 
+                       arguments=results["ARGUMENTS"], 
+                       use_system_account=results["SYSADMIN"], 
+                       copy_local_exe=results["LOCALMACHINE"], 
+                       src_files_list=results["ADDFILES"])
+        
+        self.task.job = self.job
+        
+        # run the jobs
+        active_task = self.task.run_jobs()
