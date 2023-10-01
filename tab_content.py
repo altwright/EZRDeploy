@@ -1,11 +1,10 @@
 import os
 import tkinter as tk
 import queue
-import threading
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
-from PIL import Image, ImageTk
+from Daemon_Thread import QueueThread
 
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
@@ -1023,13 +1022,19 @@ class completedTab(tk.Frame):
             widget.destroy()
 
 class runningTab(tk.Frame):
-    def __init__(self, contentFrame, job_details, master=None):
+    def __init__(self, contentFrame, job_name, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.display_data = []
+        self.queue_thread = QueueThread(self.callBack)
+        self.queue_thread.start()
 
-        #JOB_DETAILS IS USED AS A PLACE HOLDER. THIS WILL BE A LINK TO THE GLOBAL VARIABLE WE WILL BE STORING DATA IN
-        #IM NOT SURE WHAT THE STRUCTURE OF THIS WILL BE SO I CAN'T REALLY IMPLEMENT THAT RN
-        self.job_details = job_details
+        #JUST SOME TEST COUNT AND RUNNING. DELETE WHEN INTERGRATING
+        self.running = True
+        self.count = 0
+
+        #JOB_DETAILS IS JUST THE NAME OF THE JOB. THIS WHOLE CLASS NEEDS TO BE ADJUSTED TO GET THE DATA FROM THE GLOBAL VARIABLE
+        self.job_name = job_name
         self.input_queue = queue.Queue()
         create_grid(self.frame, 30, 30)
 
@@ -1037,20 +1042,17 @@ class runningTab(tk.Frame):
         status = tk.Label(self.frame, text = "*Running", fg='red', font=("Arial Bold",12), bg="lightblue")
         status.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        name = tk.Label(self.frame, text = self.job_details[0], font=("Arial Bold",20), bg="lightblue")
+        name = tk.Label(self.frame, text = self.job_name, font=("Arial Bold",20), bg="lightblue")
         name.grid(row=1, column=2, columnspan=2, sticky="w")
 
         date = tk.Label(self.frame, text = "17/09/2023", font=("Arial Bold",12), bg="lightblue")
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
-        btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12),command=self.cancel_button_clicked)
-        btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
+        self.btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12),command=self.cancel_button_clicked)
+        self.btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
 
         self.test_btn = tk.Button(self.frame, text="Add Data Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.add_data)
         self.test_btn.grid(row=1, column=20, columnspan=3, sticky='ew')
-
-        self.end_test_btn = tk.Button(self.frame, text="End Data Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.end_test)
-        self.end_test_btn.grid(row=1, column=15, columnspan=3, sticky='ew')
 
         #this section is for displaying the machines in the task  
         self.main_Canvas = tk.Canvas(self.frame)
@@ -1078,6 +1080,10 @@ class runningTab(tk.Frame):
 
         y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.machine_Canvas.yview)
         y_scrollbar.grid(row=11, column=29, rowspan=10, sticky="ns")
+
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=self.machine_Canvas.xview)
+        x_scrollbar.grid(row=21, column=2, columnspan=26, sticky="ew")
+        self.machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
         self.machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
         self.populate_top_scrollwindow(main_content_frame)
@@ -1093,41 +1099,52 @@ class runningTab(tk.Frame):
         self.console_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.console_input.grid(row=23, column=2, rowspan=2, columnspan=23, sticky="ew")
 
-        console_btn = tk.Button(self.frame, text="Send Command", font=("Arial Bold", 12),command=self.send_command)
-        console_btn.grid(row=23, column=25)
-
-        #listeners thread used to notice if anything is added to the input queue
-        self.input_listener_thread = threading.Thread(target=self.event_listener_input_queue)
-        self.input_listener_thread.start()
+        self.console_btn = tk.Button(self.frame, text="Send Command", font=("Arial Bold", 12),command=self.send_command)
+        self.console_btn.grid(row=23, column=25)
     
     ####
     #sends the command off to the Active Directory
     #To fill in
     ###
-    def send_command(self):
-        command = self.console_input.get()
+    def callBack(self, item):
+        self.display_data.append(item)
+        self.populate_bottom_scrollwindow()
 
-        #for the sake of testing, will send the command to the input queue
-        self.input_queue.put(command)
+    def send_command(self):
+        self.count += 1
+        command = self.console_input.get()
+        self.queue_thread.addItem(command)
+        if self.count > 5:
+            self.running = False
+            self.taskStillRunning()
     
     #for testing
     def add_data(self):
-        self.input_queue.put("test")
-
-    #for testing
-    def end_test(self):
-        self.input_queue.put("END")
+        self.count += 1
+        self.queue_thread.addItem("test")
+        if self.count > 5:
+            self.running = False
+            self.taskStillRunning()
     
-    def event_listener_input_queue(self):
-        while True:
-            item = self.input_queue.get()
-            if item == 'END':
-                break
-            self.event_handler_input_queue(item)
+    ####
+    #This function is used to see if the task is still running
+    ###
+    def taskStillRunning(self):
+        #FILL IN WITH THE NECESSARY CHECKS
+        #self.running IS JUST SOME TEST DATA
+        if self.running == False:
+            self.test_btn.config(state=tk.DISABLED)
+            self.btn_cancel.config(state=tk.DISABLED)
 
-    def event_handler_input_queue(self, item):
-        self.display_data.append(item)
-        self.populate_bottom_scrollwindow()
+            #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
+            self.display_data = ["THE TASK HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE"]
+            self.populate_bottom_scrollwindow()
+
+            #self.machine_content_frame.config(state=tk.DISABLED)
+            self.console_btn.config(state=tk.DISABLED)
+            self.console_input.config(state=tk.DISABLED)
+
+            
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1139,8 +1156,17 @@ class runningTab(tk.Frame):
         data_labe2 = tk.Label(data_frame, text=f"IP: 10.2.0.1", font=("Arial Bold",16))
         data_labe2.grid(row=1, column=1, sticky="w")
 
-        inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name=self.job_details[0]: self.inspect_button_clicked(name))
+        inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name="test1": self.inspect_button_clicked(name))
         inspect_button.grid(row=1, column=2, sticky="e")
+
+        data_label_2 = tk.Label(data_frame, text=f"Machine: Test2", font=("Arial Bold",16))
+        data_label_2.grid(row=2, column=0, sticky="w")
+
+        data_labe2_2 = tk.Label(data_frame, text=f"IP: 10.2.0.2", font=("Arial Bold",16))
+        data_labe2_2.grid(row=2, column=1, sticky="w")
+
+        inspect_button_2 = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name="test2": self.inspect_button_clicked(name))
+        inspect_button_2.grid(row=2, column=2, sticky="e")
 
     def populate_bottom_scrollwindow(self):
         for widget in self.machine_content_frame.winfo_children():
@@ -1148,8 +1174,8 @@ class runningTab(tk.Frame):
         for i, content in enumerate(self.display_data):
             data_frame = tk.Frame(self.machine_content_frame)
             data_frame.grid(row=i, column=0, sticky="ew")
-            self.machine_text = tk.Label(data_frame, text=self.display_data[i], font=("Arial Bold", 12))
-            self.machine_text.grid(row=0, column=0,sticky="w")
+            machine_text = tk.Label(data_frame, text=self.display_data[i], font=("Arial Bold", 12))
+            machine_text.grid(row=0, column=0,sticky="w")
         self.machine_content_frame.update_idletasks()
         self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all")) 
 
@@ -1178,11 +1204,28 @@ class runningTab(tk.Frame):
             self.main_Canvas.yview_moveto(0)
 
     def inspect_button_clicked(self, name):
-        self.test_btn.config(state=tk.NORMAL)
-        self.end_test_btn.config(state=tk.NORMAL)
-        self.machine_name["text"] = name
-        self.display_data = self.job_details[1:]
-        self.populate_bottom_scrollwindow()
+        if self.running != False:
+            #if there is already data stored in the global variable, place that in display_data
+            self.display_data = []
+            self.test_btn.config(state=tk.NORMAL)
+            self.machine_name["text"] = name
+            stdout = queue.Queue()
+            stdin = queue.Queue()
+            if name == "test1":
+                stdout.put("test1 program has arrived")
+                stdout.put("test1 program started execution")
+                stdout.put("test1 program in 25'%' done")
+                stdout.put("Test1 program is 50'%' done")
+                self.queue_thread.loadQueues(stdout, stdin)
+            elif name == "test2":
+                stdout.put("test2 program has arrived")
+                stdout.put("test2 program started execution")
+                stdout.put("test2 program in 25'%' done")
+                stdout.put("Test2 program is 50'%' done")
+                self.queue_thread.loadQueues(stdout, stdin)
+            self.populate_bottom_scrollwindow()
+        else:
+            self.taskStillRunning()
 
     ####
     #CANCEL FUNCTION HERE!!!!!!!!
@@ -1196,7 +1239,5 @@ class runningTab(tk.Frame):
             event.widget.delete(0, "end")
     
     def remove_page(self):
-        self.input_queue.put("END")
-        self.input_listener_thread.join()
         for widget in self.frame.winfo_children():
             widget.destroy()

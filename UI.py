@@ -53,7 +53,7 @@ class TabManager:
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Running Tab Test"):
-            self.current_tab = runningTab(self.contentFrame, ["Test", "stdout 1", "stdout 2", "stdout 3", "stdout 4", "stdout 5"])
+            self.current_tab = runningTab(self.contentFrame, "Test")
         else:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()
