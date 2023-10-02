@@ -217,17 +217,24 @@ class ADTab(tk.Frame):
 
         if new_relief == "sunken" and individual:
             self.chosen_pc.append(button_text)
+            button.config(state=tk.DISABLED)  # Disable the button when it's in the "sunken" state
         elif new_relief == "raised" and individual:
+                if button_text in self.chosen_pc:
+                    self.chosen_pc.remove(button_text)
+                    self.AllMachines.set("False")
+                    button.config(state=tk.NORMAL)  # Enable the button when it's in the "raised" state
+
+
+        elif self.AllMachines.get() == True and not individual:
+            if button_text not in self.chosen_pc:
+                self.chosen_pc.append(button_text)
+
+        elif self.AllMachines.get() == False and not individual:
             if button_text in self.chosen_pc:
                 self.chosen_pc.remove(button_text)
-                self.AllMachines.set("False")
 
-        # Toggle the state of the button between NORMAL and DISABLED
-        button.config(state=tk.DISABLED if new_relief == "sunken" else tk.NORMAL)
-        
         self.show_button()
         button.config(relief=new_relief)
-
 
     def gather_machines_search(self):
         data = self.machine_list
