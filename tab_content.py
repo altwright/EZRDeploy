@@ -40,7 +40,7 @@ class ADTab(tk.Frame):
 
         for sub_frame in self.frame.winfo_children():
             sub_frame.grid_configure(padx=padx)
-
+ 
     #call back function used to send data back to tab_manager
     def call_create_job_callback(self):
         self.create_job_callback(self.chosen_pc)
@@ -69,31 +69,7 @@ class ADTab(tk.Frame):
             for i in range(len(self.machine_list)):
                 self.add_pc_to_list(i, False)
     
-    #function is used to add or remove a PC for the chosen pc list depending on if it has been pressed or is user checked the select all machines button
-    #takes in the index of a button in the pc_button list, and a boolean (true if just one button, false if called by select_all_machines)
-    def add_pc_to_list(self, button_index, individual):
-        button = self.pc_buttons[button_index]
-        button_text = button.cget("text")
-        current_relief = button.cget("relief")  # Get current relief style
-        if current_relief == "raised" and individual:
-            new_relief = "sunken"
-            self.chosen_pc.append(button_text)
-        elif current_relief == "sunken" and individual:
-            new_relief = "raised"
-            if button_text in self.chosen_pc:
-                self.chosen_pc.remove(button_text)
-                self.AllMachines.set("False")
-        elif  self.AllMachines.get() == True and not individual:
-            new_relief = "sunken"
-            if button_text not in self.chosen_pc:
-                self.chosen_pc.append(button_text)
-        elif  self.AllMachines.get() == False and not individual:
-            new_relief = "raised"
-            if button_text in self.chosen_pc:
-                self.chosen_pc.remove(button_text)
 
-        self.show_button()
-        button.config(relief=new_relief)
 
     def show_button(self):
         if len(self.chosen_pc) > 0:
@@ -124,29 +100,35 @@ class ADTab(tk.Frame):
     def create_page(self):
         self.count = 0
         title = tk.Label(self.frame, text = "Active Directory", font=("Arial Bold",20), bg="lightblue")
-        title.grid(row=0, column=2, columnspan=2, sticky="w")
+        title.grid(row=0, column=2, columnspan=2, sticky="nsew")
 
-        self.search_input = tk.Entry(self.frame, state=tk.DISABLED)
+        top_frame = tk.LabelFrame(self.frame, font=("Arial Bold", 12))
+        top_frame.grid(row=1, column=5, sticky="nsew", padx=10, pady=10)
+
+        self.search_input = tk.Entry(top_frame, state=tk.DISABLED)
         self.search_input.insert(0, "Enter Search")
         self.search_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.search_input.grid(row=1, rowspan=2, column=10, columnspan=2, sticky='ew')
+        self.search_input.grid(row=1, rowspan=2, column=13, columnspan=2, sticky='ew')
 
-        self.search_button = tk.Button(self.frame,text="Search", state=tk.DISABLED, command=lambda i=True: self.populate_pc_window(i))
-        self.search_button.grid(row=1, rowspan=2, column=12, columnspan=2)
+        self.search_button = tk.Button(top_frame,text="Search", state=tk.DISABLED, command=lambda i=True: self.populate_pc_window(i))
+        self.search_button.grid(row=1, rowspan=2, column=15, columnspan=2)
 
-        self.display_all_mc = tk.Button(self.frame,text='Display all Machines', command=lambda i=False: self.populate_pc_window(i))
-        self.display_all_mc.grid(row=1, rowspan=2, column=2 ,columnspan=2)
+        self.display_all_mc = tk.Button(top_frame,text='Display all Machines', command=lambda i=False: self.populate_pc_window(i))
+        self.display_all_mc.grid(row=1, rowspan=2, column=5 ,columnspan=2)
         
-        self.display_by_group = ttk.Checkbutton(self.frame, text="Select by Group", variable=self.SearchGroup, onvalue=True, offvalue=False, command=self.select_group)
-        self.display_by_group.grid(row=1, column=8, columnspan=1)
-        self.display_by_name = ttk.Checkbutton(self.frame, text="Select by Name", variable=self.SearchName, onvalue=True, offvalue=False, command=self.select_name)
-        self.display_by_name.grid(row=2, column=8, columnspan=1)
+        self.display_by_group = ttk.Checkbutton(top_frame, text="Select by Group", variable=self.SearchGroup, onvalue=True, offvalue=False, command=self.select_group)
+        self.display_by_group.grid(row=1, column=11, columnspan=1)
+        self.display_by_name = ttk.Checkbutton(top_frame, text="Select by Name", variable=self.SearchName, onvalue=True, offvalue=False, command=self.select_name)
+        self.display_by_name.grid(row=2, column=11, columnspan=1)
 
-        self.select_all_button = ttk.Checkbutton(self.frame, text="Select All Machines", state=tk.DISABLED, variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
-        self.select_all_button.grid(row=1,rowspan=2, column=22)
+        self.select_all_button = ttk.Checkbutton(top_frame, text="Select All Machines", state=tk.DISABLED, variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
+        self.select_all_button.grid(row=1,rowspan=2, column=25)
 
-        self.create_job = ttk.Button(self.frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
-        self.create_job.grid(row=1, rowspan=2, column=25, columnspan=1)
+        self.create_job = ttk.Button(top_frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
+        self.create_job.grid(row=1, rowspan=2, column=28, columnspan=1)
+
+
+
     
     def populate_pc_window(self, search):
         if self.count == 1:
@@ -183,7 +165,9 @@ class ADTab(tk.Frame):
             col = i % num_per_row
 
             sub_frame = tk.Frame(content_frame)  # Create a sub-frame for each button-label pair
+            create_grid(sub_frame, num_rows, 5)
             sub_frame.grid(row=row, column=col, padx=spacing, pady=spacing)
+            
 
             pc_btn = tk.Button(sub_frame, text=data["NAME"], command=lambda i=i: self.add_pc_to_list(i, True))
             if data["NAME"] in self.chosen_pc:
@@ -191,6 +175,9 @@ class ADTab(tk.Frame):
 
             pc_btn.grid(row=0, column=0)
             self.pc_buttons.append(pc_btn)
+                    # Bind the toggle_button function to the button click event
+            pc_btn.bind("<Button-1>", lambda event, i=i: self.add_pc_to_list(i, True))
+
 
             label = tk.Label(sub_frame, text="IP: "+ data["IP"] + " | Group: " + data["GROUP"])
             label.grid(row=1, column=0)
@@ -220,6 +207,27 @@ class ADTab(tk.Frame):
         # Update scrollable region
         content_frame.update_idletasks()
         self.canvas.config(scrollregion=self.canvas.bbox("all")) 
+
+    def add_pc_to_list(self, button_index, individual):
+        button = self.pc_buttons[button_index]
+        button_text = button.cget("text")
+
+        # Toggle between "sunken" and "raised" relief
+        new_relief = "sunken" if button.cget("relief") == "raised" else "raised"
+
+        if new_relief == "sunken" and individual:
+            self.chosen_pc.append(button_text)
+        elif new_relief == "raised" and individual:
+            if button_text in self.chosen_pc:
+                self.chosen_pc.remove(button_text)
+                self.AllMachines.set("False")
+
+        # Toggle the state of the button between NORMAL and DISABLED
+        button.config(state=tk.DISABLED if new_relief == "sunken" else tk.NORMAL)
+        
+        self.show_button()
+        button.config(relief=new_relief)
+
 
     def gather_machines_search(self):
         data = self.machine_list
@@ -1051,7 +1059,7 @@ class runningTab(tk.Frame):
         self.btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12),command=self.cancel_button_clicked)
         self.btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
 
-        self.test_btn = tk.Button(self.frame, text="Add Data Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.add_data)
+        self.test_btn = tk.Button(self.frame, text=" Test", state=tk.DISABLED, font=("Arial Bold", 12),command=self.add_data)
         self.test_btn.grid(row=1, column=20, columnspan=3, sticky='ew')
 
         #this section is for displaying the machines in the task  
@@ -1082,7 +1090,7 @@ class runningTab(tk.Frame):
         y_scrollbar.grid(row=11, column=29, rowspan=10, sticky="ns")
 
         x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=self.machine_Canvas.xview)
-        x_scrollbar.grid(row=21, column=2, columnspan=26, sticky="ew")
+        x_scrollbar.grid(row=23, column=2, columnspan=26, sticky="ew")
         self.machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
         self.machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
@@ -1097,10 +1105,10 @@ class runningTab(tk.Frame):
         self.console_input = tk.Entry(self.frame)
         self.console_input.insert(0, "Enter Command")
         self.console_input.bind("<FocusIn>", self.on_entry_focus_in)
-        self.console_input.grid(row=23, column=2, rowspan=2, columnspan=23, sticky="ew")
+        self.console_input.grid(row=21, column=2, rowspan=2, columnspan=23, sticky="ew")
 
         self.console_btn = tk.Button(self.frame, text="Send Command", font=("Arial Bold", 12),command=self.send_command)
-        self.console_btn.grid(row=23, column=25)
+        self.console_btn.grid(row=21, column=25)
     
     ####
     #sends the command off to the Active Directory
