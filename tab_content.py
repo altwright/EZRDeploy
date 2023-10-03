@@ -58,7 +58,7 @@ class ADTab(tk.Frame):
                 remoteComputerInfos.append({
                     "NAME": computer.name, 
                     "IP": socket.gethostbyname(computer.get('dNSHostName')), 
-                    "GROUP": groupCommonNames,
+                    "GROUPS": groupCommonNames,
                     "OS": computer.get('operatingSystem'),
                     "OS_VERSION": computer.get('operatingSystemVersion')
                     })
