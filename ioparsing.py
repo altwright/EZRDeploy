@@ -1,9 +1,11 @@
 from job import Job
+from pypsexec.client import Client
+from typing import List
             
 class Task:
     def __init__(self) -> None:
         self.job: Job
-        self.computers: str = []
+        self.computers: List[Client] = []
         self.author: str
         self.name: str
         self.jobs: list[Job] = []
@@ -43,6 +45,7 @@ class Task:
         for job in self.jobs:
             if (job.client == computer):
                 # send input through stdin
+                # put, get, and isEmpty
                 return True
         return False
 
@@ -66,6 +69,9 @@ class TaskPage:
     def send_input_to_computer(self, computer, input):
         # take computer and send input using pypsexec
         self.task.send_specific_input(computer, input)
+        
+    def export_data():
+        pass
 
 class JobCreationPage:
     def __init__(self):

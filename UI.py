@@ -43,6 +43,8 @@ class TabManager:
         print("With these additional Files....", data["ADDFILES"])
         print("Created by..." , data["AUTHOR"])
         print("With PCs:..." , data["PCs"])
+        
+        # replace with JCPage create_job_callback
         print()
     
     #used to change tabs
