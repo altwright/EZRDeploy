@@ -111,7 +111,6 @@ class TabManager:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()
 
-
     #removes a tab and its frame
     def delete_tab_frame(self, name):
         for data in self.deletableTabs:
