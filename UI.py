@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, THTab, JCTab, create_grid, completedTab
+from tab_content import ADTab, THTab, JCTab, create_grid, completedTab, RunningTaskTab
 from typing import List
 from ioparsing import *
 from appstate import appState, JobState, TaskState
 from pypsexec.client import Client 
 from datetime import datetime
 from queue import Queue
+from console import ConsoleThread
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -14,6 +15,10 @@ class TabManager:
         self.contentFrame = contentFrame
         self.mainTabs = []
         self.deletableTabs = []
+
+        self.queue_thread = ConsoleThread()
+        self.queue_thread.start_thread()
+        self.queue_thread.pause_thread()
 
         tabData = ["Active Directory","Task History"]
 
@@ -107,6 +112,9 @@ class TabManager:
             self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
+        elif (content_frame == "Running Tab Test"):
+            self.current_tab = RunningTaskTab(self.contentFrame, self.queue_thread, "Test")
+            self.queue_thread.loadObject(self.current_tab)
         else:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()
