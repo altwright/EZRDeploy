@@ -1,4 +1,3 @@
-import time
 import queue
 import threading
 
@@ -7,21 +6,23 @@ class QueueThread:
         self.stdout = queue.Queue()
         self.stdin = queue.Queue()
         self.callBack = callBack
+        self._stop_event = threading.Event()
 
     def loop(self, my_queue):
-        while True:
+        while not self._stop_event.is_set():
             try:
                 item = self.stdout.get(timeout=1)
                 self.callBack(item)
             except queue.Empty:
                 pass 
+        
     
-    def start(self):
-        daemon_thread = threading.Thread(target=self.loop, args=(self.stdout,))
-        daemon_thread.daemon = True  # Mark the thread as a daemon thread
+    def start_thread(self):
+        self.daemon_thread = threading.Thread(target=self.loop, args=(self.stdout,))
+        self.daemon_thread.daemon = True  # Mark the thread as a daemon thread
 
         # Start the daemon thread
-        daemon_thread.start()
+        self.daemon_thread.start()
 
     def addItem(self, item):
         #for the sake of testing, will send the command to the stdout queue
@@ -30,3 +31,6 @@ class QueueThread:
     def loadQueues(self, outputQueue, inputQueue):
         self.stdout = outputQueue
         self.stdin = inputQueue
+    
+    def stop_thread(self):
+        self._stop_event.set()
