@@ -1,11 +1,13 @@
 import queue
 import threading
+import time
 
 class QueueThread:
     def __init__(self):
         self.stdout = queue.Queue()
         self.stdin = queue.Queue()
         self.object = None
+        self._pause_event = threading.Event()
 
     def loop(self, my_queue):
         while True:
@@ -15,13 +17,15 @@ class QueueThread:
                     self.object.recieveData(item)
             except queue.Empty:
                 pass 
-        
+            if self._pause_event.is_set():
+                # The thread is paused, so it waits until resumed
+                self._pause_event.wait()
+            time.sleep(0.1)
     
     def start_thread(self):
         self.daemon_thread = threading.Thread(target=self.loop, args=(self.stdout,))
         self.daemon_thread.daemon = True 
 
-        # Start the daemon thread
         self.daemon_thread.start()
 
     def addItem(self, item):
@@ -34,3 +38,10 @@ class QueueThread:
     def loadQueues(self, outputQueue, inputQueue):
         self.stdout = outputQueue
         self.stdin = inputQueue
+
+    def pause_thread(self):
+        self._pause_event.set()
+
+    def resume_thread(self):
+        self._pause_event.clear() 
+

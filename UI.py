@@ -13,6 +13,7 @@ class TabManager:
 
         self.queue_thread = QueueThread()
         self.queue_thread.start_thread()
+        self.queue_thread.pause_thread()
 
         tabData = ["Active Directory","Task History", "Running Tab Test"]
 
@@ -39,13 +40,20 @@ class TabManager:
             self.new_tab(name, job_path)
 
     def handle_JCTab(self, data):
+        print("Created by..." , data["AUTHOR"])
         print("creating a job called...." , data["NAME"])
         print("with a program called....", data["PROGRAM"])
         print("With the arguments...", data["ARGUMENTS"])
         print("On the local machien....", data["LOCALMACHINE"])
+        print("Located on the local Machines path....", data["LOCALSRC"])
+        print("Which will run in the working directory.....", data["WORKINGDIR"])
+        print("Overwite Files....", data["OVERWRITE_FILES"])
+        print("Overwrite exe.....", data["OVERWRITE_EXE"])
+        print("Cleanup exe.....", data["CLEANUP_EXE"])
+        print("Cleanup files.....", data["CLEANUP_FILES"])
         print("Run as system admin....", data["SYSADMIN"])
+        print("With a time out of....", data["TIMEOUT"])
         print("With these additional Files....", data["ADDFILES"])
-        print("Created by..." , data["AUTHOR"])
         print("With PCs:..." , data["PCs"])
         print()
     
