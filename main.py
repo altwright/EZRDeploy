@@ -8,7 +8,7 @@ import threading
 import sys
 import socket
 
-from ui import uiMain
+from UI import uiMain
 from job import Job
 from appstate import appState
 
