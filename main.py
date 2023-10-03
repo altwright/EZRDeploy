@@ -13,12 +13,10 @@ from job import Job
 from appstate import appState
 
 if __name__ == "__main__":
-    '''
     appState.domainName = GetComputerNameEx(ComputerNameDnsDomain)
     appState.hostComputer = GetComputerName()
 
     aDDomain = ADDomain(appState.domainName)
     appState.aDSession = aDDomain.create_session_as_computer(appState.hostComputer)
-    '''
 
     uiMain()

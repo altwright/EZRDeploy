@@ -5,6 +5,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
 from Daemon_Thread import QueueThread
+from appstate import appState
+import socket
 
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
@@ -12,8 +14,6 @@ def create_grid(frame, rows, columns):
         frame.grid_rowconfigure(i, weight=1)
         for j in range(columns):
             frame.grid_columnconfigure(j, weight=1)
-
-
 
 class ADTab(tk.Frame):
     def __init__(self, contentFrame, create_job_callback, master=None):
@@ -47,15 +47,23 @@ class ADTab(tk.Frame):
     
     def gather_machines(self):
         #THIS FUNCTION GRABS DATA ABOUT THE MACHINE'S FROM THE ACTIVE DIRECTORY AND RETURNS IT AS AN ARRAY
-        DATA = []
-        for i in range(24):
-            testData = {"NAME": f"PC{i+1}", "IP": f"10.0.2.{i}", "GROUP" : ""}
-            DATA.append(testData)
-        for i in range(12):
-            DATA[i]["GROUP"] = 'HR'
-        for i in range(12):
-            DATA[i+12]["GROUP"] = 'Finance'
-        return DATA
+        remoteComputers = appState.aDSession.find_computers_by_common_name("*", ['operatingSystem', 'operatingSystemVersion', 'dNSHostName'])
+        remoteComputerInfos = []
+        for computer in remoteComputers:
+            if computer.name != appState.hostComputer:
+                groups = appState.aDSession.find_groups_for_computer(computer)
+                groupCommonNames = []
+                for group in groups:
+                    groupCommonNames.append(group.common_name)
+                remoteComputerInfos.append({
+                    "NAME": computer.name, 
+                    "IP": socket.gethostbyname(computer.get('dNSHostName')), 
+                    "GROUP": groupCommonNames,
+                    "OS": computer.get('operatingSystem'),
+                    "OS_VERSION": computer.get('operatingSystemVersion')
+                    })
+
+        return remoteComputerInfos
 
     #Function called when Select all machines checkbox is called
     def select_all_machines(self):
@@ -178,8 +186,7 @@ class ADTab(tk.Frame):
                     # Bind the toggle_button function to the button click event
             pc_btn.bind("<Button-1>", lambda event, i=i: self.add_pc_to_list(i, True))
 
-
-            label = tk.Label(sub_frame, text="IP: "+ data["IP"] + " | Group: " + data["GROUP"])
+            label = tk.Label(sub_frame, text="IP: "+ data["IP"])
             label.grid(row=1, column=0)
 
             # Calculate the width of sub_frame after it's been created
