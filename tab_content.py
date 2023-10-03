@@ -1356,12 +1356,15 @@ class runningTab(tk.Frame):
 
     def pollingTaskStatus(self):
         #time is in milliseconds
-        self.frame.after(5000, self.grabTaskStatus)
+        self.grabTaskStatus()
+        ##
+        ##need to include an if statement for when the user leaves the page or the task is finished
+        ##
+        self.frame.after(5000, self.pollingTaskStatus)
     
     #too fill in with function that checks status of task
     def grabTaskStatus(self):
         print("Task is still running")
-        self.pollingTaskStatus()
 
     def on_entry_focus_in(self, event):
         if event.widget.get() == "Enter Command":
