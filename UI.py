@@ -52,15 +52,9 @@ class TabManager:
         task.argsStr = data["ARGUMENTS"]
         task.localProgram = data["LOCALMACHINE"]
         task.localProgramSrcDir = data["LOCALSRC"]
-        if len(data["ADDFILES"]) > 0:
-            task.copyFiles = True
-        else:
-            task.copyFiles = False
+        task.copyFiles = True if len(data["ADDFILES"]) > 0 else False
         task.copiedFilesList = data["ADDFILES"]
-        if data["WORKINGDIR"]:
-            task.remoteWorkingDir = data["WORKINGDIR"]
-        else:
-            task.remoteWorkingDir = None
+        task.remoteWorkingDir = data["WORKINGDIR"] if data["WORKINGDIR"] else None
         task.impersonateSysAdmin = data["SYSADMIN"]
         task.overwriteExe = data["OVERWRITE_EXE"]
         task.overwriteFiles = data["OVERWRITE_FILES"]
@@ -183,12 +177,5 @@ def uiMain():
     tabFrame = tk.Frame(left_frame, bg="lightgray")
     tabFrame.grid(row=0, column=0, columnspan=20, sticky="nsew")
     tab_manager = TabManager(tabFrame, contentFrame)
-    
-    # definitions for lists storing AD clients and jobs, should go here, if not move elsewhere
-    AD_clients: List = [] # type for client to be declared after List
-    tasks: List[Task] = []
-    task_pages: List[TaskPage] = []
-    
-    # these might need to be pulled into each page depending on whether they are used by the page
     
     root.mainloop()
