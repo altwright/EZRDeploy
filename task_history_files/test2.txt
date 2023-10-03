@@ -1,0 +1,5 @@
+Job 2
+8
+C:/Users/Owner/OneDrive - The University of Western Australia/Documents/GitHub/project-3200/task_program_files/deleteAllFiles.exe
+running
+07/09/2023

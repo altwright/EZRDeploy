@@ -49,7 +49,6 @@ class Task:
                 return True
         return False
 
-            
 
 class TaskPage:
     def __init__(self, task):
