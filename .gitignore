@@ -6,3 +6,5 @@ build/
 __pycache__/
 *.spec
 .vscode
+task_history_files/
+task_program_files/

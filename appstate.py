@@ -5,5 +5,6 @@ class AppState:
     domainName: str
     hostComputer: str
     aDSession: ADSession
+    
 
 appState = AppState()
