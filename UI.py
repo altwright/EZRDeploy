@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tab_content import ADTab, THTab, JCTab, create_grid, completedTab, runningTab
 from typing import List
+from Daemon_Thread import QueueThread
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -9,6 +10,9 @@ class TabManager:
         self.contentFrame = contentFrame
         self.mainTabs = []
         self.deletableTabs = []
+
+        self.queue_thread = QueueThread()
+        self.queue_thread.start_thread()
 
         tabData = ["Active Directory","Task History", "Running Tab Test"]
 
@@ -53,7 +57,8 @@ class TabManager:
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Running Tab Test"):
-            self.current_tab = runningTab(self.contentFrame, "Test")
+            self.current_tab = runningTab(self.contentFrame, self.queue_thread, "Test")
+            self.queue_thread.loadObject(self.current_tab)
         else:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()

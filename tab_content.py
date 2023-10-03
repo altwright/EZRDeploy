@@ -4,7 +4,6 @@ import queue
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
-from Daemon_Thread import QueueThread
 
 #used to create grid used in the frames
 def create_grid(frame, rows, columns):
@@ -1037,12 +1036,11 @@ class completedTab(tk.Frame):
             widget.destroy()
 
 class runningTab(tk.Frame):
-    def __init__(self, contentFrame, job_name, master=None):
+    def __init__(self, contentFrame, queue_thread, job_name, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.queue_thread = queue_thread
         self.display_data = []
-        self.queue_thread = QueueThread(self.callBack)
-        self.queue_thread.start_thread()
 
         #JUST SOME TEST COUNT AND RUNNING. DELETE WHEN INTERGRATING
         self.running = True
@@ -1121,7 +1119,7 @@ class runningTab(tk.Frame):
     #sends the command off to the Active Directory
     #To fill in
     ###
-    def callBack(self, item):
+    def recieveData(self, item):
         self.display_data.append(item)
         self.populate_bottom_scrollwindow()
 
@@ -1158,8 +1156,6 @@ class runningTab(tk.Frame):
             #self.machine_content_frame.config(state=tk.DISABLED)
             self.console_btn.config(state=tk.DISABLED)
             self.console_input.config(state=tk.DISABLED)
-
-            self.queue_thread.stop_thread()
 
             
 
@@ -1256,6 +1252,5 @@ class runningTab(tk.Frame):
             event.widget.delete(0, "end")
     
     def remove_page(self):
-        self.queue_thread.stop_thread()
         for widget in self.frame.winfo_children():
             widget.destroy()
