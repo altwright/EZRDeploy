@@ -16,9 +16,9 @@ class TabManager:
         self.mainTabs = []
         self.deletableTabs = []
 
-        self.queue_thread = ConsoleThread()
-        self.queue_thread.start_thread()
-        self.queue_thread.pause_thread()
+        self.consoleThread = ConsoleThread()
+        self.consoleThread.start_thread()
+        self.consoleThread.pause_thread()
 
         tabData = ["Active Directory","Task History"]
 
@@ -96,13 +96,6 @@ class TabManager:
 
             task.jobList.append(jobState)
 
-            try:
-                jobState.client.connect()
-                jobState.client.create_service()
-                jobState.job.start()
-            except Exception as exc:
-                jobState.exc = exc
-        
         appState.runningTasks.append(Task)
 
     #used to change tabs
@@ -113,8 +106,8 @@ class TabManager:
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
         elif (content_frame == "Running Tab Test"):
-            self.current_tab = RunningTaskTab(self.contentFrame, self.queue_thread, "Test")
-            self.queue_thread.loadObject(self.current_tab)
+            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, "Test")
+            self.consoleThread.loadObject(self.current_tab)
         else:
             self.current_tab = completedTab(self.contentFrame, data_list)
         self.current_tab.create_page()

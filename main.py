@@ -2,12 +2,6 @@ from pypsexec.client import Client
 from win32api import GetComputerNameEx, GetComputerName
 from win32con import ComputerNameDnsDomain
 from ms_active_directory import ADDomain, ADGroup
-from smbprotocol.exceptions import SMBResponseException, NtStatus
-from queue import Queue
-import threading
-import sys
-import socket
-
 from UI import uiMain
 from job import Job
 from appstate import appState
