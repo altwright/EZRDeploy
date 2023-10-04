@@ -1312,7 +1312,7 @@ class RunningTaskTab(tk.Frame):
     def pollTaskStatus(self):
         #time is in milliseconds
         for jobState in self.task.jobList:
-            if jobState.job.is_alive():
+            if not jobState.job.is_alive():
                 pass
         ##need to include an if statement for when the user leaves the page or the task is finished
         ##
