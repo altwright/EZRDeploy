@@ -1229,6 +1229,8 @@ class RunningTaskTab(tk.Frame):
 
     def send_stdin(self):
         input = self.console_input.get()
+        if self.currentInspectedJob is not None:
+            self.currentInspectedJob.stdinQ.put(input)
     
     ####
     #This function is used to see if the task is still running
@@ -1236,20 +1238,20 @@ class RunningTaskTab(tk.Frame):
     def consoleForCompletedJob(self):
         self.consoleThread.loadQueues(None, None)
         #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
-        self.display_data = ["THE TASK HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE ONCE ALL MACHINES HAVE FINISHED"]
+        self.display_data = ["THE JOB HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE ONCE ALL JOBS HAVE FINISHED"]
         self.populate_bottom_scrollwindow()
 
         self.console_btn.config(state=tk.DISABLED)
         self.console_input.config(state=tk.DISABLED)
-        self.checkIfAllJobsCompleted()
     
     def checkIfAllJobsCompleted(self):
-        for data in self.alive_status:
-            if data[1] == True:
+        for jobState in self.task.jobList:
+            if jobState.job.is_alive():
                 return
         self.btn_cancel.config(state=tk.DISABLED)
         self.console_btn.config(state=tk.DISABLED)
         self.console_input.config(state=tk.DISABLED)
+        #Insert output file writing code here
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1301,6 +1303,7 @@ class RunningTaskTab(tk.Frame):
         for i,jobState in enumerate(self.task.jobList):
             if jobState.clientName == clientName: 
                 if jobState.job.is_alive():
+                    self.currentInspectedJob = jobState
                     self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
                     self.display_data = [] #clears the scroll window. will replace with saved data later
                     self.populate_bottom_scrollwindow()
