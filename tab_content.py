@@ -1147,6 +1147,7 @@ class RunningTaskTab(tk.Frame):
         self.alive_status = []
         self.consoleThread: ConsoleThread = consoleThread
         self.task: TaskState = task
+        self.currentInspectedJob: JobState = None
 
         self.consoleThread.resume_thread()
         create_grid(self.frame, 30, 30)
@@ -1224,7 +1225,7 @@ class RunningTaskTab(tk.Frame):
         for i in len(self.alive_status):
             if (self.alive_status[i][0] == self.machine_name.get()):
                 if(self.alive_status[i][1] == False):
-                    self.taskNotRunning()
+                    self.consoleForCompletedJob()
 
     def send_stdin(self):
         input = self.console_input.get()
@@ -1232,7 +1233,7 @@ class RunningTaskTab(tk.Frame):
     ####
     #This function is used to see if the task is still running
     ###
-    def taskNotRunning(self):
+    def consoleForCompletedJob(self):
         self.consoleThread.loadQueues(None, None)
         #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
         self.display_data = ["THE TASK HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE ONCE ALL MACHINES HAVE FINISHED"]
@@ -1240,16 +1241,15 @@ class RunningTaskTab(tk.Frame):
 
         self.console_btn.config(state=tk.DISABLED)
         self.console_input.config(state=tk.DISABLED)
-        self.checkAllTaskNotRunning()
+        self.checkIfAllJobsCompleted()
     
-    def checkAllTaskNotRunning(self):
+    def checkIfAllJobsCompleted(self):
         for data in self.alive_status:
             if data[1] == True:
                 return
         self.btn_cancel.config(state=tk.DISABLED)
         self.console_btn.config(state=tk.DISABLED)
         self.console_input.config(state=tk.DISABLED)
-            
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1300,16 +1300,16 @@ class RunningTaskTab(tk.Frame):
     def inspect_button_clicked(self, clientName: str):
         for i,jobState in enumerate(self.task.jobList):
             if jobState.clientName == clientName: 
-                if self.alive_status[i][1] == True:
+                if jobState.job.is_alive():
                     self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
                     self.display_data = [] #clears the scroll window. will replace with saved data later
                     self.populate_bottom_scrollwindow()
                     self.machine_name.insert(0,jobState.clientName)
                     self.console_btn.config(state=tk.NORMAL)
                     self.console_input.config(state=tk.NORMAL)
-                    break
                 else:
-                    self.taskNotRunning()            
+                    self.consoleForCompletedJob()            
+                break
 
     def cancel_all_button_clicked(self):
         for jobState in self.task.jobList:

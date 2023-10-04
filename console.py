@@ -1,6 +1,7 @@
 from queue import Queue
 import threading
 import time
+import queue
 
 class ConsoleThread:
     def __init__(self):
