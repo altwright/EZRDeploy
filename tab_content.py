@@ -1148,6 +1148,7 @@ class RunningTaskTab(tk.Frame):
         super().__init__(master)
         self.frame = contentFrame
         self.display_data = []
+        self.alive_status = []
         self.consoleThread: ConsoleThread = consoleThread
         self.task: TaskState = task
 
@@ -1159,6 +1160,7 @@ class RunningTaskTab(tk.Frame):
             jobState.client.create_service()
             jobState.job.start()
 
+        self.initialise_alive_list()
         self.pollTaskStatus()
 
     def create_page(self):
@@ -1186,7 +1188,7 @@ class RunningTaskTab(tk.Frame):
         y_scrollbar.grid(row=3, column=29, rowspan=3, sticky="ns")
         self.main_Canvas.configure(yscrollcommand=y_scrollbar.set) 
 
-        self.machine_name = tk.Label(self.frame, text = "Machine ID", font=("Arial Bold",16), bg="lightblue")
+        self.machine_name = tk.Label(self.frame, text='', font=("Arial Bold",16), bg="lightblue")
         self.machine_name.grid(row=10, column=2, columnspan=2, sticky="w")
 
         self.machine_Canvas = tk.Canvas(self.frame)
@@ -1212,17 +1214,21 @@ class RunningTaskTab(tk.Frame):
         self.machine_content_frame.update_idletasks()
         self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all"))
 
-        self.console_input = tk.Entry(self.frame)
+        self.console_input = tk.Entry(self.frame, state=tk.DISABLED)
         self.console_input.insert(0, "Enter Standard Input")
         self.console_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.console_input.grid(row=21, column=2, rowspan=2, columnspan=23, sticky="ew")
 
-        self.console_btn = tk.Button(self.frame, text="Send Standard Input", font=("Arial Bold", 12),command=self.send_stdin)
+        self.console_btn = tk.Button(self.frame, text="Send Standard Input", state=tk.DISABLED, font=("Arial Bold", 12),command=self.send_stdin)
         self.console_btn.grid(row=21, column=25)
     
     def recieveData(self, item):
         self.display_data.append(item)
         self.populate_bottom_scrollwindow()
+        for i in len(self.alive_status):
+            if (self.alive_status[i][0] == self.machine_name.get()):
+                if(self.alive_status[i][1] == False):
+                    self.taskNotRunning()
 
     def send_stdin(self):
         input = self.console_input.get()
@@ -1230,22 +1236,24 @@ class RunningTaskTab(tk.Frame):
     ####
     #This function is used to see if the task is still running
     ###
-    def taskStillRunning(self):
-        #FILL IN WITH THE NECESSARY CHECKS
-        #self.running IS JUST SOME TEST DATA
-        if self.running == False:
-            self.test_btn.config(state=tk.DISABLED)
-            self.btn_cancel.config(state=tk.DISABLED)
+    def taskNotRunning(self):
+        self.consoleThread.loadQueues(None, None)
+        #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
+        self.display_data = ["THE TASK HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE ONCE ALL MACHINES HAVE FINISHED"]
+        self.populate_bottom_scrollwindow()
 
-            #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
-            self.display_data = ["THE TASK HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE"]
-            self.populate_bottom_scrollwindow()
-
-            #self.machine_content_frame.config(state=tk.DISABLED)
-            self.console_btn.config(state=tk.DISABLED)
-            self.console_input.config(state=tk.DISABLED)
-
-            self.consoleThread.pause_thread()
+        self.console_btn.config(state=tk.DISABLED)
+        self.console_input.config(state=tk.DISABLED)
+        self.checkAllTaskNotRunning()
+    
+    def checkAllTaskNotRunning(self):
+        for data in self.alive_status:
+            if data[1] == True:
+                return
+        self.btn_cancel.config(state=tk.DISABLED)
+        self.console_btn.config(state=tk.DISABLED)
+        self.console_input.config(state=tk.DISABLED)
+            
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1294,10 +1302,18 @@ class RunningTaskTab(tk.Frame):
             self.main_Canvas.yview_moveto(0)
 
     def inspect_button_clicked(self, clientName: str):
-        for jobState in self.task.jobList:
-            if jobState.clientName == clientName:
-                self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
-                break
+        for i,jobState in enumerate(self.task.jobList):
+            if jobState.clientName == clientName 
+                if self.alive_status[i][1] == True:
+                    self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
+                    self.display_data = [] #clears the scroll window. will replace with saved data later
+                    self.populate_bottom_scrollwindow()
+                    self.machine_name.insert(0,jobState.clientName)
+                    self.console_btn.config(state=tk.NORMAL)
+                    self.console_input.config(state=tk.NORMAL)
+                    break
+                else:
+                    self.taskNotRunning()            
 
     def cancel_all_button_clicked(self):
         for jobState in self.task.jobList:
@@ -1305,13 +1321,20 @@ class RunningTaskTab(tk.Frame):
             jobState.job.join()
 
     def pollTaskStatus(self):
-        #time is in milliseconds
+        for i,jobState in enumerate(self.task.jobList):
+            if jobState.job.is_alive():
+                self.alive_status[i][1] = True
+            else:
+                self.alive_status[i][1] = False
+                
+        self.frame.after(5000, self.pollTaskStatus)
+    
+    def initialise_alive_list(self):
         for jobState in self.task.jobList:
             if jobState.job.is_alive():
-                pass
-        ##need to include an if statement for when the user leaves the page or the task is finished
-        ##
-        self.frame.after(5000, self.pollTaskStatus)
+                self.alive_status.append(jobState.clientName, True)
+            else:
+                self.alive_status.append(jobState.clientName, False)
     
     def on_entry_focus_in(self, event):
         if event.widget.get() == "Enter Command":
