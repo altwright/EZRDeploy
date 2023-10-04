@@ -37,11 +37,8 @@ class TabManager:
         self.current_tab.create_page()
     
     #handles the data that the TH tab passes on 
-    def handle_THTab(self, job_path):
-        with open(job_path, 'r') as file:
-            data = file.read().splitlines()
-            name = data[0]
-            self.new_tab(name, job_path)
+    def handle_THTab(self, name):
+        self.new_tab(name)
 
     def handle_JCTab(self, data):
         task = TaskState()
@@ -90,20 +87,30 @@ class TabManager:
 
             task.jobList.append(jobState)
 
-        appState.runningTasks.append(Task)
+        appState.runningTasks.append(task)
+        self.show_content(None, task.name)
 
     #used to change tabs
-    def show_content(self, content_frame, data_list):
+    def show_content(self, content_frame, task_name):
+        for data in appState.runningTasks:
+            if task_name == data.name:
+                task = data
+                content_frame = "Running"
+        for data in appState.completedTasks:
+            if task_name == data.name:
+                task = data
+                content_frame = "Completed"
+            
         self.current_tab.remove_page()
         if (content_frame == 'Active Directory'):
             self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
         elif (content_frame == 'Task History'):
-            self.current_tab = THTab(self.contentFrame, self.handle_THTab)
-        elif (content_frame == "Running Tab Test"):
-            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, "Test")
+            self.current_tab = THTab(self.contentFrame, self.handle_THTab, appState)
+        elif (content_frame == "Running"):
+            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, task)
             self.consoleThread.loadObject(self.current_tab)
-        else:
-            self.current_tab = completedTab(self.contentFrame, data_list)
+        elif (content_frame == "Completed")::
+            self.current_tab = completedTab(self.contentFrame, task)
         self.current_tab.create_page()
 
     #removes a tab and its frame
@@ -125,7 +132,7 @@ class TabManager:
             data["FRAME"].grid(row=len(self.mainTabs) + i, column=0, sticky="nsew", padx=3)
 
     #add new tab based on name (assuming name is the unique identifier)
-    def new_tab(self, name, job_path):
+    def new_tab(self, name):
         valid = True
         for data in self.deletableTabs:
             if name == data["NAME"]:
@@ -135,7 +142,7 @@ class TabManager:
             new_frame = tk.Frame(self.tabFrame, bg="blue")
             new_frame.grid(row=len(self.deletableTabs) + len(self.mainTabs), column=5, sticky="nsew", padx=3)
 
-            inner_button = ttk.Button(new_frame, text=f"{name}", command=lambda path=job_path, name=name: self.show_content(name, path))
+            inner_button = ttk.Button(new_frame, text=f"{name}", command=lambda name=name: self.show_content(None, name))
 
             delete_button = ttk.Button(new_frame, text="X", width=2, command=lambda i=name: self.delete_tab_frame(i))
             delete_button.pack(side=tk.RIGHT)

@@ -10,9 +10,17 @@ class ConsoleThread:
         self._pause_event = threading.Event()
 
     def loop(self, my_queue):
-        while not self._stop_event.is_set():
-            item = self.stdoutQ.get(timeout=1)
-            self.callBack(item)
+        while True:
+            try:
+                if self.object != None:
+                    item = self.stdoutQ.get(timeout=1)
+                    self.object.recieveData(item)
+            except queue.Empty:
+                pass 
+            if self._pause_event.is_set():
+                # The thread is paused, so it waits until resumed
+                self._pause_event.wait()
+            time.sleep(0.1)
         
     def start_thread(self):
         self.daemon_thread = threading.Thread(target=self.loop, args=(self.stdout,))
