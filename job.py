@@ -283,6 +283,7 @@ class Job(threading.Thread):
 
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
+        self.stdoutBuffer: bytes
 
         self.main_pipe_request: Request = None
     
@@ -428,6 +429,8 @@ class Job(threading.Thread):
             rc.unpack(exe_result['buffer'].get_value())
 
             self.rc = rc['return_code'].get_value()
+
+        self.stdoutBuffer = stdout_pipe.get_output()
 
         self._clean_remote_files()
     

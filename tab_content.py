@@ -268,17 +268,17 @@ class ADTab(tk.Frame):
             widget.destroy()
 
 class THTab(tk.Frame):
-    def __init__(self, contentFrame, create_job_callback, appstate: AppState, master=None):
+    def __init__(self, contentFrame, create_job_callback, master=None):
         super().__init__(master)
         self.frame = contentFrame
-        self.appstate: AppState = appstate
         self.create_job_callback = create_job_callback
         create_grid(self.frame, 30, 30)
-
 
         self.canvas = tk.Canvas(self.frame)
         self.canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
         self.canvas.bind("<Configure>", self.update_padx)
+
+        self.past_jobs = []
 
     def update_padx(self, event=None):
         num_per_row = 6
@@ -335,7 +335,7 @@ class THTab(tk.Frame):
     
     def gather_task_details(self):
         self.past_jobs = []
-        for data in appstate.runningTasks:
+        for data in appState.runningTasks:
             data_elements = { 
                 "NAME" : data.name,
                 "NUM_COMP" : len(data.jobList),
@@ -343,9 +343,9 @@ class THTab(tk.Frame):
                 "PROGRAM" : data.programStr,
                 "STATUS" : "Running"
             }
-            past_jobs.append(data_elements)
+            self.past_jobs.append(data_elements)
 
-        for data in appstate.completedTasks:
+        for data in appState.completedTasks:
             data_elements = { 
                 "NAME" : data.name,
                 "NUM_COMP" : len(data.jobList),
@@ -353,7 +353,7 @@ class THTab(tk.Frame):
                 "PROGRAM" : data.programStr,
                 "STATUS" : "Completed"
             }
-            past_jobs.append(data_elements)
+            self.past_jobs.append(data_elements)
 
     def populate_scrollwindow(self, canvas):
         data_frame = tk.Frame(canvas)
@@ -1017,7 +1017,6 @@ class JCTab(tk.Frame):
             widget.destroy()
         self.new_window_layout(self.new_window)
 
-    
     def on_entry_focus_in(self, event):
         if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Executable Program" \
         or event.widget.get() == "Enter search" or event.widget.get() == "Enter Additional File Aboslute Path" \
@@ -1030,8 +1029,7 @@ class JCTab(tk.Frame):
         for widget in self.frame.winfo_children():
             widget.destroy()
 
-
-class completedTab(tk.Frame):
+class CompletedTaskTab(tk.Frame):
     def __init__(self, contentFrame, task: TaskState , master=None):
         super().__init__(master)
         self.frame = contentFrame
@@ -1120,10 +1118,9 @@ class completedTab(tk.Frame):
 
     def inspect_button_clicked(self, name):
         self.machine_name["text"] = f"Machine: {name}"
-        for job in job_data:
+        for job in self.job_data:
             if job[0] == name:
                 self.content = job[1]
-        
     
     def collect_all_data(self):
         self.job_data = []
@@ -1134,7 +1131,6 @@ class completedTab(tk.Frame):
                 machine_data_content.append(jobstate.stdoutQ.pop())
             machine_data.append(machine_data_content)
         self.job_data.append(machine_data)
-    
 
     def exportdata_button_clicked(self):
         print(f"Export data")
@@ -1303,7 +1299,7 @@ class RunningTaskTab(tk.Frame):
 
     def inspect_button_clicked(self, clientName: str):
         for i,jobState in enumerate(self.task.jobList):
-            if jobState.clientName == clientName 
+            if jobState.clientName == clientName: 
                 if self.alive_status[i][1] == True:
                     self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
                     self.display_data = [] #clears the scroll window. will replace with saved data later

@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tab_content import ADTab, THTab, JCTab, create_grid, completedTab, RunningTaskTab
+from tab_content import ADTab, THTab, JCTab, create_grid, CompletedTaskTab, RunningTaskTab
 from typing import List
 from ioparsing import *
 from appstate import appState, JobState, TaskState
@@ -109,8 +109,8 @@ class TabManager:
         elif (content_frame == "Running"):
             self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, task)
             self.consoleThread.loadObject(self.current_tab)
-        elif (content_frame == "Completed")::
-            self.current_tab = completedTab(self.contentFrame, task)
+        elif (content_frame == "Completed"):
+            self.current_tab = CompletedTaskTab(self.contentFrame, task)
         self.current_tab.create_page()
 
     #removes a tab and its frame
