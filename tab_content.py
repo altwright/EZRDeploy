@@ -268,9 +268,10 @@ class ADTab(tk.Frame):
             widget.destroy()
 
 class THTab(tk.Frame):
-    def __init__(self, contentFrame, create_job_callback, master=None):
+    def __init__(self, contentFrame, create_job_callback, appstate: AppState, master=None):
         super().__init__(master)
         self.frame = contentFrame
+        self.appstate: AppState = appstate
         self.create_job_callback = create_job_callback
         create_grid(self.frame, 30, 30)
 
@@ -280,7 +281,7 @@ class THTab(tk.Frame):
         self.canvas.bind("<Configure>", self.update_padx)
 
     def update_padx(self, event=None):
-        num_per_row = 5
+        num_per_row = 6
         sub_frame_width = max(sub_frame.winfo_width() for sub_frame in self.frame.winfo_children())
         remaining_space = (self.canvas.winfo_width() - num_per_row * sub_frame_width) // (num_per_row + 1)
         padx = max(0, remaining_space // 2)
@@ -289,8 +290,8 @@ class THTab(tk.Frame):
             sub_frame.grid_configure(padx=padx)
 
     #creats a call back function to pass data back to tab_manager
-    def call_create_job_callback(self, job_path):
-        self.create_job_callback(job_path)
+    def call_create_job_callback(self, name):
+        self.create_job_callback(name)
     
     #shows whats in the search bar
     def display_search(self):
@@ -311,11 +312,10 @@ class THTab(tk.Frame):
         canvas = tk.Canvas(self.frame)
         canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
 
-        self.search_directory()
-
         content_frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=content_frame)
 
+        self.gather_task_details()
         self.populate_scrollwindow(content_frame)
 
         #for scroll bars
@@ -332,35 +332,34 @@ class THTab(tk.Frame):
         
         content_frame.update_idletasks()
         canvas.config(scrollregion=canvas.bbox("all")) 
-
-    #searches the task_history_file folder (assuming that were all the taks will be stored)
-    def search_directory(self):
+    
+    def gather_task_details(self):
         self.past_jobs = []
-        for filename in os.listdir("./task_history_files/"):
-            if filename.endswith(".txt"):
-                file_path = os.path.join("./task_history_files/", filename)
-                self.process_text_file(file_path)
+        for data in appstate.runningTasks:
+            data_elements = { 
+                "NAME" : data.name,
+                "NUM_COMP" : len(data.jobList),
+                "DATE" : data.startDateTime,
+                "PROGRAM" : data.programStr,
+                "STATUS" : "Running"
+            }
+            past_jobs.append(data_elements)
 
-    #collects data from the files (assuming first 3 lines hold all neccessary info)
-    def process_text_file(self, file_path):
-        with open(file_path, 'r') as file:
-            data = file.read().splitlines()
+        for data in appstate.completedTasks:
+            data_elements = { 
+                "NAME" : data.name,
+                "NUM_COMP" : len(data.jobList),
+                "DATE" : data.startDateTime,
+                "PROGRAM" : data.programStr,
+                "STATUS" : "Completed"
+            }
+            past_jobs.append(data_elements)
 
-            #this removes all the absoulte path address from the program (just for displaying)
-            #this if statement takes into account path names used either / or \
-            index = data[2].rfind("\\")
-            if index == -1:
-                index = data[2].rfind("/")
-            program = data[2][index+1:]
-            job = {"NAME": data[0], "NUM_COMP": data[1], "PROGRAM": program, "DATE": data[4], "PATH": file_path}
-            self.past_jobs.append(job)
-
-    #fill in the scroll window with all the info from the task stored in the task_history_file folder
     def populate_scrollwindow(self, canvas):
         data_frame = tk.Frame(canvas)
         data_frame.grid(row=0, column=0, sticky="nsew")
         
-        for i in range(5):
+        for i in range(6):
             data_frame.grid_columnconfigure(i, weight=1)
         data_frame.grid(row=0, column=0, sticky="nsew")
         for i, data in enumerate(self.past_jobs):
@@ -368,7 +367,8 @@ class THTab(tk.Frame):
                 f"Name: {data['NAME']}",
                 f"Number of Machines: {data['NUM_COMP']}",
                 f"Date Started: {data['DATE']}",
-                f"Program: {data['PROGRAM']}"
+                f"Program: {data['PROGRAM']}",
+                f"Status: {data['STATUS']}"
             ]
 
             # create LabelFrame for job
@@ -381,7 +381,7 @@ class THTab(tk.Frame):
                 job_frame.grid_columnconfigure(k, weight=1)
             
 
-            button = tk.Button(job_frame, text=f"Inspect {data['NAME']}", command=lambda path=data["PATH"]: self.call_create_job_callback(path))
+            button = tk.Button(job_frame, text=f"Inspect {data['NAME']}", command=lambda name=data["NAME"]: self.call_create_job_callback(name))
             button.grid(row=0, column=5, sticky="e")
             
 
@@ -1032,15 +1032,15 @@ class JCTab(tk.Frame):
 
 
 class completedTab(tk.Frame):
-    def __init__(self, contentFrame, job_path, master=None):
+    def __init__(self, contentFrame, task: TaskState , master=None):
         super().__init__(master)
         self.frame = contentFrame
-        self.job_path = job_path
+        self.task: TaskState = task
+        self.content = []
         create_grid(self.frame, 30, 30)
 
     def create_page(self):
-        self.gather_file_details()
-
+        self.collect_all_data()
         status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12), bg="lightblue")
         status.grid(row=0, column=2, columnspan=2, sticky="w")
 
@@ -1091,55 +1091,50 @@ class completedTab(tk.Frame):
 
         machine_content_frame.update_idletasks()
         machine_Canvas.config(scrollregion=machine_Canvas.bbox("all")) 
-        
-
-    def gather_file_details(self):
-        self.main_details = []
-        self.machine_details = []
-        with open(self.job_path, 'r') as file:
-            name = file.readline()[:-1]
-            num_computers = file.readline()[:-1]
-            program = file.readline()[:-1]
-            status = file.readline()[:-1]
-            date = file.readline()[:-1]
-            self.main_details.append(name)
-            self.main_details.append(num_computers)
-            self.main_details.append(program)
-            self.main_details.append(status)
-            self.main_details.append(date)
-
-            for f in file:
-                split = f[:-1].split('|')
-                machine = {"NAME": split[0], "IP": split[1], "CONTENTS": split[2]}
-                self.machine_details.append(machine)
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
-        for i, data in enumerate(self.machine_details):
+        for i, jobState in enumerate(self.task.jobList):
 
             data_frame = tk.Frame(frame)
             data_frame.grid(row=i+1, column=0, sticky="nsew")
 
-            data_label = tk.Label(data_frame, text=f"Machine: {data['NAME']}", font=("Arial Bold",16))
-            data_label.grid(row=i+1, column=0, sticky="w")
+            data_labe = tk.Label(data_frame, text=f"Machine: {jobState.clientName}", font=("Arial Bold",16))
+            data_labe.grid(row=i+1, column=0, sticky="w")
 
-            data_labe2 = tk.Label(data_frame, text=f"IP: {data['IP']}", font=("Arial Bold",16))
-            data_labe2.grid(row=i+1, column=1, sticky="w")
-
-            inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name=data['NAME'], contents= data['CONTENTS']: self.inspect_button_clicked(name,contents))
+            inspect_button = tk.Button(data_frame, text='Inspect', font=("Arial Bold",16), command=lambda name=jobState.clientName: self.inspect_button_clicked(name))
             inspect_button.grid(row=i+1, column=2, sticky="e")
 
     def populate_bottom_scrollwindow(self, frame):
-        data_frame = tk.Frame(self.frame)
-        data_frame.grid(row=7, column=2, rowspan=10, columnspan=26, sticky="ew")
-        self.machine_text = tk.Label(data_frame, text="", font=("Arial Bold", 12))
-        self.machine_text.grid(row=0, column=0,sticky="w")
+        data_frame = tk.Frame(frame)
+        data_frame.grid(row=0, column=0, sticky="nsew")
 
-    def inspect_button_clicked(self, name, contents):
-        self.machine_text["text"] = contents
+        for i, data in enumerate(self.content):
+            data_frame = tk.Frame(frame)
+            data_frame.grid(row=i, column=0, sticky="nsew")
+
+            machine_text = tk.Label(data_frame, text=data, font=("Arial Bold", 12))
+            machine_text.grid(row=i, column=0,sticky="w")
+
+    def inspect_button_clicked(self, name):
         self.machine_name["text"] = f"Machine: {name}"
+        for job in job_data:
+            if job[0] == name:
+                self.content = job[1]
+        
+    
+    def collect_all_data(self):
+        self.job_data = []
+        for jobstate in self.task.jobList:
+            machine_data = [jobstate.clientName]
+            machine_data_content = []
+            while len(jobstate.stdoutQ)>0:
+                machine_data_content.append(jobstate.stdoutQ.pop())
+            machine_data.append(machine_data_content)
+        self.job_data.append(machine_data)
+    
 
     def exportdata_button_clicked(self):
         print(f"Export data")
@@ -1149,14 +1144,14 @@ class completedTab(tk.Frame):
             widget.destroy()
 
 class RunningTaskTab(tk.Frame):
-    def __init__(self, contentFrame, task: TaskState, master=None):
+    def __init__(self, contentFrame, consoleThread: ConsoleThread, task: TaskState, master=None):
         super().__init__(master)
         self.frame = contentFrame
         self.display_data = []
-        self.consoleThread = ConsoleThread()
+        self.consoleThread: ConsoleThread = consoleThread
         self.task: TaskState = task
 
-        self.consoleThread.start_thread()
+        self.consoleThread.resume_thread()
         create_grid(self.frame, 30, 30)
 
         for jobState in task.jobList:
@@ -1250,7 +1245,7 @@ class RunningTaskTab(tk.Frame):
             self.console_btn.config(state=tk.DISABLED)
             self.console_input.config(state=tk.DISABLED)
 
-            self.consoleThread.stop_thread()
+            self.consoleThread.pause_thread()
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1323,6 +1318,6 @@ class RunningTaskTab(tk.Frame):
             event.widget.delete(0, "end")
     
     def remove_page(self):
-        self.consoleThread.stop_thread()
+        self.consoleThread.pause_thread()
         for widget in self.frame.winfo_children():
             widget.destroy()
