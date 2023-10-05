@@ -4,7 +4,6 @@ from queue import Queue
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
-from console import ConsoleThread
 from appstate import appState, TaskState, JobState
 import socket
 
@@ -431,7 +430,7 @@ class JCTab(tk.Frame):
         author_title = tk.Label(authorFame, text="Author Name:", font=("Arial Bold",12), bg="lightblue")
         author_title.pack(side=tk.LEFT)
 
-        self.author_input = tk.Entry(authorFame)
+        self.author_input = tk.Entry(authorFame, fg="grey")
         self.author_input.insert(0, "Enter Author's Name")
         self.author_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.author_input.pack(fill=tk.BOTH)
@@ -444,7 +443,7 @@ class JCTab(tk.Frame):
         name_title = tk.Label(nameFame, text="Task Name:", font=("Arial Bold",12), bg="lightblue")
         name_title.pack(side=tk.LEFT)
 
-        self.name_input = tk.Entry(nameFame)
+        self.name_input = tk.Entry(nameFame, fg="grey")
         self.name_input.insert(0, "Enter Job Title")
         self.name_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.name_input.pack(fill=tk.BOTH)
@@ -462,7 +461,7 @@ class JCTab(tk.Frame):
         program_title.pack(side=tk.LEFT)
 
         #this section is for the program path input and calls functions to make sure its valid
-        self.program_input = tk.Entry(exeFame)
+        self.program_input = tk.Entry(exeFame, fg="grey")
         self.program_input.insert(0, "Enter Executable Program")
         self.program_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.program_input.pack(fill=tk.BOTH)
@@ -478,7 +477,7 @@ class JCTab(tk.Frame):
         arg_title = tk.Label(argFame, text="Arguments:", font=("Arial Bold",12), bg="lightblue")
         arg_title.pack(side=tk.LEFT)
 
-        self.arg_input = tk.Entry(argFame)
+        self.arg_input = tk.Entry(argFame, fg="grey")
         self.arg_input.insert(0, "Arguments")
         self.arg_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.arg_input.pack(fill=tk.BOTH)
@@ -502,7 +501,7 @@ class JCTab(tk.Frame):
         exe_dir_title = tk.Label(self.frame, text="Local Executable Source Directory", font=("Arial Bold",12), bg="lightblue")
         exe_dir_title.grid(row=7, column=2, columnspan=19)
 
-        self.exe_dir_input = tk.Entry(self.frame)
+        self.exe_dir_input = tk.Entry(self.frame, fg="grey")
         self.exe_dir_input.insert(0, "Enter Directory")
         self.exe_dir_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.exe_dir_input.config(state=tk.DISABLED)
@@ -521,7 +520,7 @@ class JCTab(tk.Frame):
         working_dir_title = tk.Label(self.frame, text="Local Machine's Working Directory", font=("Arial Bold",12), bg="lightblue")
         working_dir_title.grid(row=10, column=2, columnspan=19)
 
-        self.working_dir_input = tk.Entry(self.frame)
+        self.working_dir_input = tk.Entry(self.frame, fg="grey")
         self.working_dir_input.insert(0, "Enter Working Directory")
         self.working_dir_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.working_dir_input.grid(row=11, column=2, columnspan=19, sticky="ew")
@@ -534,7 +533,7 @@ class JCTab(tk.Frame):
         timeout_title = tk.Label(timeoutFame, text="Timeout Number (seconds):", font=("Arial Bold",12), bg="lightblue")
         timeout_title.pack(side=tk.LEFT)
 
-        self.timeout_input = tk.Entry(timeoutFame)
+        self.timeout_input = tk.Entry(timeoutFame, fg="grey")
         self.timeout_input.insert(0, "3600")
         self.timeout_input.pack(fill=tk.BOTH)
         reg3 = self.frame.register(self.check_timeout)
@@ -585,7 +584,7 @@ class JCTab(tk.Frame):
         file_title.grid(row=21, column=2, columnspan=19)
 
         #Used to all user to enter additional files
-        self.additionalFile_input = tk.Entry(self.frame)
+        self.additionalFile_input = tk.Entry(self.frame, fg="grey")
         self.additionalFile_input.insert(0, "Enter Additional File Aboslute Path")
         self.additionalFile_input.bind("<FocusIn>", self.on_entry_focus_in)
         self.additionalFile_input.config(state=tk.DISABLED)
@@ -621,7 +620,7 @@ class JCTab(tk.Frame):
         side_title = tk.Label(self.frame, text = "Past Job Configuration", font=("Arial Bold",16), bg="lightblue")
         side_title.grid(row=0, column=23, columnspan=2, sticky="w")
 
-        self.search_bar = tk.Entry(self.frame)
+        self.search_bar = tk.Entry(self.frame, fg="grey")
         self.search_bar.insert(0, "Enter search")
         self.search_bar.bind("<FocusIn>", self.on_entry_focus_in)
         self.search_bar.grid(row=1, column=23, columnspan=2, sticky="ew")
@@ -798,18 +797,18 @@ class JCTab(tk.Frame):
     #function fills in the past job configuration scrollwindow with data and buttons. saerched is a string of what the user is searching for
     #if searched is blank, searching for nothing
     def populate_scrollwindow(self, frame, searched):
-        pass
-        #for i, data in enumerate(self.past_jobs):
-         #   concatenated_data = f"{data['NAME']}....{data['DATE']}"
-          #  if searched == "" or (searched.lower() in concatenated_data.lower()):
-           #     data_frame = tk.Frame(frame)
-            #    data_frame.grid(row=i+1, column=0, sticky="nsew")
+        for taskState in appState.completedTasks:
+            concatenated_data = f"{taskState.name}....{taskState.name}"
+            if searched == "" or (searched.lower() in concatenated_data.lower()):
+                data_frame = tk.Frame(frame)
+                data_frame.grid(row=i+1, column=0, sticky="nsew")
 
-            #    info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
-            #    info.grid(row=i+1, column=0, sticky="w", pady=10)
+                info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
+                info.grid(row=i+1, column=0, sticky="w", pady=10)
 
-             #   button = tk.Button(data_frame, text=f"Load Configuration", command= lambda path= data['PATH']: self.load_past_data(path, 1))
-              #  button.grid(row=i+1, column=1, sticky="e")
+                button = tk.Button(data_frame, text=f"Load Configuration", command=None)
+                button.grid(row=i+1, column=1, sticky="e")
+
 
 
     
@@ -859,10 +858,12 @@ class JCTab(tk.Frame):
     #function validates if input in name's entry widget is valid
     def validate_name(self, input):
         valid = True
-        #for data in self.past_jobs:
-         #   if input == data["NAME"] or input == data["NAME"].replace(' ', '_') or input == '' or input == "Enter Job Title":
-          #      valid = False
-
+        for taskstate in appState.runningTasks:
+            if taskstate.name == input:
+                valid = False
+        for taskstate in appState.completedTasks:
+            if taskstate.name == input:
+                valid = False
         if valid:
             self.valid_name['text'] = 'Valid Name'
             self.valid_name.config(fg="green")
@@ -908,9 +909,9 @@ class JCTab(tk.Frame):
     
     #this function is used to see if the create job button can be clickable/shown to user
     def show_button(self):
-        if  self.validPath and not self.additionalFile.get() and self.validTimeout:
+        if self.validName and self.validPath and not self.additionalFile.get() and self.validTimeout:
             self.create_job.config(state=tk.NORMAL)
-        elif  self.validPath and self.additionalFile.get() and self.validFiles and self.validTimeout:
+        elif self.validName and self.validPath and self.additionalFile.get() and self.validFiles and self.validTimeout:
             self.create_job.config(state=tk.NORMAL)
         else:
             self.create_job.config(state=tk.DISABLED)
@@ -918,8 +919,8 @@ class JCTab(tk.Frame):
     #function used to send data back to tab_manager
     def call_create_job_callback(self):
         self.validate_files()
-        if (self.validPath and self.validTimeout and not self.additionalFile.get()) \
-        or (self.validPath and self.validTimeout and self.additionalFile.get() and self.validFiles):
+        if (self.validName and self.validPath and self.validTimeout and not self.additionalFile.get()) \
+        or (self.validName and self.validPath and self.validTimeout and self.additionalFile.get() and self.validFiles):
             arguments = self.arg_input.get()
             workingDir = self.working_dir_input.get()
             localsrc = self.exe_dir_input.get()
@@ -1004,6 +1005,7 @@ class JCTab(tk.Frame):
         or event.widget.get() == 'Arguments' or event.widget.get() == 'Enter Directory' \
         or event.widget.get() == 'Enter Author\'s Name' or event.widget.get() == 'Enter Working Directory':
             event.widget.delete(0, "end")
+            event.widget.config(fg="black")
         
     def remove_page(self):
         for widget in self.frame.winfo_children():
@@ -1114,14 +1116,13 @@ class CompletedTaskTab(tk.Frame):
             widget.destroy()
 
 class RunningTaskTab(tk.Frame):
-    def __init__(self, contentFrame, consoleThread: ConsoleThread, task: TaskState, master=None):
+    def __init__(self, contentFrame, task: TaskState, handle_RunningTab master=None):
         super().__init__(master)
         self.frame = contentFrame
         self.display_data = []
-        self.consoleThread: ConsoleThread = consoleThread
+        self.handle_RunningTab = handle_RunningTab
         self.task: TaskState = task
 
-        self.consoleThread.resume_thread()
         create_grid(self.frame, 30, 30)
 
         for jobState in task.jobList:
@@ -1131,6 +1132,11 @@ class RunningTaskTab(tk.Frame):
 
         self.create_page()
         self.checkTaskRunningState()
+        self.pollingStdOutQueue()
+    
+    #sends user back to TH tab. once all the tasks are done
+    def call_handle_RunningTab(self):
+        self.handle_RunningTab(True)
 
     def create_page(self):
         status = tk.Label(self.frame, text = "*Running", fg='red', font=("Arial Bold",12), bg="lightblue")
@@ -1141,6 +1147,9 @@ class RunningTaskTab(tk.Frame):
 
         date = tk.Label(self.frame, text = self.task.startDateTime.strftime("%d/%m/%Y, %H:%M:%S"), font=("Arial Bold",12), bg="lightblue")
         date.grid(row=2, column=2, columnspan=2, sticky="w")
+
+        self.btn_goToTH = tk.Button(self.frame, text="Go To Task History Page", state=tk.DISABLED, font=("Arial Bold", 12),command=self.call_handle_RunningTab)
+        self.btn_goToTH.grid(row=1, column=15, columnspan=3, sticky='ew')
 
         self.btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12),command=self.cancel_all_button_clicked)
         self.btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
@@ -1201,22 +1210,46 @@ class RunningTaskTab(tk.Frame):
     def send_stdin_to_job_q(self):
         input = self.console_input.get()
         print("INPUT: " + input)
-        if self.consoleThread.stdinQ is not None:
-            self.consoleThread.stdinQ.put(input)
-        else:
-            print("STDINQ is None")
+
+        current_job_name = self.client_name["text"]
+        for jobState in self.task.jobList:
+            if jobState.clientName == current_job_name and jobState.job.is_alive():
+                jobState.stdinQ.put(input)
+            print("Job not found or job is dead")
     
     ####
     #This function is used to see if the task is still running
     ###
     def consoleForCompletedJob(self):
-        self.consoleThread.loadQueues(None, None)
         #clears the contents in the bottom scroll wheel, wrights a message to it, and disables the window
         self.display_data = ["THE JOB HAS FINISHED RUNNING. VIEW THE RESULTS IN TASK HISTORY PAGE ONCE ALL JOBS HAVE FINISHED"]
         self.populate_bottom_scrollwindow()
 
         self.console_btn.config(state=tk.DISABLED)
         self.console_input.config(state=tk.DISABLED)
+    
+    def pollingStdOutQueue(self):
+        current_job_name = self.client_name["text"]
+        for jobState in self.task.jobList:
+            if jobState.clientName == current_job_name and jobState.job.is_alive():
+                while not jobState.stdoutQ.empty():
+                    stdoutStr = jobState.stdoutQ.get()
+                    #ADD CHECKER HERE TO MAKE REJECT ANY 'NEW LINE' CHARACTERS 
+                    self.display_data.append(stdoutStr)
+                    self.populate_bottom_scrollwindow()
+                break
+
+        #this section checks if all jobs are finished. if so then the polling of StdOut queue will finish
+        all_jobs_dead: bool = True
+        for jobState in self.task.jobList:
+            if jobState.job.is_alive():
+                all_jobs_dead = False
+                self.task.started = True
+        
+        if not all_jobs_dead and self.task.started:
+            return
+
+        self.frame.after(1000, self.pollingStdOutQueue)
     
     def checkTaskRunningState(self):
         all_jobs_dead: bool = True
@@ -1237,6 +1270,7 @@ class RunningTaskTab(tk.Frame):
                     jobState.client.remove_service()
                     jobState.client.disconnect()
                     #TODO: Write stdout of each client to a text file
+                self.btn_goToTH.config(state=tk.NORMAL) #make the 'go to Task History Page' button clickable once the whole task is finished
             return
         else:
             self.btn_cancel.config(state=tk.NORMAL)
@@ -1295,7 +1329,6 @@ class RunningTaskTab(tk.Frame):
         for jobState in self.task.jobList:
             if jobState.clientName == clientName: 
                 if jobState.job.is_alive():
-                    self.consoleThread.loadQueues(jobState.stdoutQ, jobState.stdinQ)
                     self.display_data = [] #clears the scroll window. will replace with saved data later. TODO Replace with the buffer
                     self.populate_bottom_scrollwindow()
                     self.client_name.config(text = jobState.clientName)
@@ -1313,8 +1346,7 @@ class RunningTaskTab(tk.Frame):
     def on_entry_focus_in(self, event):
         if event.widget.get() == "Enter Standard Input":
             event.widget.delete(0, "end")
-    
+
     def remove_page(self):
-        self.consoleThread.pause_thread()
         for widget in self.frame.winfo_children():
             widget.destroy()

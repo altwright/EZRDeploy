@@ -7,7 +7,6 @@ from appstate import appState, JobState, TaskState
 from pypsexec.client import Client 
 from datetime import datetime
 from queue import Queue
-from console import ConsoleThread
 
 class TabManager:
     def __init__(self, tabFrame, contentFrame):
@@ -15,10 +14,6 @@ class TabManager:
         self.contentFrame = contentFrame
         self.mainTabs = []
         self.deletableTabs = []
-
-        self.consoleThread = ConsoleThread()
-        self.consoleThread.start_thread()
-        self.consoleThread.pause_thread()
 
         tabData = ["Active Directory","Task History"]
 
@@ -40,6 +35,16 @@ class TabManager:
     #handles the data that the TH tab passes on 
     def handle_THTab(self, name):
         self.new_tab(name)
+    
+    def handle_RunningTab(self, switch_to_TH: bool):
+        if switch_to_TH:
+            #makes all tab buttons work again once Running tab has been left
+            for main_tab_button in self.mainTabs:
+                main_tab_button.config(state=tk.NORMAL)
+            for deletable_tab_buttons in self.deletableTabs:
+                deletable_tab_buttons["TAB_BUTTON"].config(state=tk.NORMAL)
+                deletable_tab_buttons["DELETE_BUTTON"].config(state=tk.NORMAL)
+            self.switch_to_required_page("Task History",None)
 
     def handle_JCTab(self, data):
         task = TaskState()
@@ -111,8 +116,9 @@ class TabManager:
             self.current_tab = THTab(self.contentFrame, self.handle_THTab, appState)
             self.current_tab.create_page()
         elif (content_frame == "Running"):
-            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, targetTask)
-            self.consoleThread.loadRunningTaskTab(self.current_tab)
+            self.current_tab = RunningTaskTab(self.contentFrame, targetTask, self.handle_RunningTab)
+
+            #disables the other tab buttons so user cannot go anywhere else
             for main_tab_button in self.mainTabs:
                 main_tab_button.config(state=tk.DISABLED)
             for deletable_tab_buttons in self.deletableTabs:
