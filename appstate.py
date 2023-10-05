@@ -14,6 +14,7 @@ class JobState:
     exc: Exception = None
 
 class TaskState:
+    started: bool = False
     name: str
     author: str
     startDateTime: datetime
@@ -25,7 +26,7 @@ class TaskState:
     copiedFilesList: list[str]
     remoteWorkingDir: str
     impersonateSysAdmin: bool
-    jobList: list[JobState]
+    jobList: list[JobState] = []
     overwriteExe: bool
     overwriteFiles: bool
     cleanupExeAfterCopy: bool
@@ -36,7 +37,7 @@ class AppState:
     domainName: str
     hostComputer: str
     aDSession: ADSession
-    runningTasks: list[TaskState]
-    completedTasks: list[TaskState]
+    runningTasks: list[TaskState] = []
+    completedTasks: list[TaskState] = []
 
 appState = AppState()

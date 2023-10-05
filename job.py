@@ -283,7 +283,7 @@ class Job(threading.Thread):
 
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
-        self.stdoutBuffer: bytes
+        self.stdoutBuffer: bytes = b""
 
         self.main_pipe_request: Request = None
     
@@ -389,9 +389,9 @@ class Job(threading.Thread):
 
         # create a pipe for stdout, stderr, and stdin and run in a separate
         # thread
-        stdout_pipe = StdoutPipe(smb_tree, self.client._stdout_pipe_name, self.stdoutQ)
+        stdout_pipe = StdoutPipe(smb_tree, self.client._stdout_pipe_name, self.stdoutQ, self.stdoutBuffer)
         stdout_pipe.start()
-        stderr_pipe = StdoutPipe(smb_tree, self.client._stderr_pipe_name, self.stderrQ)
+        stderr_pipe = StdoutPipe(smb_tree, self.client._stderr_pipe_name, self.stderrQ, self.stdoutBuffer)
         stderr_pipe.start()
         
         input_finished_event = threading.Event()
@@ -430,9 +430,8 @@ class Job(threading.Thread):
 
             self.rc = rc['return_code'].get_value()
 
-        self.stdoutBuffer = stdout_pipe.get_output()
-
         self._clean_remote_files()
+        self.main_pipe_request = None
     
     def cancel(self):
         if self.main_pipe_request is not None:
@@ -500,9 +499,9 @@ class StdinPipe(threading.Thread):
 
 class StdoutPipe(OutputPipe):
 
-    def __init__(self, tree, name, stdoutQ: Queue):
+    def __init__(self, tree, name, stdoutQ: Queue, stdoutBuffer: bytes):
         super(StdoutPipe, self).__init__(tree, name)
-        self.pipe_buffer = b""
+        self.pipe_buffer = stdoutBuffer
         self.stdoutQ = stdoutQ
 
     def handle_output(self, output: bytes):

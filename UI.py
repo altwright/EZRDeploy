@@ -24,11 +24,12 @@ class TabManager:
 
         #created the main tabs and loads the data
         for i in range(len(tabData)):
-            button = ttk.Button(tabFrame, text=tabData[i], command=lambda c=tabData[i]: self.show_content(c, None))
+            button = tk.Button(tabFrame, text=tabData[i], command=lambda c=tabData[i]: self.switch_to_required_page(c, None))
             self.mainTabs.append(button)
             button.grid(row=i, column=0, sticky="ew")
             self.tabFrame.grid_columnconfigure(i, weight=1)
         self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
+        self.current_tab.create_page()
     
     #handles the data that the AD tab passes on
     def handle_ADTab(self, chosen_pc):
@@ -57,7 +58,7 @@ class TabManager:
         task.overwriteFiles = data["OVERWRITE_FILES"]
         task.cleanupExeAfterCopy = data["CLEANUP_EXE"]
         task.cleanupFilesAfterCopy = data["CLEANUP_FILES"]
-        task.timeout = data["TIMEOUT"]
+        task.timeout = int(data["TIMEOUT"])
 
         for pcName in data["PCs"]:
             jobState = JobState()
@@ -88,37 +89,46 @@ class TabManager:
             task.jobList.append(jobState)
 
         appState.runningTasks.append(task)
-        self.show_content(None, task.name)
+        self.switch_to_required_page(None, task.name)
 
     #used to change tabs
-    def show_content(self, content_frame, task_name):
-        for data in appState.runningTasks:
-            if task_name == data.name:
-                task = data
+    def switch_to_required_page(self, content_frame, task_name):
+        targetTask: TaskState = None
+        for runningTask in appState.runningTasks:
+            if task_name == runningTask.name:
+                targetTask = runningTask
                 content_frame = "Running"
-        for data in appState.completedTasks:
-            if task_name == data.name:
-                task = data
+        for completedTask in appState.completedTasks:
+            if task_name == completedTask.name:
+                targetTask = completedTask
                 content_frame = "Completed"
             
         self.current_tab.remove_page()
         if (content_frame == 'Active Directory'):
             self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
+            self.current_tab.create_page()
         elif (content_frame == 'Task History'):
             self.current_tab = THTab(self.contentFrame, self.handle_THTab, appState)
+            self.current_tab.create_page()
         elif (content_frame == "Running"):
-            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, task)
-            self.consoleThread.loadObject(self.current_tab)
+            self.current_tab = RunningTaskTab(self.contentFrame, self.consoleThread, targetTask)
+            self.consoleThread.loadRunningTaskTab(self.current_tab)
+            for main_tab_button in self.mainTabs:
+                main_tab_button.config(state=tk.DISABLED)
+            for deletable_tab_buttons in self.deletableTabs:
+                deletable_tab_buttons["TAB_BUTTON"].config(state=tk.DISABLED)
+                deletable_tab_buttons["DELETE_BUTTON"].config(state=tk.DISABLED)
+
         elif (content_frame == "Completed"):
-            self.current_tab = CompletedTaskTab(self.contentFrame, task)
-        self.current_tab.create_page()
+            self.current_tab = CompletedTaskTab(self.contentFrame, targetTask)
+            self.current_tab.create_page()
 
     #removes a tab and its frame
-    def delete_tab_frame(self, name):
-        for data in self.deletableTabs:
-            if name == data["NAME"]:
-                data["FRAME"].destroy()
-                self.deletableTabs.remove(data)
+    def delete_tab_frame(self, taskName):
+        for openTaskTab in self.deletableTabs:
+            if taskName == openTaskTab["NAME"]:
+                openTaskTab["FRAME"].destroy()
+                self.deletableTabs.remove(openTaskTab)
                 self.rearrange_tab_frames()
         self.current_tab.remove_page()
         self.current_tab = THTab(self.contentFrame, self.handle_THTab)
@@ -142,7 +152,7 @@ class TabManager:
             new_frame = tk.Frame(self.tabFrame, bg="blue")
             new_frame.grid(row=len(self.deletableTabs) + len(self.mainTabs), column=5, sticky="nsew", padx=3)
 
-            inner_button = ttk.Button(new_frame, text=f"{name}", command=lambda name=name: self.show_content(None, name))
+            inner_button = ttk.Button(new_frame, text=f"{name}", command=lambda name=name: self.switch_to_required_page(None, name))
 
             delete_button = ttk.Button(new_frame, text="X", width=2, command=lambda i=name: self.delete_tab_frame(i))
             delete_button.pack(side=tk.RIGHT)
@@ -151,7 +161,7 @@ class TabManager:
 
             new_frame.delete_button = delete_button
             self.tabFrame.grid_columnconfigure(len(self.deletableTabs) + len(self.mainTabs), weight=1)
-            data = {"NAME": name, "FRAME": new_frame}
+            data = {"NAME": name, "FRAME": new_frame, "TAB_BUTTON": inner_button, "DELETE_BUTTON": delete_button}
             self.deletableTabs.append(data)
             self.rearrange_tab_frames()
         else:
@@ -183,6 +193,6 @@ def uiMain():
 
     tabFrame = tk.Frame(left_frame, bg="lightgray")
     tabFrame.grid(row=0, column=0, columnspan=20, sticky="nsew")
-    tab_manager = TabManager(tabFrame, contentFrame)
+    TabManager(tabFrame, contentFrame)
     
     root.mainloop()
