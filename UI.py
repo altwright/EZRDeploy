@@ -113,7 +113,7 @@ class TabManager:
             self.current_tab = ADTab(self.contentFrame, self.handle_ADTab)
             self.current_tab.create_page()
         elif (content_frame == 'Task History'):
-            self.current_tab = THTab(self.contentFrame, self.handle_THTab, appState)
+            self.current_tab = THTab(self.contentFrame, self.handle_THTab)
             self.current_tab.create_page()
         elif (content_frame == "Running"):
             self.current_tab = RunningTaskTab(self.contentFrame, targetTask, self.handle_RunningTab)
