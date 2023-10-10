@@ -711,8 +711,8 @@ class JCTab(tk.Frame):
     
     def check_working_dir(self):
         working_dir = self.working_dir_input.get()
-        if working_dir.strip() == "":
-            working_dir = "ADMIN$"
+        if working_dir.strip() == "" or working_dir.strip() == "ADMIN$":
+            working_dir = None
         
         temp_AllMachinesReachWorkingDir = True
         for machine in self.chosen_pc:
@@ -838,7 +838,7 @@ class JCTab(tk.Frame):
                 info = tk.Label(data_frame, text=concatenated_data, font=("Arial Bold",12))
                 info.grid(row=i+1, column=0, sticky="w", pady=10)
 
-                button = tk.Button(data_frame, text=f"Load Configuration", command=None)
+                button = tk.Button(data_frame, text=f"Load Configuration", command=lambda task=taskState: self.load_past_data(task))
                 button.grid(row=i+1, column=1, sticky="e")
     
     def populate_chosenMachine(self):
@@ -862,10 +862,58 @@ class JCTab(tk.Frame):
 
         self.content_frame2.update_idletasks()
         self.canvas2.config(scrollregion=self.canvas2.bbox("all")) 
+    
+    def load_past_data(self, task):
+        self.author_input.delete(0, "end")
+        self.author_input.insert(0,task.author)
+        self.author_input.config(fg="black")
+        
+        self.program_input.delete(0, "end")
+        self.program_input.insert(0,task.programStr)
+        self.program_input.config(fg="black")
+
+        self.arg_input.delete(0, "end")
+        self.arg_input.insert(0,task.argsStr)
+        self.arg_input.config(fg="black")
+
+        self.working_dir_input.delete(0, "end")
+        if task.remoteWorkingDir == None:
+            self.working_dir_input.insert(0,"ADMIN$")
+        else:
+            self.working_dir_input.insert(0,task.remoteWorkingDir)
+        self.working_dir_input.config(fg="black")
+
+        self.timeout_input.delete(0, "end")
+        self.timeout_input.insert(0,task.timeout)
+        self.timeout_input.config(fg="black")
+
+        self.sysAdmin.set(task.impersonateSysAdmin)
+
+        #this section for local machine option
+        self.localMachine.set(task.localProgram)
+        self.local_machine_option() #this function makes all the local machine buttons/options available to be clicked by user
+        self.exe_dir_input.delete(0, "end")
+        self.exe_dir_input.insert(0,task.localProgramSrcDir)
+        self.exe_dir_input.config(fg="black")
+
+        self.overwriteExe.set(task.overwriteExe)
+        self.overwriteFiles.set(task.overwriteFiles)
+        self.cleanupExe.set(task.cleanupExeAfterCopy)
+        self.cleanupFiles.set(task.cleanupFilesAfterCopy)
+
+        #this section is for additional files option
+        self.additionalFile.set(task.copyFiles)
+        self.additional_file_option() #this function makes all the additional files buttons/options available to be clicked by user
+        self.additionalFileList = task.copiedFilesList
+
+        #redo all the checks to make sure everything inputted is valid still
+        self.local_machine_option()
+        self.additional_file_option()
+        self.show_button()
 
     
-    #function loads the path of a past job config into the path entry widget for the upcomming job
-    def load_past_data(self, path, section):
+    #function loads the path of a file explored into the path entry widget for specified explorer
+    def load_explorer_data(self, path, section):
         if section == 1:
             self.exe_dir_input.delete(0,"end")  
             self.exe_dir_input.insert(0, path)
@@ -963,18 +1011,21 @@ class JCTab(tk.Frame):
             arguments = self.arg_input.get()
             localsrc = self.exe_dir_input.get()
             author = self.author_input.get()
+            workingDir = self.working_dir_input.get()
             if arguments == "Arguments:":
                 arguments = ''
             if author == 'Enter Author\'s Name':
                 author = ''
             if localsrc == "Enter Directory":
                 localsrc = ''
+            if workingDir == '' or workingDir == "ADMIN$":
+                workingDir = None
             results = {"AUTHOR" : author,
                     "NAME": self.name_input.get(), 
                     "PROGRAM": self.program_input.get(),
                     "LOCALMACHINE": self.localMachine.get(),
                     "LOCALSRC": localsrc,
-                    "WORKINGDIR": self.working_dir_input.get(),
+                    "WORKINGDIR": ,
                     "ARGUMENTS": arguments,
                     "SYSADMIN": self.sysAdmin.get(), 
                     "OVERWRITE_FILES": self.overwriteFiles.get(),
@@ -994,14 +1045,14 @@ class JCTab(tk.Frame):
         filetypes = (("Text files","*.txt*"),("Executable files","*.exe*"), ("all files","*.*")))
         # Change label contents
         if filename != "":
-            self.load_past_data(filename, section)
+            self.load_explorer_data(filename, section)
 
     #function used to create a file explorer for exe source folder   
     def dir_file_explorer(self, section):
         folderame = askDirectory(initialdir = "./", title = "Select a Folder")
         # Change label contents
         if folderame != "":
-            self.load_past_data(folderame, section)
+            self.load_explorer_data(folderame, section)
 
     def create_file_window(self):
         self.new_window = tk.Toplevel(self.frame)
