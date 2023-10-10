@@ -60,7 +60,6 @@ class ADTab(tk.Frame):
                     "OS": computer.get('operatingSystem'),
                     "OS_VERSION": computer.get('operatingSystemVersion')
                     })
-
         return remoteComputerInfos
 
     #Function called when Select all machines checkbox is called
@@ -75,8 +74,6 @@ class ADTab(tk.Frame):
             for i in range(len(self.machine_list)):
                 self.add_pc_to_list(i, False)
     
-
-
     def show_button(self):
         if len(self.chosen_pc) > 0:
             self.create_job.config(state=tk.NORMAL)
@@ -108,6 +105,9 @@ class ADTab(tk.Frame):
         title = tk.Label(self.frame, text = "Active Directory", font=("Arial Bold",20), bg="lightblue")
         title.grid(row=0, column=2, columnspan=2, sticky="nsew")
 
+        self.UnreachableMachineErrorMessage = tk.Label(self.frame, font=("Arial Bold",20), bg="lightblue", fg="red")
+        self.UnreachableMachineErrorMessage.grid(row=0, column=13, columnspan=4, sticky="nsew")
+
         top_frame = tk.LabelFrame(self.frame, font=("Arial Bold", 12))
         top_frame.grid(row=1, column=5, sticky="nsew", padx=10, pady=10)
 
@@ -130,11 +130,24 @@ class ADTab(tk.Frame):
         self.select_all_button = ttk.Checkbutton(top_frame, text="Select All Machines", state=tk.DISABLED, variable=self.AllMachines, onvalue=True, offvalue=False, command=self.select_all_machines)
         self.select_all_button.grid(row=1,rowspan=2, column=25)
 
-        self.create_job = ttk.Button(top_frame, text="Create New Job", state=tk.DISABLED, command=self.call_create_job_callback)
+        self.create_job = ttk.Button(top_frame, text="Create New Job", state=tk.DISABLED, command=self.checkMachineReachable)
         self.create_job.grid(row=1, rowspan=2, column=28, columnspan=1)
+    
+    def checkMachineReachable(self):
+        allMachinesReachable = True
+        #chosen_pc is a list of string names of all currently selected pc's
+        for machine in chosen_pc:
+            #ADD REACHABLE CHECK HERE TODO
+            #if not reachable
+            allMachinesReachable = False
+            for machine_button in pc_buttons:
+                if machine = machine_button.cget("text"):
+                    machine_button.config(bg="red")
 
-
-
+        if (allMachinesReachable):
+            self.call_create_job_callback
+        else:
+            self.UnreachableMachineErrorMessage.insert(0,"One or More Machines Are Unreachable")
     
     def populate_pc_window(self, search):
         if self.count == 1:
@@ -333,23 +346,12 @@ class THTab(tk.Frame):
     
     def gather_task_details(self):
         self.past_jobs = []
-        for data in appState.runningTasks:
-            data_elements = { 
-                "NAME" : data.name,
-                "NUM_COMP" : len(data.jobList),
-                "DATE" : data.startDateTime,
-                "PROGRAM" : data.programStr,
-                "STATUS" : "Running"
-            }
-            self.past_jobs.append(data_elements)
-
         for data in appState.completedTasks:
             data_elements = { 
                 "NAME" : data.name,
                 "NUM_COMP" : len(data.jobList),
                 "DATE" : data.startDateTime,
                 "PROGRAM" : data.programStr,
-                "STATUS" : "Completed"
             }
             self.past_jobs.append(data_elements)
 
@@ -365,12 +367,11 @@ class THTab(tk.Frame):
                 f"Name: {data['NAME']}",
                 f"Number of Machines: {data['NUM_COMP']}",
                 f"Date Started: {data['DATE']}",
-                f"Program: {data['PROGRAM']}",
-                f"Status: {data['STATUS']}"
+                f"Program: {data['PROGRAM']}"
             ]
 
             # create LabelFrame for job
-            job_frame = tk.LabelFrame(data_frame, text=f"Job {i + 1}", font=("Arial Bold", 12))
+            job_frame = tk.LabelFrame(data_frame, text=f"{data['NAME']}", font=("Arial Bold", 12))
             job_frame.grid(row=i+1, column=0, sticky="nsew", padx=10, pady=10)
 
             for k, obj in enumerate(data_elements):
@@ -379,7 +380,7 @@ class THTab(tk.Frame):
                 job_frame.grid_columnconfigure(k, weight=1)
             
 
-            button = tk.Button(job_frame, text=f"Inspect {data['NAME']}", command=lambda name=data["NAME"]: self.call_create_job_callback(name))
+            button = tk.Button(job_frame, text="Inspect", command=lambda name=data["NAME"]: self.call_create_job_callback(name))
             button.grid(row=0, column=5, sticky="e")
             
 
@@ -414,6 +415,8 @@ class JCTab(tk.Frame):
         self.validName = False
         self.validTimeout = True
         self.validFiles = True
+        self.allMachinesReachWorkingDir = True
+        self.machinesCantReachWorkingDir = []
         self.additionalFileList = []
         create_grid(self.frame, 30, 30)
 
@@ -516,18 +519,22 @@ class JCTab(tk.Frame):
         ##
         ##this section is for the working directory part
         ##
-        working_dir_title = tk.Label(self.frame, text="Local Machine's Working Directory", font=("Arial Bold",12), bg="lightblue")
+        working_dir_title = tk.Label(self.frame, text="Remote Machine's Working Directory", font=("Arial Bold",12), bg="lightblue")
         working_dir_title.grid(row=10, column=2, columnspan=19)
 
         self.working_dir_input = tk.Entry(self.frame, fg="grey")
-        self.working_dir_input.insert(0, "Enter Working Directory")
+        self.working_dir_input.insert(0, "ADMIN$")
         self.working_dir_input.bind("<FocusIn>", self.on_entry_focus_in)
+        self.working_dir_input.bind("<FocusOut>", self.check_working_dir)
         self.working_dir_input.grid(row=11, column=2, columnspan=19, sticky="ew")
 
+        #used to display to user if path for executable entered is valid
+        self.valid_working_dir = tk.Label(self.frame, font=("Arial Bold",12), fg="red", bg='lightblue')
+        self.valid_working_dir.grid(row=12, column=2, columnspan=19)
 
         #this section is for the timeout 
         timeoutFame = tk.Frame(self.frame, bg="lightblue")
-        timeoutFame.grid(row=12, column=2, columnspan=19, sticky="ew")
+        timeoutFame.grid(row=13, column=2, columnspan=19, sticky="ew")
 
         timeout_title = tk.Label(timeoutFame, text="Timeout Number (seconds):", font=("Arial Bold",12), bg="lightblue")
         timeout_title.pack(side=tk.LEFT)
@@ -539,14 +546,14 @@ class JCTab(tk.Frame):
         self.timeout_input.config(validate ="key", validatecommand =(reg3, '%P'))
 
         self.valid_timeout = tk.Label(self.frame, text="Valid Timeout Number", font=("Arial Bold",12), fg="green", bg='lightblue')
-        self.valid_timeout.grid(row=13, column=2, columnspan=19)
+        self.valid_timeout.grid(row=14, column=2, columnspan=19)
         
         #check button for running program as system admin
         self.sysAdmin = tk.BooleanVar()
         #initially set to false
         self.sysAdmin.set("False")
         sysAdmin_button = ttk.Checkbutton(self.frame, text="Run Program as System Admin", variable=self.sysAdmin, onvalue=True, offvalue=False)
-        sysAdmin_button.grid(row=14, column=2, columnspan=19)
+        sysAdmin_button.grid(row=15, column=2, columnspan=19)
 
         self.overwriteExe = tk.BooleanVar()
         self.overwriteExe.set("False")
@@ -641,7 +648,7 @@ class JCTab(tk.Frame):
         search_bar_btn = ttk.Button(self.frame, text="Search", command=lambda: self.collect_search_data(False))
         search_bar_btn.grid(row=1, column=25, columnspan=2, sticky="ew")
 
-        view_all_btn = ttk.Button(self.frame, text="view All", command=lambda: self.collect_search_data(True))
+        view_all_btn = ttk.Button(self.frame, text="View All", command=lambda: self.collect_search_data(True))
         view_all_btn.grid(row=1, column=27, columnspan=2, sticky="ew")
 
         #displaty Chosen PC's
@@ -652,18 +659,19 @@ class JCTab(tk.Frame):
         self.canvas2.grid(row=17, column=23, rowspan=12, columnspan=6, sticky="nsew")
         self.set_mousewheel(self.canvas2, lambda e: self.canvas2.config(text=e.delta), 2)
 
-        content_frame2 = tk.Frame(self.canvas2)
-        self.canvas2.create_window((0, 0), window=content_frame2)
-        
-        self.populate_chosenMachine(content_frame2)
+        self.content_frame2 = tk.Frame(self.canvas2)
+        self.canvas2.create_window((0, 0), window=self.content_frame2)
 
         y_scrollbar2 = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas2.yview)
         y_scrollbar2.grid(row=17, column=29, rowspan=12, sticky="ns")
         self.canvas2.configure(yscrollcommand=y_scrollbar2.set)
 
-        content_frame2.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all")) 
+        self.content_frame2.update_idletasks()
         self.canvas2.config(scrollregion=self.canvas2.bbox("all")) 
+        self.canvas.config(scrollregion=self.canvas.bbox("all")) 
+
+        self.check_working_dir(self)
+    
 
     #this function is used to allow the user to hover their mouse over the canvas widget and then scroll up and down the canvas using their mouse wheel
     def set_mousewheel(self, widget, command, canvas):
@@ -700,6 +708,31 @@ class JCTab(tk.Frame):
             self.additionalFile_input.delete(0,"end")
         self.validate_files()
         self.show_button()
+    
+    def check_working_dir(self):
+        working_dir = self.working_dir_input.get()
+        if working_dir.strip() == "":
+            working_dir = "ADMIN$"
+        
+        temp_AllMachinesReachWorkingDir = True
+        for machine in self.chosen_pc:
+            #ADD CHECK TO SEE IF MACHINE HAS ACCESS TO THE WORKING DIR TODO
+            #IF machine cannot access the working DIR
+                self.machinesCantReachWorkingDir.append(machine)
+                temp_AllMachinesReachWorkingDir = False
+
+            #if machine can access the working DIR
+                if machine in machinesCantReachWorkingDir:
+                    self.machinesCantReachWorkingDir.remove(machine)
+
+        if not temp_AllMachinesReachWorkingDir:
+            self.allMachinesReachWorkingDir = False
+            self.valid_working_dir.insert(0,"One or More Machines Can't reach Working Directory")
+        else:
+            self.allMachinesReachWorkingDir = True
+            self.valid_working_dir.delete(0,"end")
+        self.populate_chosenMachine()
+
 
     def check_program(self, input):
         if input != '':
@@ -808,18 +841,27 @@ class JCTab(tk.Frame):
                 button = tk.Button(data_frame, text=f"Load Configuration", command=None)
                 button.grid(row=i+1, column=1, sticky="e")
     
-    def populate_chosenMachine(self, frame):
-        data_frame = tk.Frame(frame)
+    def populate_chosenMachine(self):
+        for widget in self.content_frame2.winfo_children():
+            widget.destroy()
+
+        data_frame = tk.Frame(self.content_frame2)
         data_frame.grid(row=0, column=0, sticky="nsew")
 
         data_label = tk.Label(data_frame, text=str("-"*50), bg="lightblue")
         data_label.grid(row=0, column=0, sticky="nsew")
         for i in range(len(self.chosen_pc)):
-            data_frame = tk.Frame(frame)
+            data_frame = tk.Frame(self.content_frame2)
             data_frame.grid(row=i+1, column=0, sticky="nsew")
 
-            info = tk.Label(data_frame, text=self.chosen_pc[i], font=("Arial Bold",12))
+            colour = 'white'
+            if self.chosen_pc[i]in self.machinesCantReachWorkingDir:
+                colour = "red"
+            info = tk.Label(data_frame, text=self.chosen_pc[i], bg=colour font=("Arial Bold",12))
             info.grid(row=i+1, column=0, sticky="w", pady=10)
+
+        self.content_frame2.update_idletasks()
+        self.canvas2.config(scrollregion=self.canvas2.bbox("all")) 
 
     
     #function loads the path of a past job config into the path entry widget for the upcomming job
@@ -855,10 +897,10 @@ class JCTab(tk.Frame):
     def validate_name(self, input):
         valid = True
         for taskstate in appState.runningTasks:
-            if taskstate.name == input:
+            if taskstate.name == input and input != '':
                 valid = False
         for taskstate in appState.completedTasks:
-            if taskstate.name == input:
+            if taskstate.name == input and input != '':
                 valid = False
         if valid:
             self.valid_name['text'] = 'Valid Name'
@@ -905,9 +947,9 @@ class JCTab(tk.Frame):
     
     #this function is used to see if the create job button can be clickable/shown to user
     def show_button(self):
-        if self.validName and self.validPath and not self.additionalFile.get() and self.validTimeout:
+        if self.validName and self.validPath and not self.additionalFile.get() and self.validTimeout and self.allMachinesReachWorkingDir:
             self.create_job.config(state=tk.NORMAL)
-        elif self.validName and self.validPath and self.additionalFile.get() and self.validFiles and self.validTimeout:
+        elif self.validName and self.validPath and self.additionalFile.get() and self.validFiles and self.validTimeout and self.allMachinesReachWorkingDir:
             self.create_job.config(state=tk.NORMAL)
         else:
             self.create_job.config(state=tk.DISABLED)
@@ -915,18 +957,16 @@ class JCTab(tk.Frame):
     #function used to send data back to tab_manager
     def call_create_job_callback(self):
         self.validate_files()
-        if (self.validName and self.validPath and self.validTimeout and not self.additionalFile.get()) \
-        or (self.validName and self.validPath and self.validTimeout and self.additionalFile.get() and self.validFiles):
+        self.check_working_dir()
+        if (self.validName and self.validPath and self.validTimeout and not self.additionalFile.get() and allMachinesReachWorkingDir) \
+        or (self.validName and self.validPath and self.validTimeout and self.additionalFile.get() and self.validFiles and allMachinesReachWorkingDir):
             arguments = self.arg_input.get()
-            workingDir = self.working_dir_input.get()
             localsrc = self.exe_dir_input.get()
             author = self.author_input.get()
             if arguments == "Arguments:":
                 arguments = ''
             if author == 'Enter Author\'s Name':
                 author = ''
-            if workingDir == "Enter Working Directory":
-                workingDir = ''
             if localsrc == "Enter Directory":
                 localsrc = ''
             results = {"AUTHOR" : author,
@@ -934,7 +974,7 @@ class JCTab(tk.Frame):
                     "PROGRAM": self.program_input.get(),
                     "LOCALMACHINE": self.localMachine.get(),
                     "LOCALSRC": localsrc,
-                    "WORKINGDIR": workingDir,
+                    "WORKINGDIR": self.working_dir_input.get(),
                     "ARGUMENTS": arguments,
                     "SYSADMIN": self.sysAdmin.get(), 
                     "OVERWRITE_FILES": self.overwriteFiles.get(),
@@ -999,7 +1039,8 @@ class JCTab(tk.Frame):
         if event.widget.get() == "Enter Job Title" or event.widget.get() == "Enter Executable Program" \
         or event.widget.get() == "Enter search" or event.widget.get() == "Enter Additional File Aboslute Path" \
         or event.widget.get() == 'Arguments' or event.widget.get() == 'Enter Directory' \
-        or event.widget.get() == 'Enter Author\'s Name' or event.widget.get() == 'Enter Working Directory':
+        or event.widget.get() == "Enter Author's Name" or event.widget.get() == 'ADMIN$' \
+        or event.widget.get() == '3600':
             event.widget.delete(0, "end")
             event.widget.config(fg="black")
         
@@ -1221,6 +1262,7 @@ class RunningTaskTab(tk.Frame):
                     
     def send_stdin_to_job_q(self):
         input = self.console_input.get()
+        self.console_input.insert(0,'')
         current_job_name = self.client_name["text"]
         for jobState in self.task.jobList:
             if jobState.clientName == current_job_name and jobState.job.is_alive() and jobState.job.stdinPipe is not None:
