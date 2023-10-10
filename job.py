@@ -64,6 +64,9 @@ from queue import Queue
 import os.path
 import smbclient.path
 
+class StdoutBuffer:
+    byteStr: bytes = b""
+
 def _receive(connection: Connection, request, wait=True, timeout=None, resolve_symlinks=True):
     """
     Polls the message buffer of the TCP connection and waits until a valid
@@ -283,7 +286,8 @@ class Job(threading.Thread):
 
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
-        self.stdoutBuffer: bytes = b""
+
+        self.stdoutBuffer = StdoutBuffer()
 
         self.main_pipe_request: Request = None
     
@@ -468,7 +472,9 @@ class StdinPipe(threading.Thread):
         try:
             while not self.finished.is_set():
                 if not self.inpQueue.empty():
-                    self.write(bytes(self.inpQueue.get(), 'utf-8'))
+                    input = self.inpQueue.get()
+                    self.write(bytes(input, 'utf-8'))
+                    print("WRITTEN TO PIPE: " + input)
         except SMBResponseException as exc:
             # if the error was the pipe was broken exit the loop
             # otherwise the error is serious so throw it
@@ -499,13 +505,13 @@ class StdinPipe(threading.Thread):
 
 class StdoutPipe(OutputPipe):
 
-    def __init__(self, tree, name, stdoutQ: Queue, stdoutBuffer: bytes):
+    def __init__(self, tree, name, stdoutQ: Queue, stdoutBuffer: StdoutBuffer):
         super(StdoutPipe, self).__init__(tree, name)
         self.pipe_buffer = stdoutBuffer
         self.stdoutQ = stdoutQ
 
     def handle_output(self, output: bytes):
-        self.pipe_buffer += output
+        self.pipe_buffer.byteStr += output
         self.stdoutQ.put(output.decode())
 
     def get_output(self):

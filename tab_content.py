@@ -797,8 +797,8 @@ class JCTab(tk.Frame):
     #function fills in the past job configuration scrollwindow with data and buttons. saerched is a string of what the user is searching for
     #if searched is blank, searching for nothing
     def populate_scrollwindow(self, frame, searched):
-        for taskState in appState.completedTasks:
-            concatenated_data = f"{taskState.name}....{taskState.name}"
+        for i,taskState in enumerate(appState.completedTasks):
+            concatenated_data = f"{taskState.name}....{taskState.startDateTime}"
             if searched == "" or (searched.lower() in concatenated_data.lower()):
                 data_frame = tk.Frame(frame)
                 data_frame.grid(row=i+1, column=0, sticky="nsew")
@@ -808,9 +808,6 @@ class JCTab(tk.Frame):
 
                 button = tk.Button(data_frame, text=f"Load Configuration", command=None)
                 button.grid(row=i+1, column=1, sticky="e")
-
-
-
     
     def populate_chosenMachine(self, frame):
         data_frame = tk.Frame(frame)
@@ -1024,10 +1021,10 @@ class CompletedTaskTab(tk.Frame):
         status = tk.Label(self.frame, text = "*Completed", fg='green', font=("Arial Bold",12), bg="lightblue")
         status.grid(row=0, column=2, columnspan=2, sticky="w")
 
-        name = tk.Label(self.frame, text = f"{self.main_details[0]}", font=("Arial Bold",20), bg="lightblue")
+        name = tk.Label(self.frame, text = f"{self.task.name}", font=("Arial Bold",20), bg="lightblue")
         name.grid(row=1, column=2, columnspan=2, sticky="w")
 
-        date = tk.Label(self.frame, text = f"{self.main_details[4]}", font=("Arial Bold",12), bg="lightblue")
+        date = tk.Label(self.frame, text = f"{self.task.startDateTime}", font=("Arial Bold",12), bg="lightblue")
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
         #this section is for displaying the machines in the task  
@@ -1053,27 +1050,27 @@ class CompletedTaskTab(tk.Frame):
         self.machine_name = tk.Label(machine_frame, text="", font=("Arial Bold",16), bg="lightblue")
         self.machine_name.pack(side=tk.LEFT)
 
-        self.machine_return_code = tk.Label(self.frame, text="", font=("Arial Bold",16), bg="lightblue")
+        self.machine_return_code = tk.Label(machine_frame, text="", font=("Arial Bold",16), bg="lightblue")
         self.machine_return_code.pack(padx=20, side=tk.LEFT)
 
-        machine_Canvas = tk.Canvas(self.frame)
-        machine_Canvas.grid(row=11, column=2, rowspan=10, columnspan=26, sticky="ew")
+        self.machine_Canvas = tk.Canvas(self.frame)
+        self.machine_Canvas.grid(row=11, column=2, rowspan=10, columnspan=26, sticky="ew")
 
-        self.machine_content_frame = tk.Frame(machine_Canvas)
-        machine_Canvas.create_window((0, 0), window=self.machine_content_frame)
+        self.machine_content_frame = tk.Frame(self.machine_Canvas)
+        self.machine_Canvas.create_window((0, 0), window=self.machine_content_frame)
 
-        self.populate_bottom_scrollwindow()
-
-        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=machine_Canvas.yview)
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.machine_Canvas.yview)
         y_scrollbar.grid(row=11, column=29, rowspan=10, sticky="ns")
-        machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
+        self.machine_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
-        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=machine_Canvas.xview)
+        x_scrollbar = tk.Scrollbar(self.frame, orient="horizontal", command=self.machine_Canvas.xview)
         x_scrollbar.grid(row=22, column=2, columnspan=26, sticky="ew")
-        machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
+        self.machine_Canvas.configure(xscrollcommand=x_scrollbar.set)
 
         self.machine_content_frame.update_idletasks()
-        machine_Canvas.config(scrollregion=machine_Canvas.bbox("all")) 
+        self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all")) 
+
+        self.populate_bottom_scrollwindow()
 
     def populate_top_scrollwindow(self, frame):
         data_frame = tk.Frame(frame)
@@ -1101,7 +1098,7 @@ class CompletedTaskTab(tk.Frame):
             machine_text.grid(row=i, column=0,sticky="w")
         
         self.machine_content_frame.update_idletasks()
-        machine_Canvas.config(scrollregion=machine_Canvas.bbox("all")) 
+        self.machine_Canvas.config(scrollregion=self.machine_Canvas.bbox("all")) 
 
     def inspect_button_clicked(self, name):
         self.machine_name["text"] = f"Machine: {name}"
@@ -1115,28 +1112,29 @@ class CompletedTaskTab(tk.Frame):
         self.entire_job_data = []
         for jobstate in self.task.jobList:
             #[name, return code, buffer(in list format)]
-            machine_data = [jobstate.clientName, jobstate.job.rc self.parsingStdOutBuffer(jobstate)]
+            machine_data = [jobstate.clientName, jobstate.job.rc, self.parsingStdOutBuffer(jobstate)]
             self.entire_job_data.append(machine_data)
     
     def parsingStdOutBuffer(self, currentJobState: JobState):
         #grabs the stdout buffer for the machine here
-        example = b'Line 1\nLine 2\n\n\nLine 3'
-        decoded_example = example.decode('utf-8')
-        list_example = decoded_example.split('\n')
-        list_example_no_empty_elements = [element for element in list_example if element.strip() != '']
-        return list_example_no_empty_elements
+        stdoutBuffer = currentJobState.job.stdoutBuffer.byteStr
+        decoded_example = stdoutBuffer.decode('utf-8')
+        splitStdoutBuffer = decoded_example.split('\n')
+        splitStdoutBuffer_noEmpty = [element for element in splitStdoutBuffer if element.strip() != '']
+        return splitStdoutBuffer_noEmpty
     
     def remove_page(self):
         for widget in self.frame.winfo_children():
             widget.destroy()
 
 class RunningTaskTab(tk.Frame):
-    def __init__(self, contentFrame, task: TaskState, handle_RunningTab master=None):
+    def __init__(self, contentFrame, task: TaskState, handle_RunningTab, master=None):
         super().__init__(master)
         self.frame = contentFrame
         self.display_data = []
         self.handle_RunningTab = handle_RunningTab
         self.task: TaskState = task
+        self.task_completed: bool = False
 
         create_grid(self.frame, 30, 30)
 
@@ -1224,13 +1222,12 @@ class RunningTaskTab(tk.Frame):
                     
     def send_stdin_to_job_q(self):
         input = self.console_input.get()
-        print("INPUT: " + input)
-
         current_job_name = self.client_name["text"]
         for jobState in self.task.jobList:
             if jobState.clientName == current_job_name and jobState.job.is_alive():
                 jobState.stdinQ.put(input)
-            print("Job not found or job is dead")
+                return
+        print("Job not found or job is dead")
     
     #This function is used to see if the task is still running
     def consoleForCompletedJob(self, currentJobState: JobState):
@@ -1242,35 +1239,29 @@ class RunningTaskTab(tk.Frame):
     
     def parsingStdOutBuffer(self, currentJobState: JobState):
         #grabs the stdout buffer for the machine here
-        example = b'Line 1\nLine 2\n\n\nLine 3'
-        decoded_example = example.decode('utf-8')
-        list_example = decoded_example.split('\n')
-        list_example_no_empty_elements = [element for element in list_example if element.strip() != '']
-        return list_example_no_empty_elements
-
+        stdoutBuffer = currentJobState.job.stdoutBuffer.byteStr
+        decoded_example = stdoutBuffer.decode('utf-8')
+        splitStdoutBuffer = decoded_example.split('\n')
+        splitStdoutBuffer_noEmpty = [element for element in splitStdoutBuffer if element.strip() != '']
+        return splitStdoutBuffer_noEmpty
     
     def pollingStdOutQueue(self):
+        if self.task_completed:
+            print("Task completed!")
+            return
+        
         current_job_name = self.client_name["text"]
         for jobState in self.task.jobList:
             if jobState.clientName == current_job_name and jobState.job.is_alive():
                 while not jobState.stdoutQ.empty():
-                    stdoutStr = jobState.stdoutQ.get()
+                    print("StdoutQ not empty!")
+                    stdoutStr: str = jobState.stdoutQ.get()
                     #NOT SURE IF THIS WORKS
-                    if stdoutStr != '\n': 
+                    if stdoutStr.strip() != '': 
                         self.display_data.append(stdoutStr)
                         self.populate_bottom_scrollwindow()
                 break
-
-        #this section checks if all jobs are finished. if so then the polling of StdOut queue will finish
-        all_jobs_dead: bool = True
-        for jobState in self.task.jobList:
-            if jobState.job.is_alive():
-                all_jobs_dead = False
-                self.task.started = True
         
-        if not all_jobs_dead and self.task.started:
-            return
-
         self.frame.after(1000, self.pollingStdOutQueue)
     
     def checkTaskRunningState(self):
@@ -1286,12 +1277,16 @@ class RunningTaskTab(tk.Frame):
             self.console_btn.config(state=tk.DISABLED)
             self.console_input.config(state=tk.DISABLED)
             if self.task.started:#Meaning task has completed
+                self.task_completed = True
                 #TODO: Create output directory for task. Write details of task to file
                 for jobState in self.task.jobList:
                     jobState.job.join()
                     jobState.client.remove_service()
                     jobState.client.disconnect()
                     #TODO: Write stdout of each client to a text file
+                appState.runningTasks.remove(self.task)
+                appState.completedTasks.append(self.task)
+
                 self.btn_goToTH.config(state=tk.NORMAL) #make the 'go to Task History Page' button clickable once the whole task is finished
             return
         else:
@@ -1351,7 +1346,10 @@ class RunningTaskTab(tk.Frame):
         for jobState in self.task.jobList:
             if jobState.clientName == clientName: 
                 if jobState.job.is_alive():
-                    self.display_data = self.parsingStdOutBuffer(jobState)
+                    if jobState.stdoutQ.empty():
+                        self.display_data = self.parsingStdOutBuffer(jobState)
+                    else:
+                        self.display_data = []
                     self.populate_bottom_scrollwindow()
                     self.client_name.config(text = jobState.clientName)
                     self.console_btn.config(state=tk.NORMAL)
