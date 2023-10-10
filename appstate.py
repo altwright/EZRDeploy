@@ -9,7 +9,6 @@ class JobState:
     clientName: str
     client: Client
     stdoutQ: Queue
-    stdinQ: Queue
     job: Job
     exc: Exception = None
 

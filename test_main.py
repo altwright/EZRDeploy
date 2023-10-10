@@ -69,10 +69,10 @@ if __name__ == "__main__":
     print('\nSTDOUT:')
     stdout_thread = threading.Thread(target=print_stdout, args=(stdoutQ,), daemon=True)
     stderr_thread = threading.Thread(target=print_stdout, args=(stderrQ,), daemon=True)
-    stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, job), daemon=True)
+    #stdin_thread = threading.Thread(target=get_stdin, args=(stdinQ, job), daemon=True)
     stdout_thread.start()
     stderr_thread.start()
-    stdin_thread.start()
+    #stdin_thread.start()
 
     job.join()
 

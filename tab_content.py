@@ -1224,8 +1224,8 @@ class RunningTaskTab(tk.Frame):
         input = self.console_input.get()
         current_job_name = self.client_name["text"]
         for jobState in self.task.jobList:
-            if jobState.clientName == current_job_name and jobState.job.is_alive():
-                jobState.stdinQ.put(input)
+            if jobState.clientName == current_job_name and jobState.job.is_alive() and jobState.job.stdinPipe is not None:
+                jobState.job.stdinPipe.write(bytes(input + "\n", "utf-8"))
                 return
         print("Job not found or job is dead")
     
@@ -1254,7 +1254,6 @@ class RunningTaskTab(tk.Frame):
         for jobState in self.task.jobList:
             if jobState.clientName == current_job_name and jobState.job.is_alive():
                 while not jobState.stdoutQ.empty():
-                    print("StdoutQ not empty!")
                     stdoutStr: str = jobState.stdoutQ.get()
                     #NOT SURE IF THIS WORKS
                     if stdoutStr.strip() != '': 

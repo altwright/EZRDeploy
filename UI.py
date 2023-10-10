@@ -69,7 +69,6 @@ class TabManager:
             jobState = JobState()
             jobState.clientName = pcName
             jobState.client = Client(pcName)
-            jobState.stdinQ = Queue()
             jobState.stdoutQ = Queue()
             jobState.job = Job(
                 jobState.client,
@@ -77,7 +76,6 @@ class TabManager:
                 task.argsStr,
                 jobState.stdoutQ,
                 jobState.stdoutQ,
-                jobState.stdinQ,
                 copy_local_exe= task.localProgram,
                 local_exe_src_dir=task.localProgramSrcDir,
                 clean_copied_exe_after=task.cleanupExeAfterCopy,

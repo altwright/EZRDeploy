@@ -56,6 +56,7 @@ from pypsexec.paexec import (
 
 from pypsexec.pipe import (
     OutputPipe,
+    InputPipe,
     open_pipe,
     TheadCloseTimeoutWarning
 )
@@ -235,7 +236,6 @@ class Job(threading.Thread):
             arguments: str, 
             stdoutQ: Queue, 
             stderrQ: Queue,
-            stdinQ: Queue,
             copy_local_exe: bool = False,
             local_exe_src_dir: str = "",
             clean_copied_exe_after: bool = False,
@@ -257,7 +257,6 @@ class Job(threading.Thread):
         self.executable = executable
         self.stdoutQ = stdoutQ
         self.stderrQ = stderrQ
-        self.stdinQ = stdinQ
         self.arguments = arguments
         self.processors = processors
         self.use_system_account = use_system_account
@@ -288,6 +287,7 @@ class Job(threading.Thread):
         self.rc = None
 
         self.stdoutBuffer = StdoutBuffer()
+        self.stdinPipe: InputPipe = None
 
         self.main_pipe_request: Request = None
     
@@ -398,9 +398,7 @@ class Job(threading.Thread):
         stderr_pipe = StdoutPipe(smb_tree, self.client._stderr_pipe_name, self.stderrQ, self.stdoutBuffer)
         stderr_pipe.start()
         
-        input_finished_event = threading.Event()
-        stdin_pipe = StdinPipe(smb_tree, self.client._stdin_pipe_name, self.stdinQ, input_finished_event)
-        stdin_pipe.start()
+        self.stdinPipe = InputPipe(smb_tree, self.client._stdin_pipe_name)
 
         # wait until the stdout and stderr pipes have sent their first
         # response
@@ -413,11 +411,9 @@ class Job(threading.Thread):
         self.main_pipe_request = _get_main_pipe_request(main_pipe, 0, 1024)
         exe_result_raw = _get_main_pipe_response(self.main_pipe_request, main_pipe)
 
-        input_finished_event.set()
-
         stdout_pipe.close()
         stderr_pipe.close()
-        stdin_pipe.close()
+        self.stdinPipe.close()
 
         main_pipe.close()
         smb_tree.disconnect()
@@ -440,68 +436,6 @@ class Job(threading.Thread):
     def cancel(self):
         if self.main_pipe_request is not None:
             self.main_pipe_request.cancel()
-
-class StdinPipe(threading.Thread):
-
-    def __init__(self, tree, name, inputQueue: Queue, finished: threading.Event):
-        """
-        Any data sent to write is written to the Named Pipe.
-
-        :param tree: The SMB tree connected to IPC$
-        :param name: The name of the input Named Pipe
-        """
-        threading.Thread.__init__(self)
-
-        self.name = name
-        self.connection = tree.session.connection
-        self.sid = tree.session.session_id
-        self.tid = tree.tree_connect_id
-        self.pipe = open_pipe(tree, name,
-                              FilePipePrinterAccessMask.FILE_WRITE_DATA |
-                              FilePipePrinterAccessMask.FILE_APPEND_DATA |
-                              FilePipePrinterAccessMask.FILE_WRITE_EA |
-                              FilePipePrinterAccessMask.FILE_WRITE_ATTRIBUTES |
-                              FilePipePrinterAccessMask.FILE_READ_ATTRIBUTES |
-                              FilePipePrinterAccessMask.READ_CONTROL |
-                              FilePipePrinterAccessMask.SYNCHRONIZE,
-                              fsctl_wait=True)
-        self.inpQueue = inputQueue
-        self.finished = finished
-
-    def run(self):
-        try:
-            while not self.finished.is_set():
-                if not self.inpQueue.empty():
-                    input = self.inpQueue.get()
-                    self.write(bytes(input, 'utf-8'))
-                    print("WRITTEN TO PIPE: " + input)
-        except SMBResponseException as exc:
-            # if the error was the pipe was broken exit the loop
-            # otherwise the error is serious so throw it
-            close_errors = [
-                NtStatus.STATUS_PIPE_BROKEN,
-                NtStatus.STATUS_PIPE_CLOSING,
-                NtStatus.STATUS_PIPE_EMPTY,
-                NtStatus.STATUS_PIPE_DISCONNECTED,
-                NtStatus.STATUS_FILE_CLOSED
-            ]
-            if exc.status not in close_errors:
-                raise exc
-        finally:
-            try:
-                self.pipe.close(get_attributes=False)
-            except KeyError as exc:#I don't know why it happens sometimes
-                pass
-
-    def write(self, data):
-        self.pipe.write(data, 0)
-
-    def close(self):
-        self.pipe.close(get_attributes=False)
-        self.join(timeout=5)
-        if self.is_alive():
-            warnings.warn("Timeout while waiting for pipe thread to close: %s"
-                          % self.name, TheadCloseTimeoutWarning)
 
 class StdoutPipe(OutputPipe):
 
