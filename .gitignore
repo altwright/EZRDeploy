@@ -8,3 +8,4 @@ __pycache__/
 .vscode
 task_history_files/
 task_program_files/
+REMOTE_OUTPUT/

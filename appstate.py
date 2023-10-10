@@ -5,6 +5,7 @@ from queue import Queue
 from job import Job
 from datetime import datetime
 
+STDOUT_DIR: str = r".\REMOTE_OUTPUT"
 class JobState:
     clientName: str
     client: Client
@@ -31,6 +32,7 @@ class TaskState:
     cleanupExeAfterCopy: bool
     cleanupFilesAfterCopy: bool
     timeout: int
+    cancelled: bool = False
 
 class AppState:
     domainName: str

@@ -1,10 +1,9 @@
 import os
 import tkinter as tk
-from queue import Queue
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter.filedialog import askdirectory as askDirectory
-from appstate import appState, TaskState, JobState
+from appstate import *
 import socket
 
 #used to create grid used in the frames
@@ -1277,12 +1276,44 @@ class RunningTaskTab(tk.Frame):
             self.console_input.config(state=tk.DISABLED)
             if self.task.started:#Meaning task has completed
                 self.task_completed = True
-                #TODO: Create output directory for task. Write details of task to file
+                if not os.path.exists(STDOUT_DIR):
+                    os.makedirs(STDOUT_DIR)
+                
+                taskDir = os.path.join(STDOUT_DIR, self.task.startDateTime.strftime("%d_%m_%Y-%H_%M_%S"))
+                os.makedirs(taskDir)
+
                 for jobState in self.task.jobList:
                     jobState.job.join()
                     jobState.client.remove_service()
                     jobState.client.disconnect()
-                    #TODO: Write stdout of each client to a text file
+                    
+                    outputFile = open(os.path.join(taskDir, jobState.clientName + ".txt"), "w")
+                    outputFile.write(jobState.job.stdoutBuffer.byteStr.decode())
+                    outputFile.write("\nRETURN CODE: " + str(jobState.job.rc))
+                    outputFile.close()
+
+                settingsFile = open(os.path.join(taskDir, "settings.txt"), "w")
+                settingsFile.writelines([
+                    "TASK NAME: " + self.task.name + "\n",
+                    "AUTHOR: " + self.task.author + "\n",
+                    "START DATETIME: " + str(self.task.startDateTime) + "\n",
+                    "EXECUTABLE: " + self.task.programStr + "\n",
+                    "ARGUMENTS: " + self.task.argsStr + "\n",
+                    "CANCELLED: " + str(self.task.cancelled) + "\n",
+                    "REMOTE WORKING DIR: " + str(self.task.remoteWorkingDir) + "\n",
+                    "TIMEOUT SECONDS: " + str(self.task.timeout) + "\n",
+                    "LOCAL EXECUTABLE: " + str(self.task.localProgram) + "\n",
+                    "LOCAL EXECUTABLE SRC DIR: " + self.task.localProgramSrcDir + "\n",
+                    "COPY LOCAL FILES: " + str(self.task.copyFiles) + "\n",
+                    "LOCAL FILES COPIED: " + str(self.task.copiedFilesList) + "\n",
+                    "REMOTE EXECUTABLE OVERWRITTEN: " + str(self.task.overwriteExe) + "\n",
+                    "REMOTE FILES OVERWRITTEN: " + str(self.task.overwriteFiles) + "\n",
+                    "COPIED EXE DELETED: " + str(self.task.cleanupExeAfterCopy) + "\n",
+                    "COPIED FILES DELETED: " + str(self.task.cleanupFilesAfterCopy) + "\n",
+                    "IMPERSONATED REMOTE SYS ADMIN ACCOUNT: " + str(self.task.impersonateSysAdmin)
+                ])
+                settingsFile.close()
+
                 appState.runningTasks.remove(self.task)
                 appState.completedTasks.append(self.task)
 
@@ -1358,6 +1389,7 @@ class RunningTaskTab(tk.Frame):
                 break
 
     def cancel_all_button_clicked(self):
+        self.task.cancelled = True
         for jobState in self.task.jobList:
             jobState.job.cancel()
             jobState.job.join()
