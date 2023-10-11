@@ -414,10 +414,9 @@ class Job(threading.Thread):
         stdout_pipe.close()
         stderr_pipe.close()
         self.stdinPipe.close()
-
         main_pipe.close()
         smb_tree.disconnect()
-
+        
         if exe_result_raw is not None:
             exe_result = PAExecMsg()
             exe_result.unpack(exe_result_raw)
