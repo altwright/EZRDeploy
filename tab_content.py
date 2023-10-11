@@ -311,22 +311,11 @@ class THTab(tk.Frame):
     #creats a call back function to pass data back to tab_manager
     def call_create_job_callback(self, name):
         self.create_job_callback(name)
-    
-    #shows whats in the search bar
-    def display_search(self):
-        search_text = self.search_bar.get()
-        print(search_text)
+
 
     def create_page(self):
         title = tk.Label(self.frame, text = "Task History", font=("Arial Bold",20), bg="lightblue")
         title.grid(row=0, column=2, columnspan=2, sticky="w")
-
-        self.search_bar = tk.Entry(self.frame)
-        self.search_bar.insert(0, "Enter search")
-        self.search_bar.grid(row=1, column=2, columnspan=4, sticky="ew")
-
-        search_bar_btn = ttk.Button(self.frame, text="Search", command=self.display_search)
-        search_bar_btn.grid(row=1, column=7, columnspan=2, sticky="ew")
 
         canvas = tk.Canvas(self.frame)
         canvas.grid(row=2, column=2, rowspan=26, columnspan=26, sticky="nsew")
@@ -1130,21 +1119,22 @@ class CompletedTaskTab(tk.Frame):
         date.grid(row=2, column=2, columnspan=2, sticky="w")
 
         #this section is for displaying the machines in the task  
-        main_Canvas = tk.Canvas(self.frame)
-        main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=26, sticky="ew")
+        self.main_Canvas = tk.Canvas(self.frame)
+        self.main_Canvas.grid(row=3, column=2, rowspan=1, columnspan=26, sticky="ew")
+        self.set_mousewheel(self.main_Canvas, lambda e: self.main_Canvas.config(text=e.delta), 1)
 
-        main_content_frame = tk.Frame(main_Canvas)
-        main_Canvas.create_window((0, 0), window=main_content_frame)
+        main_content_frame = tk.Frame(self.main_Canvas)
+        self.main_Canvas.create_window((0, 0), window=main_content_frame)
 
         self.populate_top_scrollwindow(main_content_frame)
 
-        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=main_Canvas.yview)
+        y_scrollbar = tk.Scrollbar(self.frame, orient="vertical", command=self.main_Canvas.yview)
         y_scrollbar.grid(row=3, column=29, rowspan=3, sticky="ns")
-        main_Canvas.configure(yscrollcommand=y_scrollbar.set)
+        self.main_Canvas.configure(yscrollcommand=y_scrollbar.set)
 
         #this next section is for the machine 'console'
         main_content_frame.update_idletasks()
-        main_Canvas.config(scrollregion=main_Canvas.bbox("all")) 
+        self.main_Canvas.config(scrollregion=self.main_Canvas.bbox("all")) 
 
         machine_frame = tk.Frame(self.frame, bg="lightblue")
         machine_frame.grid(row=10, column=2, columnspan=5, sticky="ew")
@@ -1157,6 +1147,7 @@ class CompletedTaskTab(tk.Frame):
 
         self.machine_Canvas = tk.Canvas(self.frame)
         self.machine_Canvas.grid(row=11, column=2, rowspan=10, columnspan=26, sticky="ew")
+        self.set_mousewheel(self.machine_Canvas, lambda e: self.machine_Canvas.config(text=e.delta), 2)
 
         self.machine_content_frame = tk.Frame(self.machine_Canvas)
         self.machine_Canvas.create_window((0, 0), window=self.machine_content_frame)
@@ -1224,6 +1215,30 @@ class CompletedTaskTab(tk.Frame):
         splitStdoutBuffer = decoded_example.split('\n')
         splitStdoutBuffer_noEmpty = [element.rstrip() for element in splitStdoutBuffer]
         return splitStdoutBuffer_noEmpty
+
+    def set_mousewheel(self, widget, command, canvas):
+        if canvas == 2:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas2))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+        elif canvas == 1:
+            widget.bind("<Enter>", lambda _: widget.bind_all('<MouseWheel>', self._on_mousewheel_canvas1))
+            widget.bind("<Leave>", lambda _: widget.unbind_all('<MouseWheel>'))
+    
+    def _on_mousewheel_canvas2(self, event):
+        content_height = self.machine_Canvas.bbox("all")[3] - self.machine_Canvas.bbox("all")[1]
+        visible_height = self.machine_Canvas.winfo_height()
+        if content_height > visible_height:
+            self.machine_Canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.machine_Canvas.yview_moveto(0)
+    
+    def _on_mousewheel_canvas1(self, event):
+        content_height = self.main_Canvas.bbox("all")[3] - self.main_Canvas.bbox("all")[1]
+        visible_height = self.main_Canvas.winfo_height()
+        if content_height > visible_height:
+            self.main_Canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:
+            self.main_Canvas.yview_moveto(0)
     
     def remove_page(self):
         for widget in self.frame.winfo_children():
