@@ -269,7 +269,7 @@ class ADTab(tk.Frame):
 
         if self.SearchGroup.get():
             for content in data:
-                if search_filter.lower() in content["GROUP"].lower():
+                if search_filter.lower() in content["GROUPS"].lower():
                     filtered_data.append(content)
         
         if self.SearchName.get():
@@ -1241,6 +1241,7 @@ class RunningTaskTab(tk.Frame):
         create_grid(self.frame, 30, 30)
 
         for jobState in task.jobList:
+            print("CLIENT NAME: " + jobState.clientName)
             jobState.client.connect()
             jobState.client.create_service()
             jobState.job.start()
@@ -1266,7 +1267,7 @@ class RunningTaskTab(tk.Frame):
         self.btn_goToTH = tk.Button(self.frame, text="Go To Task History Page", state=tk.DISABLED, font=("Arial Bold", 12),command=self.call_handle_RunningTab)
         self.btn_goToTH.grid(row=1, column=15, columnspan=3, sticky='ew')
 
-        self.btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12), state=tk.DISABLED ,command=self.cancel_all_button_clicked)
+        self.btn_cancel = tk.Button(self.frame, text="Cancel", font=("Arial Bold", 12), state=tk.NORMAL ,command=self.cancel_all_button_clicked)
         self.btn_cancel.grid(row=1, column=26, columnspan=3, sticky='ew')
 
         #this section is for displaying the machines in the task  
@@ -1315,11 +1316,6 @@ class RunningTaskTab(tk.Frame):
         self.console_btn = tk.Button(self.frame, text="Send Standard Input", state=tk.DISABLED, font=("Arial Bold", 12),command=self.send_stdin_to_job_q)
         self.console_btn.grid(row=21, column=25)
 
-        self.frame.after(30000, self.cancelButtonWait)#waits 30 seconds for task to 'warm up'
-
-    def cancelButtonWait(self):
-        self.btn_cancel.config(state=tk.NORMAL)
-    
     def print_new_stdout_to_console(self, new_stdout_str):
         self.display_data.append(new_stdout_str)
         self.populate_bottom_scrollwindow()
@@ -1393,11 +1389,8 @@ class RunningTaskTab(tk.Frame):
                 self.status.config(fg="green")
 
                 for jobState in self.task.jobList:
-                    try:
-                        jobState.job.join()
-                        jobState.client.remove_service()
-                    except:
-                        pass
+                    jobState.job.join()
+                    jobState.client.remove_service()
                     jobState.client.disconnect()
                     
                     outputFile = open(os.path.join(taskDir, jobState.clientName + ".txt"), "w")
@@ -1431,7 +1424,7 @@ class RunningTaskTab(tk.Frame):
                 appState.completedTasks.append(self.task)
 
                 self.btn_goToTH.config(state=tk.NORMAL) #make the 'go to Task History Page' button clickable once the whole task is finished
-            return
+                return
         else:
             self.console_btn.config(state=tk.NORMAL)
             self.console_input.config(state=tk.NORMAL)

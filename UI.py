@@ -64,6 +64,7 @@ class TabManager:
         task.cleanupExeAfterCopy = data["CLEANUP_EXE"]
         task.cleanupFilesAfterCopy = data["CLEANUP_FILES"]
         task.timeout = int(data["TIMEOUT"])
+        task.jobList = []
 
         for pcName in data["PCs"]:
             jobState = JobState()
@@ -97,13 +98,14 @@ class TabManager:
     #used to change tabs
     def switch_to_required_page(self, content_frame, task_name):
         targetTask: TaskState = None
+        completedTargetTask: TaskState = None
         for runningTask in appState.runningTasks:
             if task_name == runningTask.name:
                 targetTask = runningTask
                 content_frame = "Running"
         for completedTask in appState.completedTasks:
             if task_name == completedTask.name:
-                targetTask = completedTask
+                completedTargetTask = completedTask
                 content_frame = "Completed"
             
         self.current_tab.remove_page()
@@ -114,6 +116,7 @@ class TabManager:
             self.current_tab = THTab(self.contentFrame, self.handle_THTab)
             self.current_tab.create_page()
         elif (content_frame == "Running"):
+            print("RUNNING TASK NAME: " + targetTask.name)
             self.current_tab = RunningTaskTab(self.contentFrame, targetTask, self.handle_RunningTab)
 
             #disables the other tab buttons so user cannot go anywhere else
@@ -124,7 +127,7 @@ class TabManager:
                 deletable_tab_buttons["DELETE_BUTTON"].config(state=tk.DISABLED)
 
         elif (content_frame == "Completed"):
-            self.current_tab = CompletedTaskTab(self.contentFrame, targetTask)
+            self.current_tab = CompletedTaskTab(self.contentFrame, completedTargetTask)
             self.current_tab.create_page()
 
     #removes a tab and its frame

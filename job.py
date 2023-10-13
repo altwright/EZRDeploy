@@ -281,7 +281,7 @@ class Job(threading.Thread):
             working_dir_tail = os.path.splitdrive(self.working_dir)[1]
             self.remote_file_dst_dir = os.path.join(self.C_SHARE, working_dir_tail)
         else:
-            self.remote_file_dst_dir = self.C_SHARE
+            self.remote_file_dst_dir = self.ADMIN_SHARE
 
         self.remote_exe_path = os.path.join(self.ADMIN_SHARE, self.executable)
         self.rc = None
@@ -416,7 +416,7 @@ class Job(threading.Thread):
         self.stdinPipe.close()
         main_pipe.close()
         smb_tree.disconnect()
-        
+    
         if exe_result_raw is not None:
             exe_result = PAExecMsg()
             exe_result.unpack(exe_result_raw)
