@@ -411,10 +411,11 @@ class Job(threading.Thread):
         self.main_pipe_request = _get_main_pipe_request(main_pipe, 0, 1024)
         exe_result_raw = _get_main_pipe_response(self.main_pipe_request, main_pipe)
 
+        self.stdinPipe.close()
         stdout_pipe.close()
         stderr_pipe.close()
-        self.stdinPipe.close()
         main_pipe.close()
+
         smb_tree.disconnect()
     
         if exe_result_raw is not None:
