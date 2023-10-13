@@ -268,14 +268,16 @@ class ADTab(tk.Frame):
         search_filter = self.search_input.get()
 
         if self.SearchGroup.get():
-            for content in data:
-                if search_filter.lower() in content["GROUPS"].lower():
-                    filtered_data.append(content)
+            for machine in self.machine_list:
+                for group in machine["GROUPS"]:
+                    if search_filter.lower() in group.lower():
+                        filtered_data.append(machine)
+                        break
         
         if self.SearchName.get():
-            for content in data:
-                if search_filter.lower() in content["NAME"].lower():
-                    filtered_data.append(content)
+            for machine in data:
+                if search_filter.lower() in machine["NAME"].lower():
+                    filtered_data.append(machine)
         return filtered_data
 
     def on_entry_focus_in(self, event):
