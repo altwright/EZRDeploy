@@ -6,10 +6,10 @@ for the frontend.
 
 The tool was developed as part of a semester-long University of Western Australia project for the unit CITS3200 Professional Computing in semester 2 of 2023.
 
-## Primary Developers
+## Lead Developers
 
 - [Benjamin Wright](https://github.com/altwright): backend development
-- [Cameron Lee](https://github.com/CameronLee02)
+- [Cameron Lee](https://github.com/CameronLee02): frontend developemt
 
 ## Build Instructions
 
