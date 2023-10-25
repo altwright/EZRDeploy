@@ -1,17 +1,28 @@
-# project-3200
-Sysadmin software for network deployment of cyberforensics tools using Active Directory and PAExec
+# EZRDeploy
 
-## pypsexec_mods Folder
-**Replace the files found in the imported pypsexec library with the equivalently named files in this folder.**
+A network administration tool for managing remote processes on, and copying arbitrary files, to Active Directory domain-joined Windows systems from an Administrator Active Directory user account.
+Implemented primarily using the [pypsexec](https://github.com/jborean93/pypsexec) for the backend and [Tk](https://docs.python.org/3/library/tkinter.html)
+for the frontend.
 
-## Console
-The handle_output function is called whenever there is new standard output from the remote process.
-Should this output be continually appended to a new file, or should we wait until the process ends before
-writing the full buffer to disk?
-We should have an index into the buffer that tracks how much has been read from. The graphical console should
-then poll the stdout pipe for new bytes.
-The console will pass a string to the stdin.
-Stdin needs to be accepted until stdout has signalled that it has finished.
-The run_executable method should accept instances of stdout and stdin handler classes. When bytes written
-to the stdout handler, they should write them to the graphical console, and when bytes are written to
-the stdin handler, they should be written through to the named pipe.
+The tool was developed as part of a semester-long University of Western Australia project for the unit CITS3200 Professional Computing in semester 2 of 2023.
+
+## Primary Developers
+
+- Benjamin Wright
+- Cameron Lee
+
+## Build Instructions
+
+Will only build on Windows systems.
+
+In the root directory install the Python dependencies within a virtual environment:
+
+```sh
+pip install -r requirements.txt
+```
+
+Then, build the statically-linked executable using [PyInstaller](https://pyinstaller.org/en/stable/):
+
+```sh
+pyinstaller -F .\main.py
+```
