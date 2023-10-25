@@ -8,8 +8,8 @@ The tool was developed as part of a semester-long University of Western Australi
 
 ## Primary Developers
 
-- Benjamin Wright
-- Cameron Lee
+- [Benjamin Wright](https://github.com/altwright)
+- [Cameron Lee](https://github.com/CameronLee02)
 
 ## Build Instructions
 
