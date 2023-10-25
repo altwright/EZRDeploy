@@ -13,7 +13,7 @@ The tool was developed as part of a semester-long University of Western Australi
 
 ## Build Instructions
 
-Will only build on Windows systems.
+Will only build on Windows systems. It has only been tested to work within the [Windows 11 Lab Deployment Kit](https://info.microsoft.com/ww-landing-windows-11-office-365-lab-kit.html) from the Domain Controller VM.
 
 In the root directory install the Python dependencies within a virtual environment:
 
