@@ -29,18 +29,18 @@ pyinstaller -F .\main.py
 
 ## Sceenshots
 
-### Active Directory remote systems selection screen
+**Active Directory** screen, for remote systems selection.
 
 ![Pasted image](https://github.com/altwright/ezrdeploy/assets/110673989/16972ff5-8c27-49bc-84ef-bed51fdb2bc6)
 
-### Job Configuration screen for selected remote systems
+**Job Configuration** screen.
 
 ![Pasted image 1](https://github.com/altwright/ezrdeploy/assets/110673989/50e30f7a-47db-4933-b2a0-e3217ca848aa)
 
-### Running Job screen where individual remote systems can be inspected and all the remote processes can be managed asynchronously
+**Running Job** screen, where individual remote systems can be inspected and all the remote processes can be managed asynchronously.
 
 ![Pasted image 2](https://github.com/altwright/ezrdeploy/assets/110673989/7acaffc5-b5aa-46e5-bd10-f56adb7028ea)
 
-### Features a real-time console that prints the standard output and accepts standard input for a remote process
+Features a **real-time console** that prints the standard output and accepts standard input for a remote process.
 
 ![Pasted image 3](https://github.com/altwright/ezrdeploy/assets/110673989/5da814d5-48c9-4240-a293-77ad9434e84e)
